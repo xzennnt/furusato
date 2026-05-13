@@ -1,0 +1,15 @@
+{
+  "brandName": "Furusato",
+  "brandSubtitle": "Lembaga Pelatihan Kerja",
+  "logoUrl": "/uploads/1778658893293-createMyojiImage.png",
+  "address": "Isi alamat lengkap Furusato di dashboard admin.",
+  "phone": "+62 000 0000 0000",
+  "email": "info@furusato.co.id",
+  "whatsapp": "https://wa.me/6200000000000",
+  "socials": {
+    "instagram": "https://instagram.com/",
+    "facebook": "https://facebook.com/",
+    "youtube": "https://youtube.com/",
+    "tiktok": "https://tiktok.com/"
+  }
+}

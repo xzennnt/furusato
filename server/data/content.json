@@ -1,0 +1,73 @@
+{
+  "news": [
+    {
+      "id": "news-001",
+      "date": "2026.05",
+      "title": "Pendaftaran kelas persiapan kerja gelombang baru",
+      "description": "Informasi jadwal, syarat peserta, dan tahapan seleksi dapat diperbarui di area ini.",
+      "content": "Gunakan dashboard admin untuk mengganti isi berita ini dengan pengumuman resmi Furusato."
+    },
+    {
+      "id": "news-002",
+      "date": "2026.05",
+      "title": "Kegiatan pembinaan budaya kerja dan kedisiplinan",
+      "description": "Ringkasan kegiatan pelatihan, dokumentasi, atau pengumuman resmi Furusato.",
+      "content": "Konten lengkap berita dapat berisi dokumentasi kelas, agenda pelatihan, dan informasi untuk peserta."
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gallery-1778657271781",
+      "title": "TG RESTORAN COE TERTUNDA",
+      "description": "Pada tanggal 27 maret 2026 pemerintah jepang menyatakan akan memperhentikan penerimaan visa kerja tokutei ginou nomer 1 sektor restoran jadi coe TG resto tertunda sampai kapan tidak tahu",
+      "imageUrl": "/uploads/1778657268776--2022.09.22--Roselia---Sonnenschein.mkv-snapshot-01.35.56.739.jpg"
+    },
+    {
+      "id": "gallery-001",
+      "title": "Ruang kelas bahasa Jepang",
+      "description": "Dokumentasi kelas bahasa dan komunikasi kerja.",
+      "imageUrl": ""
+    },
+    {
+      "id": "gallery-002",
+      "title": "Workshop keterampilan kerja",
+      "description": "Dokumentasi praktik keterampilan dan simulasi kerja.",
+      "imageUrl": ""
+    },
+    {
+      "id": "gallery-003",
+      "title": "Simulasi wawancara dan budaya kerja",
+      "description": "Dokumentasi pembinaan karakter dan persiapan seleksi.",
+      "imageUrl": ""
+    }
+  ],
+  "heroBackgroundUrl": "",
+  "jobBanner": {
+    "title": "life care group job",
+    "description": "Update peluang kerja, seleksi, dan kelas persiapan akan ditampilkan di area ini.",
+    "imageUrl": "/uploads/1778661030374-Screenshot-2026-05-13-150527.png",
+    "linkUrl": "/berita"
+  },
+  "jobInfo": {
+    "title": "Info Job",
+    "description": "Ringkasan peluang kerja terbaru, jadwal seleksi, dan bidang kerja yang sedang dibuka.",
+    "linkUrl": "/berita"
+  },
+  "partners": [
+    {
+      "id": "partner-001",
+      "name": "ATARASHI GAKOU",
+      "iconUrl": "/uploads/1778660614913-createMyojiImage.png"
+    },
+    {
+      "id": "partner-002",
+      "name": "Mitra Bahasa",
+      "iconUrl": ""
+    },
+    {
+      "id": "partner-003",
+      "name": "Mitra Penempatan",
+      "iconUrl": ""
+    }
+  ]
+}
