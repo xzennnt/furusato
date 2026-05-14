@@ -21,7 +21,7 @@ const host = process.env.HOST || '0.0.0.0';
 const uploadDir = path.join(__dirname, 'uploads');
 const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
-const activeAdminTokens = new Set();
+const ADMIN_SESSION_MS = 20 * 60 * 1000;
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -43,6 +43,57 @@ const asyncHandler = (handler) => (req, res, next) => {
   Promise.resolve(handler(req, res, next)).catch(next);
 };
 
+function base64UrlEncode(data) {
+  return Buffer.from(data).toString('base64url');
+}
+
+function base64UrlDecode(data) {
+  return Buffer.from(data, 'base64url').toString('utf8');
+}
+
+function getAdminTokenSecret() {
+  return process.env.ADMIN_TOKEN_SECRET || process.env.ADMIN_PASSWORD || 'furusato-admin-token-secret';
+}
+
+function signTokenPayload(payload) {
+  return crypto
+    .createHmac('sha256', getAdminTokenSecret())
+    .update(payload)
+    .digest('base64url');
+}
+
+function createAdminToken(username) {
+  const payload = base64UrlEncode(JSON.stringify({
+    username,
+    exp: Date.now() + ADMIN_SESSION_MS,
+  }));
+  const signature = signTokenPayload(payload);
+
+  return `${payload}.${signature}`;
+}
+
+function verifyAdminToken(token) {
+  const [payload, signature] = token.split('.');
+
+  if (!payload || !signature) {
+    return false;
+  }
+
+  const expectedSignature = signTokenPayload(payload);
+
+  if (
+    !crypto.timingSafeEqual(
+      Buffer.from(signature),
+      Buffer.from(expectedSignature),
+    )
+  ) {
+    return false;
+  }
+
+  const data = JSON.parse(base64UrlDecode(payload));
+  return data.exp > Date.now();
+}
+
 app.use('/api', (_req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
@@ -62,7 +113,7 @@ if (!fs.existsSync(buildIndexPath)) {
 function requireAdmin(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
 
-  if (!token || !activeAdminTokens.has(token)) {
+  if (!token || !verifyAdminToken(token)) {
     return res.status(401).json({ message: 'Akses admin diperlukan.' });
   }
 
@@ -112,8 +163,7 @@ app.post('/api/admin/login', asyncHandler(async (req, res) => {
   const password = process.env.ADMIN_PASSWORD || accounts.admin.password;
 
   if (req.body.username === username && req.body.password === password) {
-    const token = crypto.randomUUID();
-    activeAdminTokens.add(token);
+    const token = createAdminToken(username);
     return res.json({ token });
   }
 
