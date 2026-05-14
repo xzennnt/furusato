@@ -92,7 +92,7 @@ function AppShell() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           aria-label="Kembali ke atas"
         >
-          Top
+          ↑
         </button>
       )}
     </main>
