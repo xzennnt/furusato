@@ -203,6 +203,8 @@ CLOUDINARY_CLOUD_NAME=cloud-name-kamu
 CLOUDINARY_API_KEY=api-key-kamu
 CLOUDINARY_API_SECRET=api-secret-kamu
 CLOUDINARY_FOLDER=furusato
+CLOUDINARY_UPLOAD_TIMEOUT_MS=25000
+MAX_UPLOAD_BYTES=8388608
 ```
 
 Gambar lama dari `server/uploads` juga disalin ke `public/uploads`, sehingga URL lama seperti `/uploads/nama-file.jpg` tetap terbaca setelah deploy.
@@ -222,6 +224,8 @@ CLOUDINARY_CLOUD_NAME=cloud-name-kamu
 CLOUDINARY_API_KEY=api-key-kamu
 CLOUDINARY_API_SECRET=api-secret-kamu
 CLOUDINARY_FOLDER=furusato
+CLOUDINARY_UPLOAD_TIMEOUT_MS=25000
+MAX_UPLOAD_BYTES=8388608
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password-yang-kuat
 ADMIN_TOKEN_SECRET=isi-random-panjang

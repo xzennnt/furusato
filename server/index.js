@@ -23,6 +23,7 @@ const uploadDir = path.join(__dirname, 'uploads');
 const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
 const ADMIN_SESSION_MS = 20 * 60 * 1000;
+const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 8 * 1024 * 1024);
 const uploadDriver = process.env.UPLOAD_DRIVER || (process.env.VERCEL ? 'cloudinary' : 'local');
 
 if (uploadDriver === 'local') {
@@ -40,7 +41,7 @@ const diskStorage = multer.diskStorage({
 const upload = multer({
   storage: uploadDriver === 'cloudinary' ? multer.memoryStorage() : diskStorage,
   limits: {
-    fileSize: 8 * 1024 * 1024,
+    fileSize: MAX_UPLOAD_BYTES,
   },
 });
 
@@ -388,12 +389,19 @@ app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res)
 
 function uploadBufferToCloudinary(file) {
   return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => {
+      reject(new Error('Upload ke Cloudinary terlalu lama. Coba gambar yang lebih kecil atau ulangi beberapa saat lagi.'));
+    }, Number(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || 25000));
+
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         folder: process.env.CLOUDINARY_FOLDER || 'furusato',
         resource_type: 'image',
+        timeout: Number(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || 25000),
       },
       (error, result) => {
+        clearTimeout(timeout);
+
         if (error) {
           reject(error);
           return;
@@ -413,11 +421,28 @@ app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler
   }
 
   if (uploadDriver === 'cloudinary') {
-    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-      return res.status(500).json({ message: 'Konfigurasi Cloudinary belum lengkap.' });
+    const missingCloudinaryConfig = [
+      ['CLOUDINARY_CLOUD_NAME', process.env.CLOUDINARY_CLOUD_NAME],
+      ['CLOUDINARY_API_KEY', process.env.CLOUDINARY_API_KEY],
+      ['CLOUDINARY_API_SECRET', process.env.CLOUDINARY_API_SECRET],
+    ].filter(([, value]) => !value).map(([key]) => key);
+
+    if (missingCloudinaryConfig.length) {
+      return res.status(500).json({
+        message: `Konfigurasi Cloudinary belum lengkap: ${missingCloudinaryConfig.join(', ')}.`,
+      });
     }
 
-    const result = await uploadBufferToCloudinary(req.file);
+    let result;
+
+    try {
+      result = await uploadBufferToCloudinary(req.file);
+    } catch (error) {
+      console.error('Cloudinary upload failed:', error);
+      return res.status(502).json({
+        message: error.message || 'Upload ke Cloudinary gagal. Periksa credential Cloudinary atau coba lagi.',
+      });
+    }
 
     return res.status(201).json({
       filename: result.public_id,
@@ -433,6 +458,12 @@ app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler
 
 app.use('/api', (error, _req, res, _next) => {
   console.error(error);
+
+  if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') {
+    const maxUploadMb = Math.round(MAX_UPLOAD_BYTES / 1024 / 1024);
+    return res.status(413).json({ message: `Ukuran gambar terlalu besar. Maksimal ${maxUploadMb} MB.` });
+  }
+
   res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
 });
 
