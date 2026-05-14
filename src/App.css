@@ -3115,3 +3115,186 @@ h1,
     --sticker-tilt: 0.65deg;
   }
 }
+
+/* MoMoney-inspired polish: cream paper, yellow headline stickers, and punchy CTA buttons. */
+:root {
+  --momoney-cream: #fff3dc;
+  --momoney-yellow: #f8ff23;
+  --momoney-pink: #c51aa4;
+  --momoney-green: #7bb94f;
+}
+
+body {
+  background:
+    radial-gradient(rgba(17, 17, 17, 0.12) 1px, transparent 1px),
+    var(--momoney-cream);
+  background-size: 11px 11px;
+}
+
+.furusato-site,
+.program-section,
+.gallery-section,
+.job-partner-section,
+.page-section,
+.about-page,
+.contact-info-grid,
+.site-header,
+.museum-header {
+  background-color: var(--momoney-cream);
+}
+
+.site-header,
+.museum-header {
+  border-bottom: 3px solid var(--sticker-ink);
+  box-shadow: none;
+}
+
+.brand,
+.raised-brand,
+.footer-logo {
+  background: var(--momoney-yellow);
+  border: 3px solid var(--sticker-ink);
+  border-radius: 0;
+  box-shadow: 6px 6px 0 var(--sticker-ink);
+  color: var(--sticker-ink);
+  padding: 10px 18px;
+  transform: rotate(-1.5deg);
+}
+
+.brand-kanji,
+.brand-romaji {
+  color: var(--sticker-ink);
+}
+
+.money-hero {
+  border-bottom: 3px solid var(--sticker-ink);
+}
+
+.money-hero .hero-copy h1,
+.page-hero h1 {
+  background: var(--momoney-yellow);
+  border: 4px solid var(--sticker-ink);
+  box-shadow: 8px 8px 0 var(--sticker-ink);
+  color: var(--sticker-ink);
+  display: inline-block;
+  max-width: min(980px, 100%);
+  padding: clamp(14px, 2.4vw, 28px);
+  transform: rotate(-1.3deg);
+}
+
+.money-hero.has-hero-bg .hero-copy h1,
+.page-hero.has-page-hero-bg h1 {
+  color: var(--sticker-ink);
+}
+
+.money-hero .hero-copy p:not(.eyebrow),
+.money-hero.has-hero-bg .hero-copy p:not(.eyebrow),
+.page-hero p,
+.page-hero.has-page-hero-bg p {
+  color: var(--white);
+  font-weight: 700;
+  max-width: 720px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
+}
+
+.page-hero:not(.has-page-hero-bg) p {
+  color: var(--ink);
+  text-shadow: none;
+}
+
+.primary-action,
+.secondary-action,
+.map-copy a,
+.text-action,
+.news-expand-button,
+.admin-form-actions button,
+.admin-item-actions button,
+.admin-tabs button,
+.money-hero .primary-action,
+.money-hero .secondary-action {
+  background: var(--momoney-yellow);
+  border: 3px solid var(--sticker-ink);
+  box-shadow: 5px 5px 0 var(--sticker-ink);
+  color: var(--sticker-ink);
+  transform: rotate(-0.7deg);
+}
+
+.primary-action:hover,
+.secondary-action:hover,
+.map-copy a:hover,
+.text-action:hover,
+.news-expand-button:hover,
+.admin-form-actions button:hover,
+.admin-item-actions button:hover,
+.admin-tabs button:hover,
+.money-hero .primary-action:hover,
+.money-hero .secondary-action:hover {
+  background: var(--momoney-pink);
+  border-color: var(--sticker-ink);
+  box-shadow: 8px 8px 0 var(--sticker-ink);
+  color: var(--white);
+  transform: translate(-2px, -2px) rotate(-0.7deg);
+}
+
+.secondary-action,
+.text-action,
+.admin-tabs button.active,
+.museum-header .nav-cta,
+.museum-header .yutaka-menu .yutaka-cta {
+  background: var(--momoney-pink);
+  color: var(--white);
+}
+
+.hero-badge,
+.eyebrow,
+.news-list time,
+.news-page-list time {
+  color: var(--sticker-ink);
+}
+
+.hero-badge,
+.news-list time,
+.news-page-list time {
+  background: var(--momoney-yellow);
+  border: 2px solid var(--sticker-ink);
+  box-shadow: 3px 3px 0 var(--sticker-ink);
+}
+
+.editable-note,
+.job-news-column,
+.partner-panel,
+.about-story-panel,
+.about-chairman-panel,
+.about-vision-grid article,
+.contact-card,
+.contact-info-grid article,
+.admin-panel {
+  border: 3px solid var(--sticker-ink);
+  border-radius: 0;
+  box-shadow: 7px 7px 0 var(--sticker-ink);
+}
+
+.section-heading-row::after,
+.about-story-panel::after,
+.about-chairman-panel::after,
+.about-program-section::after,
+.job-news-column::after,
+.partner-panel::after {
+  background: transparent;
+}
+
+@media (max-width: 720px) {
+  .money-hero .hero-copy h1,
+  .page-hero h1 {
+    box-shadow: 5px 5px 0 var(--sticker-ink);
+    padding: 12px;
+    transform: rotate(-0.75deg);
+  }
+
+  .brand,
+  .raised-brand,
+  .footer-logo {
+    box-shadow: 4px 4px 0 var(--sticker-ink);
+    padding: 8px 12px;
+  }
+}
