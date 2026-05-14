@@ -1,16 +1,23 @@
+require('dotenv').config();
+
 const cors = require('cors');
 const crypto = require('crypto');
 const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const {
+  readAccounts,
+  readContent,
+  readSite,
+  writeAccounts,
+  writeContent,
+  writeSite,
+} = require('./storage');
 
 const app = express();
 const port = process.env.PORT || 4000;
 const host = process.env.HOST || '0.0.0.0';
-const dataPath = path.join(__dirname, 'data', 'content.json');
-const accountsPath = path.join(__dirname, 'data', 'accounts.json');
-const sitePath = path.join(__dirname, 'data', 'site.json');
 const uploadDir = path.join(__dirname, 'uploads');
 const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
@@ -32,6 +39,10 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
 
+const asyncHandler = (handler) => (req, res, next) => {
+  Promise.resolve(handler(req, res, next)).catch(next);
+};
+
 app.use('/api', (_req, res, next) => {
   res.set('Cache-Control', 'no-store');
   next();
@@ -48,30 +59,6 @@ if (!fs.existsSync(buildIndexPath)) {
   });
 }
 
-function readContent() {
-  return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-}
-
-function writeContent(content) {
-  fs.writeFileSync(dataPath, JSON.stringify(content, null, 2));
-}
-
-function readAccounts() {
-  return JSON.parse(fs.readFileSync(accountsPath, 'utf8'));
-}
-
-function writeAccounts(accounts) {
-  fs.writeFileSync(accountsPath, JSON.stringify(accounts, null, 2));
-}
-
-function readSite() {
-  return JSON.parse(fs.readFileSync(sitePath, 'utf8'));
-}
-
-function writeSite(site) {
-  fs.writeFileSync(sitePath, JSON.stringify(site, null, 2));
-}
-
 function requireAdmin(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
 
@@ -86,40 +73,41 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', service: 'furusato-api' });
 });
 
-app.get('/api/news', (_req, res) => {
-  const content = readContent();
+app.get('/api/news', asyncHandler(async (_req, res) => {
+  const content = await readContent();
   res.json((content.news || []).map((item) => ({
     imageUrl: '',
     source: '',
     ...item,
   })));
-});
+}));
 
-app.get('/api/gallery', (_req, res) => {
-  res.json(readContent().gallery);
-});
+app.get('/api/gallery', asyncHandler(async (_req, res) => {
+  const content = await readContent();
+  res.json(content.gallery);
+}));
 
-app.get('/api/home-content', (_req, res) => {
-  const content = readContent();
+app.get('/api/home-content', asyncHandler(async (_req, res) => {
+  const content = await readContent();
   res.json({
     heroBackgroundUrl: content.heroBackgroundUrl || '',
     jobInfo: content.jobInfo || {},
     jobBanner: content.jobBanner || {},
     partners: content.partners || [],
   });
-});
+}));
 
-app.get('/api/about-content', (_req, res) => {
-  const content = readContent();
+app.get('/api/about-content', asyncHandler(async (_req, res) => {
+  const content = await readContent();
   res.json(content.aboutContent || {});
-});
+}));
 
-app.get('/api/site', (_req, res) => {
-  res.json(readSite());
-});
+app.get('/api/site', asyncHandler(async (_req, res) => {
+  res.json(await readSite());
+}));
 
-app.post('/api/admin/login', (req, res) => {
-  const accounts = readAccounts();
+app.post('/api/admin/login', asyncHandler(async (req, res) => {
+  const accounts = await readAccounts();
   const username = process.env.ADMIN_USERNAME || accounts.admin.username;
   const password = process.env.ADMIN_PASSWORD || accounts.admin.password;
 
@@ -130,14 +118,14 @@ app.post('/api/admin/login', (req, res) => {
   }
 
   return res.status(401).json({ message: 'Username atau password salah.' });
-});
+}));
 
-app.get('/api/admin/account', requireAdmin, (_req, res) => {
-  const accounts = readAccounts();
+app.get('/api/admin/account', requireAdmin, asyncHandler(async (_req, res) => {
+  const accounts = await readAccounts();
   res.json({ username: accounts.admin.username });
-});
+}));
 
-app.put('/api/admin/account', requireAdmin, (req, res) => {
+app.put('/api/admin/account', requireAdmin, asyncHandler(async (req, res) => {
   const username = req.body.username?.trim();
   const password = req.body.password?.trim();
 
@@ -145,15 +133,15 @@ app.put('/api/admin/account', requireAdmin, (req, res) => {
     return res.status(400).json({ message: 'Username dan password wajib diisi.' });
   }
 
-  const accounts = readAccounts();
+  const accounts = await readAccounts();
   accounts.admin = { username, password };
-  writeAccounts(accounts);
+  await writeAccounts(accounts);
 
   return res.json({ username });
-});
+}));
 
-app.put('/api/admin/site', requireAdmin, (req, res) => {
-  const currentSite = readSite();
+app.put('/api/admin/site', requireAdmin, asyncHandler(async (req, res) => {
+  const currentSite = await readSite();
   const nextSite = {
     ...currentSite,
     ...req.body,
@@ -167,12 +155,12 @@ app.put('/api/admin/site', requireAdmin, (req, res) => {
     },
   };
 
-  writeSite(nextSite);
+  await writeSite(nextSite);
   return res.json(nextSite);
-});
+}));
 
-app.put('/api/admin/home-content', requireAdmin, (req, res) => {
-  const content = readContent();
+app.put('/api/admin/home-content', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
 
   if (Object.prototype.hasOwnProperty.call(req.body, 'heroBackgroundUrl')) {
     content.heroBackgroundUrl = req.body.heroBackgroundUrl || '';
@@ -187,7 +175,7 @@ app.put('/api/admin/home-content', requireAdmin, (req, res) => {
     ...(req.body.jobBanner || {}),
   };
   content.partners = req.body.partners || content.partners || [];
-  writeContent(content);
+  await writeContent(content);
 
   return res.json({
     heroBackgroundUrl: content.heroBackgroundUrl,
@@ -195,10 +183,10 @@ app.put('/api/admin/home-content', requireAdmin, (req, res) => {
     jobBanner: content.jobBanner,
     partners: content.partners,
   });
-});
+}));
 
-app.put('/api/admin/home-content/job-banner', requireAdmin, (req, res) => {
-  const content = readContent();
+app.put('/api/admin/home-content/job-banner', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   content.jobInfo = {
     ...(content.jobInfo || {}),
     ...(req.body.jobInfo || {}),
@@ -207,7 +195,7 @@ app.put('/api/admin/home-content/job-banner', requireAdmin, (req, res) => {
     ...(content.jobBanner || {}),
     ...(req.body.jobBanner || {}),
   };
-  writeContent(content);
+  await writeContent(content);
 
   return res.json({
     heroBackgroundUrl: content.heroBackgroundUrl || '',
@@ -215,10 +203,10 @@ app.put('/api/admin/home-content/job-banner', requireAdmin, (req, res) => {
     jobBanner: content.jobBanner || {},
     partners: content.partners || [],
   });
-});
+}));
 
-app.put('/api/admin/about-content', requireAdmin, (req, res) => {
-  const content = readContent();
+app.put('/api/admin/about-content', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   content.aboutContent = {
     ...(content.aboutContent || {}),
     ...req.body,
@@ -240,12 +228,12 @@ app.put('/api/admin/about-content', requireAdmin, (req, res) => {
       ...(req.body.slogan || {}),
     },
   };
-  writeContent(content);
+  await writeContent(content);
   return res.json(content.aboutContent);
-});
+}));
 
-app.post('/api/admin/news', requireAdmin, (req, res) => {
-  const content = readContent();
+app.post('/api/admin/news', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   const imageUrl = req.body.imageUrl || (
     req.body.source === 'job-banner' ? content.jobBanner?.imageUrl || '' : ''
   );
@@ -260,12 +248,12 @@ app.post('/api/admin/news', requireAdmin, (req, res) => {
   };
 
   content.news.unshift(item);
-  writeContent(content);
+  await writeContent(content);
   res.status(201).json(item);
-});
+}));
 
-app.put('/api/admin/news/:id', requireAdmin, (req, res) => {
-  const content = readContent();
+app.put('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   const index = content.news.findIndex((item) => item.id === req.params.id);
 
   if (index === -1) {
@@ -280,19 +268,19 @@ app.put('/api/admin/news/:id', requireAdmin, (req, res) => {
     imageUrl: req.body.imageUrl ?? content.news[index].imageUrl ?? '',
     id: req.params.id,
   };
-  writeContent(content);
+  await writeContent(content);
   return res.json(content.news[index]);
-});
+}));
 
-app.delete('/api/admin/news/:id', requireAdmin, (req, res) => {
-  const content = readContent();
+app.delete('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   content.news = content.news.filter((item) => item.id !== req.params.id);
-  writeContent(content);
+  await writeContent(content);
   res.status(204).send();
-});
+}));
 
-app.post('/api/admin/gallery', requireAdmin, (req, res) => {
-  const content = readContent();
+app.post('/api/admin/gallery', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   const item = {
     id: `gallery-${Date.now()}`,
     title: req.body.title || 'Galeri baru',
@@ -301,12 +289,12 @@ app.post('/api/admin/gallery', requireAdmin, (req, res) => {
   };
 
   content.gallery.unshift(item);
-  writeContent(content);
+  await writeContent(content);
   res.status(201).json(item);
-});
+}));
 
-app.put('/api/admin/gallery/:id', requireAdmin, (req, res) => {
-  const content = readContent();
+app.put('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   const index = content.gallery.findIndex((item) => item.id === req.params.id);
 
   if (index === -1) {
@@ -314,16 +302,16 @@ app.put('/api/admin/gallery/:id', requireAdmin, (req, res) => {
   }
 
   content.gallery[index] = { ...content.gallery[index], ...req.body, id: req.params.id };
-  writeContent(content);
+  await writeContent(content);
   return res.json(content.gallery[index]);
-});
+}));
 
-app.delete('/api/admin/gallery/:id', requireAdmin, (req, res) => {
-  const content = readContent();
+app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
   content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
-  writeContent(content);
+  await writeContent(content);
   res.status(204).send();
-});
+}));
 
 app.post('/api/admin/upload', requireAdmin, upload.single('image'), (req, res) => {
   if (!req.file) {
@@ -334,6 +322,11 @@ app.post('/api/admin/upload', requireAdmin, upload.single('image'), (req, res) =
     filename: req.file.filename,
     imageUrl: `/uploads/${req.file.filename}`,
   });
+});
+
+app.use('/api', (error, _req, res, _next) => {
+  console.error(error);
+  res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
 });
 
 if (fs.existsSync(buildIndexPath)) {

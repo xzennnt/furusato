@@ -107,11 +107,80 @@ pm2 save
 
 ### 5. Environment production
 
-Untuk keamanan admin, set environment variable di VPS atau di `ecosystem.config.cjs`:
+Buat file `.env` dari contoh yang tersedia:
+
+```bash
+cp .env.example .env
+```
+
+Untuk keamanan admin, isi environment berikut di `.env`:
 
 ```bash
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password-yang-kuat
 ```
 
-Jika memakai Nginx, arahkan domain ke `http://127.0.0.1:4000`.
+### 6. Nginx sebagai reverse proxy
+
+Project tetap memakai Node.js + Express. Nginx dipakai di depan aplikasi untuk menerima akses domain publik lalu meneruskannya ke Express di port `4000`.
+
+Contoh konfigurasi tersedia di:
+
+```bash
+deploy/nginx/furusato.conf
+```
+
+Edit bagian `server_name` menjadi domain kamu:
+
+```nginx
+server_name domainkamu.com www.domainkamu.com;
+```
+
+Lalu pasang ke Nginx:
+
+```bash
+sudo cp deploy/nginx/furusato.conf /etc/nginx/sites-available/furusato
+sudo ln -s /etc/nginx/sites-available/furusato /etc/nginx/sites-enabled/furusato
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+Jika memakai SSL gratis:
+
+```bash
+sudo certbot --nginx -d domainkamu.com -d www.domainkamu.com
+```
+
+## Menggunakan Firestore
+
+Secara default backend masih memakai file JSON lokal agar development tetap mudah. Untuk production dengan Firestore, ubah `.env`:
+
+```bash
+DATA_DRIVER=firestore
+FIREBASE_PROJECT_ID=project-id-firebase-kamu
+FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
+FIRESTORE_AUTO_SEED=true
+```
+
+Credential `FIREBASE_SERVICE_ACCOUNT_BASE64` dibuat dari file service account Firebase. Di VPS Linux:
+
+```bash
+base64 -w 0 service-account.json
+```
+
+Copy hasilnya ke `.env`.
+
+Saat pertama kali jalan, jika document Firestore masih kosong, backend akan menyalin data awal dari:
+
+- `server/data/content.json` ke collection `content`, document `main`
+- `server/data/site.json` ke collection `site`, document `main`
+- `server/data/accounts.json` ke collection `accounts`, document `main`
+
+Setelah `.env` diubah, restart PM2:
+
+```bash
+pm2 restart furusato-web
+pm2 save
+```
+
+Catatan: upload gambar masih disimpan di folder lokal `server/uploads`. Ini aman untuk VPS biasa, tetapi untuk deploy serverless seperti Vercel sebaiknya dipindah ke Firebase Storage atau Cloudinary.
