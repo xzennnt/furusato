@@ -6,11 +6,11 @@ const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
+const { v2: cloudinary } = require('cloudinary');
 const {
   readAccounts,
   readContent,
   readSite,
-  getFirebaseStorageBucket,
   writeAccounts,
   writeContent,
   writeSite,
@@ -23,7 +23,7 @@ const uploadDir = path.join(__dirname, 'uploads');
 const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
 const ADMIN_SESSION_MS = 20 * 60 * 1000;
-const uploadDriver = process.env.UPLOAD_DRIVER || (process.env.VERCEL ? 'firebase' : 'local');
+const uploadDriver = process.env.UPLOAD_DRIVER || (process.env.VERCEL ? 'cloudinary' : 'local');
 
 if (uploadDriver === 'local') {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -38,10 +38,16 @@ const diskStorage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: uploadDriver === 'firebase' ? multer.memoryStorage() : diskStorage,
+  storage: uploadDriver === 'cloudinary' ? multer.memoryStorage() : diskStorage,
   limits: {
     fileSize: 8 * 1024 * 1024,
   },
+});
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 app.use(cors());
@@ -103,8 +109,12 @@ function verifyAdminToken(token) {
     return false;
   }
 
-  const data = JSON.parse(base64UrlDecode(payload));
-  return data.exp > Date.now();
+  try {
+    const data = JSON.parse(base64UrlDecode(payload));
+    return data.exp > Date.now();
+  } catch (_error) {
+    return false;
+  }
 }
 
 app.use('/api', (_req, res, next) => {
@@ -376,31 +386,42 @@ app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res)
   res.status(204).send();
 }));
 
+function uploadBufferToCloudinary(file) {
+  return new Promise((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: process.env.CLOUDINARY_FOLDER || 'furusato',
+        resource_type: 'image',
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+
+        resolve(result);
+      },
+    );
+
+    uploadStream.end(file.buffer);
+  });
+}
+
 app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'File gambar belum dikirim.' });
   }
 
-  if (uploadDriver === 'firebase') {
-    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '-');
-    const filename = `${Date.now()}-${safeName}`;
-    const filePath = `uploads/${filename}`;
-    const downloadToken = crypto.randomUUID();
-    const bucket = getFirebaseStorageBucket();
+  if (uploadDriver === 'cloudinary') {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+      return res.status(500).json({ message: 'Konfigurasi Cloudinary belum lengkap.' });
+    }
 
-    await bucket.file(filePath).save(req.file.buffer, {
-      contentType: req.file.mimetype,
-      resumable: false,
-      metadata: {
-        metadata: {
-          firebaseStorageDownloadTokens: downloadToken,
-        },
-      },
-    });
+    const result = await uploadBufferToCloudinary(req.file);
 
     return res.status(201).json({
-      filename,
-      imageUrl: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${downloadToken}`,
+      filename: result.public_id,
+      imageUrl: result.secure_url,
     });
   }
 

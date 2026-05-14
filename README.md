@@ -151,47 +151,32 @@ Jika memakai SSL gratis:
 sudo certbot --nginx -d domainkamu.com -d www.domainkamu.com
 ```
 
-## Menggunakan Firestore
+## Menggunakan MySQL
 
-Secara default backend masih memakai file JSON lokal agar development tetap mudah. Untuk production dengan Firestore, ubah `.env`:
-
-```bash
-DATA_DRIVER=firestore
-FIREBASE_PROJECT_ID=project-id-firebase-kamu
-FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
-FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
-FIRESTORE_DATABASE_ID=default
-FIRESTORE_LOCATION_ID=asia-southeast2
-UPLOAD_DRIVER=firebase
-FIRESTORE_AUTO_SEED=true
-```
-
-Jika tidak ingin menaruh file JSON credential di server, gunakan format base64:
+Secara default backend masih bisa memakai file JSON lokal agar development tetap mudah. Untuk production dengan MySQL, ubah `.env`:
 
 ```bash
-DATA_DRIVER=firestore
-FIREBASE_PROJECT_ID=project-id-firebase-kamu
-FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
-FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
-FIRESTORE_DATABASE_ID=default
-FIRESTORE_LOCATION_ID=asia-southeast2
-UPLOAD_DRIVER=firebase
-FIRESTORE_AUTO_SEED=true
+DATA_DRIVER=mysql
+MYSQL_HOST=host-mysql-kamu
+MYSQL_PORT=3306
+MYSQL_USER=user-mysql
+MYSQL_PASSWORD=password-mysql
+MYSQL_DATABASE=nama-database
+MYSQL_AUTO_SEED=true
 ```
 
-Credential `FIREBASE_SERVICE_ACCOUNT_BASE64` dibuat dari file service account Firebase. Di VPS Linux:
+Jika provider database memberi connection string, gunakan:
 
 ```bash
-base64 -w 0 service-account.json
+DATA_DRIVER=mysql
+MYSQL_URL=mysql://user:password@host:3306/nama-database
 ```
 
-Copy hasilnya ke `.env`.
+Saat pertama kali jalan, jika tabel MySQL masih kosong, backend akan menyalin data awal dari:
 
-Saat pertama kali jalan, jika document Firestore masih kosong, backend akan menyalin data awal dari:
-
-- `server/data/content.json` ke collection `content`, document `main`
-- `server/data/site.json` ke collection `site`, document `main`
-- `server/data/accounts.json` ke collection `accounts`, document `main`
+- `server/data/content.json` ke document key `content`
+- `server/data/site.json` ke document key `site`
+- `server/data/accounts.json` ke document key `accounts`
 
 Setelah `.env` diubah, restart PM2:
 
@@ -200,14 +185,27 @@ pm2 restart furusato-web
 pm2 save
 ```
 
-Untuk menyalin data JSON lokal ke Firestore secara manual:
+Untuk menyalin data JSON lokal ke MySQL secara manual:
 
 ```bash
-npm run firebase:create-db
-npm run firebase:seed
+npm run mysql:seed
 ```
 
-Catatan: untuk Vercel, upload gambar memakai Firebase Storage. Gambar lama dari `server/uploads` juga disalin ke `public/uploads`, sehingga URL lama seperti `/uploads/nama-file.jpg` tetap terbaca setelah deploy.
+Data disimpan di tabel `app_documents` sebagai JSON document agar struktur dashboard yang sudah ada tetap kompatibel.
+
+## Upload Gambar Cloudinary
+
+Untuk upload gambar production, gunakan Cloudinary:
+
+```bash
+UPLOAD_DRIVER=cloudinary
+CLOUDINARY_CLOUD_NAME=cloud-name-kamu
+CLOUDINARY_API_KEY=api-key-kamu
+CLOUDINARY_API_SECRET=api-secret-kamu
+CLOUDINARY_FOLDER=furusato
+```
+
+Gambar lama dari `server/uploads` juga disalin ke `public/uploads`, sehingga URL lama seperti `/uploads/nama-file.jpg` tetap terbaca setelah deploy.
 
 ## Deploy ke Vercel
 
@@ -216,38 +214,17 @@ Vercel tidak menjalankan `npm run server` atau PM2. Backend Express dijalankan s
 Di dashboard Vercel, isi Environment Variables berikut:
 
 ```bash
-DATA_DRIVER=firestore
-FIREBASE_PROJECT_ID=furusato-homepage
-FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
-FIRESTORE_DATABASE_ID=default
-FIRESTORE_AUTO_SEED=false
-UPLOAD_DRIVER=firebase
+DATA_DRIVER=mysql
+MYSQL_URL=mysql://user:password@host:3306/nama-database
+MYSQL_AUTO_SEED=false
+UPLOAD_DRIVER=cloudinary
+CLOUDINARY_CLOUD_NAME=cloud-name-kamu
+CLOUDINARY_API_KEY=api-key-kamu
+CLOUDINARY_API_SECRET=api-secret-kamu
+CLOUDINARY_FOLDER=furusato
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password-yang-kuat
-```
-
-Credential Firebase tidak boleh mengandalkan file lokal `.json`, karena file private key tidak ikut dipush ke GitHub. Gunakan salah satu:
-
-```bash
-FIREBASE_SERVICE_ACCOUNT_BASE64=hasil-base64-service-account-json
-```
-
-atau:
-
-```bash
-FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
-```
-
-Untuk membuat base64 dari file service account:
-
-```bash
-base64 -w 0 furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
-```
-
-Di Windows PowerShell:
-
-```powershell
-[Convert]::ToBase64String([IO.File]::ReadAllBytes("furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json"))
+ADMIN_TOKEN_SECRET=isi-random-panjang
 ```
 
 Setelah environment variable disimpan, redeploy project di Vercel.

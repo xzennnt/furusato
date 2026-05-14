@@ -1,15 +1,13 @@
 const fs = require('fs');
+const mysql = require('mysql2/promise');
 const path = require('path');
-const { getFirestore: getAdminFirestore } = require('firebase-admin/firestore');
-const { getStorage } = require('firebase-admin/storage');
 
 const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
 const sitePath = path.join(__dirname, 'data', 'site.json');
 
-const useFirestore = process.env.DATA_DRIVER === 'firestore';
-let firestore;
-let firebaseApp;
+const useMysql = process.env.DATA_DRIVER === 'mysql';
+let pool;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -19,100 +17,91 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-function getFirebaseApp() {
-  const admin = require('firebase-admin');
-
-  if (firebaseApp) {
-    return firebaseApp;
-  }
-
-  if (!admin.apps.length) {
-    const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
-    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
-    let credential;
-
-    if (serviceAccountBase64) {
-      const serviceAccount = JSON.parse(Buffer.from(serviceAccountBase64, 'base64').toString('utf8'));
-      credential = admin.credential.cert(serviceAccount);
-    } else if (serviceAccountJson) {
-      credential = admin.credential.cert(JSON.parse(serviceAccountJson));
-    } else if (serviceAccountPath) {
-      const resolvedPath = path.resolve(process.cwd(), serviceAccountPath);
-      const serviceAccount = JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
-      credential = admin.credential.cert(serviceAccount);
-    } else {
-      credential = admin.credential.applicationDefault();
-    }
-
-    admin.initializeApp({
-      credential,
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    });
-  }
-
-  firebaseApp = admin.app();
-  return firebaseApp;
-}
-
-function getFirestore() {
-  if (!useFirestore) {
+function getMysqlPool() {
+  if (!useMysql) {
     return null;
   }
 
-  if (firestore) {
-    return firestore;
+  if (pool) {
+    return pool;
   }
 
-  const app = getFirebaseApp();
-  firestore = process.env.FIRESTORE_DATABASE_ID
-    ? getAdminFirestore(app, process.env.FIRESTORE_DATABASE_ID)
-    : getAdminFirestore(app);
-  return firestore;
+  const connectionUri = process.env.MYSQL_URL || process.env.DATABASE_URL;
+
+  pool = connectionUri
+    ? mysql.createPool(connectionUri)
+    : mysql.createPool({
+      host: process.env.MYSQL_HOST,
+      port: Number(process.env.MYSQL_PORT || 3306),
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASSWORD,
+      database: process.env.MYSQL_DATABASE,
+      waitForConnections: true,
+      connectionLimit: Number(process.env.MYSQL_CONNECTION_LIMIT || 5),
+    });
+
+  return pool;
 }
 
-function getFirebaseStorageBucket() {
-  const app = getFirebaseApp();
-  const bucketName = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app`;
+async function ensureMysqlSchema() {
+  const db = getMysqlPool();
 
-  return getStorage(app).bucket(bucketName);
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS app_documents (
+      document_key VARCHAR(50) PRIMARY KEY,
+      data JSON NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )
+  `);
 }
 
-async function readFirestoreDocument(collectionName, documentId, fallbackPath) {
-  const db = getFirestore();
-  const ref = db.collection(collectionName).doc(documentId);
-  const snapshot = await ref.get();
+async function readMysqlDocument(documentKey, fallbackPath) {
+  await ensureMysqlSchema();
 
-  if (snapshot.exists) {
-    return snapshot.data();
+  const db = getMysqlPool();
+  const [rows] = await db.query(
+    'SELECT data FROM app_documents WHERE document_key = ? LIMIT 1',
+    [documentKey],
+  );
+
+  if (rows.length) {
+    return typeof rows[0].data === 'string' ? JSON.parse(rows[0].data) : rows[0].data;
   }
 
   const fallback = readJson(fallbackPath);
 
-  if (process.env.FIRESTORE_AUTO_SEED !== 'false') {
-    await ref.set(fallback);
+  if (process.env.MYSQL_AUTO_SEED !== 'false') {
+    await writeMysqlDocument(documentKey, fallback);
   }
 
   return fallback;
 }
 
-async function writeFirestoreDocument(collectionName, documentId, data) {
-  const db = getFirestore();
-  await db.collection(collectionName).doc(documentId).set(data);
+async function writeMysqlDocument(documentKey, data) {
+  await ensureMysqlSchema();
+
+  const db = getMysqlPool();
+  await db.query(
+    `
+      INSERT INTO app_documents (document_key, data)
+      VALUES (?, ?)
+      ON DUPLICATE KEY UPDATE data = VALUES(data)
+    `,
+    [documentKey, JSON.stringify(data)],
+  );
 }
 
 async function readContent() {
-  if (useFirestore) {
-    return readFirestoreDocument('content', 'main', dataPath);
+  if (useMysql) {
+    return readMysqlDocument('content', dataPath);
   }
 
   return readJson(dataPath);
 }
 
 async function writeContent(content) {
-  if (useFirestore) {
-    await writeFirestoreDocument('content', 'main', content);
+  if (useMysql) {
+    await writeMysqlDocument('content', content);
     return;
   }
 
@@ -120,16 +109,16 @@ async function writeContent(content) {
 }
 
 async function readAccounts() {
-  if (useFirestore) {
-    return readFirestoreDocument('accounts', 'main', accountsPath);
+  if (useMysql) {
+    return readMysqlDocument('accounts', accountsPath);
   }
 
   return readJson(accountsPath);
 }
 
 async function writeAccounts(accounts) {
-  if (useFirestore) {
-    await writeFirestoreDocument('accounts', 'main', accounts);
+  if (useMysql) {
+    await writeMysqlDocument('accounts', accounts);
     return;
   }
 
@@ -137,16 +126,16 @@ async function writeAccounts(accounts) {
 }
 
 async function readSite() {
-  if (useFirestore) {
-    return readFirestoreDocument('site', 'main', sitePath);
+  if (useMysql) {
+    return readMysqlDocument('site', sitePath);
   }
 
   return readJson(sitePath);
 }
 
 async function writeSite(site) {
-  if (useFirestore) {
-    await writeFirestoreDocument('site', 'main', site);
+  if (useMysql) {
+    await writeMysqlDocument('site', site);
     return;
   }
 
@@ -154,11 +143,12 @@ async function writeSite(site) {
 }
 
 module.exports = {
+  ensureMysqlSchema,
   readAccounts,
   readContent,
   readSite,
-  getFirebaseStorageBucket,
   writeAccounts,
   writeContent,
+  writeMysqlDocument,
   writeSite,
 };
