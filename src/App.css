@@ -1106,17 +1106,17 @@ p {
     #fff8d8;
   border-bottom: 3px solid var(--ink);
   grid-template-columns: minmax(0, 1fr);
-  padding-top: 126px;
+  padding-top: 110px;
 }
 
 .money-hero .hero-copy {
   grid-column: 1 / -1;
-  max-width: 1080px;
+  max-width: 960px;
 }
 
 .money-hero h1 {
-  font-size: clamp(54px, 9vw, 132px);
-  max-width: 1180px;
+  font-size: clamp(46px, 7.6vw, 108px);
+  max-width: 1040px;
 }
 
 .money-hero .hero-copy p:not(.eyebrow) {
@@ -3448,6 +3448,11 @@ body {
 
   .money-hero .hero-copy {
     padding-top: 10px;
+  }
+
+  .money-hero h1 {
+    font-size: clamp(30px, 10vw, 40px);
+    max-width: 100%;
   }
 }
 
