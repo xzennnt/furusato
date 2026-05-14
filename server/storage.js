@@ -19,10 +19,10 @@ const isServerless = Boolean(process.env.VERCEL);
 const hasBlobConfig = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
 const explicitDataDriver = (process.env.DATA_DRIVER || '').toLowerCase();
 const useBlob = explicitDataDriver === 'blob'
-  || (isServerless && hasBlobConfig && !hasMysqlConfig());
+  || (isServerless && hasBlobConfig && explicitDataDriver !== 'mysql');
 const useMysql = explicitDataDriver === 'mysql'
   ? hasMysqlConfig()
-  : hasMysqlConfig() && !useBlob;
+  : (!isServerless && hasMysqlConfig() && !useBlob);
 let pool;
 
 function readJson(filePath) {
