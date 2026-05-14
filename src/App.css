@@ -3364,3 +3364,76 @@ body {
     padding: 8px 12px;
   }
 }
+
+/* Final layout tweaks for sticky header, map anchor, and program cards. */
+#map {
+  scroll-margin-top: 136px;
+}
+
+.yutaka-header {
+  top: 0;
+  z-index: 120;
+  transition: min-height 180ms ease, padding 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.yutaka-header.is-compact {
+  min-height: 82px;
+  padding-bottom: 14px;
+  padding-top: 14px;
+  box-shadow: 0 8px 22px rgba(16, 36, 58, 0.12);
+}
+
+.yutaka-header.is-compact .yutaka-brand img {
+  max-height: 46px;
+}
+
+.program-section .program-list {
+  align-items: stretch;
+  gap: clamp(26px, 3vw, 38px) 24px;
+  margin-top: clamp(22px, 3vw, 34px);
+}
+
+.program-section .program-list article {
+  min-height: 250px;
+  padding: 28px 24px 30px;
+  transform-origin: center top;
+}
+
+.program-section .program-list article:nth-child(odd) {
+  --sticker-tilt: -1.95deg;
+  transform: rotate(var(--sticker-tilt));
+}
+
+.program-section .program-list article:nth-child(even) {
+  --sticker-tilt: 1.7deg;
+  transform: rotate(var(--sticker-tilt));
+}
+
+.program-section .program-list article:nth-child(3n) {
+  margin-top: 8px;
+}
+
+@media (max-width: 720px) {
+  #map {
+    scroll-margin-top: 116px;
+  }
+
+  .yutaka-header.is-compact {
+    min-height: 72px;
+  }
+
+  .program-section .program-list {
+    gap: 22px;
+  }
+
+  .program-section .program-list article:nth-child(odd),
+  .program-section .program-list article:nth-child(even) {
+    --sticker-tilt: 0deg;
+    transform: none;
+  }
+
+  .program-section .program-list article {
+    min-height: 220px;
+    padding: 22px 18px 24px;
+  }
+}

@@ -5,6 +5,18 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || (
   isBrowserOnLocalhost ? 'http://localhost:4000' : ''
 );
 
+export function resolveMediaUrl(url) {
+  if (!url) {
+    return '';
+  }
+
+  if (/^(https?:)?\/\//i.test(url) || url.startsWith('data:')) {
+    return url;
+  }
+
+  return `${API_BASE_URL}${url}`;
+}
+
 export async function fetchJson(path, fallback) {
   try {
     const response = await fetch(`${API_BASE_URL}${path}`, { cache: 'no-store' });

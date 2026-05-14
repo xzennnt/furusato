@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackHomeContent } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson } from '../lib/api';
+import { fetchJson, resolveMediaUrl } from '../lib/api';
 import NewsTicker from './NewsTicker';
 
 function JobPartnerSection() {
@@ -12,7 +12,7 @@ function JobPartnerSection() {
   const jobBannerContent = (
     <>
       {jobBanner.imageUrl ? (
-        <img src={`${API_BASE_URL}${jobBanner.imageUrl}`} alt={jobInfo.title || jobBanner.title} />
+        <img src={resolveMediaUrl(jobBanner.imageUrl)} alt={jobInfo.title || jobBanner.title} />
       ) : (
         <div className="job-banner-placeholder">
           <span>UPLOAD BANNER INFORMASI</span>
@@ -81,7 +81,7 @@ function JobPartnerSection() {
               <div className="partner-item sticker-card is-straight-card" key={partner.id}>
                 <div className="partner-icon">
                   {partner.iconUrl ? (
-                    <img src={`${API_BASE_URL}${partner.iconUrl}`} alt={partner.name} />
+                    <img src={resolveMediaUrl(partner.iconUrl)} alt={partner.name} />
                   ) : (
                     <span>{partner.name.charAt(0)}</span>
                   )}

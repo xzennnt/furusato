@@ -6,7 +6,7 @@ const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
-const { v2: cloudinary } = require('cloudinary');
+const { put } = require('@vercel/blob');
 const {
   readAccounts,
   readContent,
@@ -25,7 +25,11 @@ const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
 const ADMIN_SESSION_MS = 20 * 60 * 1000;
 const MAX_UPLOAD_BYTES = Number(process.env.MAX_UPLOAD_BYTES || 8 * 1024 * 1024);
-const uploadDriver = process.env.UPLOAD_DRIVER || (process.env.VERCEL ? 'cloudinary' : 'local');
+const requestedUploadDriver = (process.env.UPLOAD_DRIVER || '').toLowerCase();
+const uploadDriver = requestedUploadDriver === 'local'
+  ? 'local'
+  : (process.env.VERCEL ? 'blob' : 'local');
+const blobAccess = process.env.BLOB_ACCESS || 'public';
 
 if (uploadDriver === 'local') {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -40,16 +44,10 @@ const diskStorage = multer.diskStorage({
 });
 
 const upload = multer({
-  storage: uploadDriver === 'cloudinary' ? multer.memoryStorage() : diskStorage,
+  storage: uploadDriver === 'blob' ? multer.memoryStorage() : diskStorage,
   limits: {
     fileSize: MAX_UPLOAD_BYTES,
   },
-});
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 app.use(cors());
@@ -151,11 +149,7 @@ app.get('/api/health', (_req, res) => {
     service: 'furusato-api',
     storage: getStorageStatus(),
     uploadDriver,
-    cloudinaryConfigured: Boolean(
-      process.env.CLOUDINARY_CLOUD_NAME
-      && process.env.CLOUDINARY_API_KEY
-      && process.env.CLOUDINARY_API_SECRET
-    ),
+    blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
   });
 });
 
@@ -398,32 +392,20 @@ app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res)
   res.status(204).send();
 }));
 
-function uploadBufferToCloudinary(file) {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => {
-      reject(new Error('Upload ke Cloudinary terlalu lama. Coba gambar yang lebih kecil atau ulangi beberapa saat lagi.'));
-    }, Number(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || 25000));
+async function uploadBufferToBlob(file) {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error('BLOB_READ_WRITE_TOKEN belum diset di environment variables.');
+  }
 
-    const uploadStream = cloudinary.uploader.upload_stream(
-      {
-        folder: process.env.CLOUDINARY_FOLDER || 'furusato',
-        resource_type: 'image',
-        timeout: Number(process.env.CLOUDINARY_UPLOAD_TIMEOUT_MS || 25000),
-      },
-      (error, result) => {
-        clearTimeout(timeout);
-
-        if (error) {
-          reject(error);
-          return;
-        }
-
-        resolve(result);
-      },
-    );
-
-    uploadStream.end(file.buffer);
+  const pathname = `uploads/${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.-]/g, '-')}`;
+  const blob = await put(pathname, new Blob([file.buffer], { type: file.mimetype }), {
+    access: blobAccess,
+    contentType: file.mimetype,
+    addRandomSuffix: true,
+    token: process.env.BLOB_READ_WRITE_TOKEN,
   });
+
+  return blob;
 }
 
 app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler(async (req, res) => {
@@ -431,34 +413,19 @@ app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler
     return res.status(400).json({ message: 'File gambar belum dikirim.' });
   }
 
-  if (uploadDriver === 'cloudinary') {
-    const missingCloudinaryConfig = [
-      ['CLOUDINARY_CLOUD_NAME', process.env.CLOUDINARY_CLOUD_NAME],
-      ['CLOUDINARY_API_KEY', process.env.CLOUDINARY_API_KEY],
-      ['CLOUDINARY_API_SECRET', process.env.CLOUDINARY_API_SECRET],
-    ].filter(([, value]) => !value).map(([key]) => key);
-
-    if (missingCloudinaryConfig.length) {
-      return res.status(500).json({
-        message: `Konfigurasi Cloudinary belum lengkap: ${missingCloudinaryConfig.join(', ')}.`,
-      });
-    }
-
-    let result;
-
+  if (uploadDriver === 'blob') {
     try {
-      result = await uploadBufferToCloudinary(req.file);
+      const blob = await uploadBufferToBlob(req.file);
+      return res.status(201).json({
+        filename: blob.pathname,
+        imageUrl: blob.url,
+      });
     } catch (error) {
-      console.error('Cloudinary upload failed:', error);
+      console.error('Blob upload failed:', error);
       return res.status(502).json({
-        message: error.message || 'Upload ke Cloudinary gagal. Periksa credential Cloudinary atau coba lagi.',
+        message: error.message || 'Upload ke Vercel Blob gagal. Periksa BLOB_READ_WRITE_TOKEN atau coba lagi.',
       });
     }
-
-    return res.status(201).json({
-      filename: result.public_id,
-      imageUrl: result.secure_url,
-    });
   }
 
   return res.status(201).json({
@@ -475,7 +442,7 @@ app.use('/api', (error, _req, res, _next) => {
     return res.status(413).json({ message: `Ukuran gambar terlalu besar. Maksimal ${maxUploadMb} MB.` });
   }
 
-  const isConfigurationError = /MySQL|Cloudinary|Production belum terhubung/.test(error.message || '');
+  const isConfigurationError = /MySQL|Blob|Production belum terhubung/.test(error.message || '');
   const isDatabaseError = Boolean(error.code && /^(ER_|ECONN|ETIMEDOUT|ENOTFOUND|PROTOCOL_)/.test(error.code));
   const message = process.env.NODE_ENV === 'production' && !isConfigurationError
     ? (isDatabaseError ? `Database error: ${error.code}` : 'Terjadi kesalahan pada server.')

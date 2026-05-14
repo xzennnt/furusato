@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchSite } from '../lib/api';
+import { fetchSite, resolveMediaUrl } from '../lib/api';
 
 function AboutSection() {
   const [site, setSite] = useState(fallbackSite);
   const aboutBackgroundUrl = site.backgrounds?.homeAboutUrl || '';
-  const backgroundUrl = aboutBackgroundUrl ? `${API_BASE_URL}${aboutBackgroundUrl}` : '';
+  const backgroundUrl = resolveMediaUrl(aboutBackgroundUrl);
 
   useEffect(() => {
     fetchSite(fallbackSite).then((data) => {

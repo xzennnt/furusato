@@ -193,21 +193,18 @@ npm run mysql:seed
 
 Data disimpan di tabel `app_documents` sebagai JSON document agar struktur dashboard yang sudah ada tetap kompatibel.
 
-## Upload Gambar Cloudinary
+## Upload Gambar Vercel Blob
 
-Untuk upload gambar production, gunakan Cloudinary:
+Untuk upload gambar production, gunakan Vercel Blob:
 
 ```bash
-UPLOAD_DRIVER=cloudinary
-CLOUDINARY_CLOUD_NAME=cloud-name-kamu
-CLOUDINARY_API_KEY=api-key-kamu
-CLOUDINARY_API_SECRET=api-secret-kamu
-CLOUDINARY_FOLDER=furusato
-CLOUDINARY_UPLOAD_TIMEOUT_MS=25000
+UPLOAD_DRIVER=blob
+BLOB_ACCESS=public
+BLOB_READ_WRITE_TOKEN=isi-token-dari-vercel
 MAX_UPLOAD_BYTES=8388608
 ```
 
-Gambar lama dari `server/uploads` juga disalin ke `public/uploads`, sehingga URL lama seperti `/uploads/nama-file.jpg` tetap terbaca setelah deploy.
+Jika kamu masih menjalankan lokal tanpa Blob, `UPLOAD_DRIVER=local` tetap menyimpan file ke folder `server/uploads`.
 
 ## Deploy ke Vercel
 
@@ -219,12 +216,9 @@ Di dashboard Vercel, isi Environment Variables berikut:
 DATA_DRIVER=mysql
 MYSQL_URL=mysql://user:password@host:3306/nama-database
 MYSQL_AUTO_SEED=false
-UPLOAD_DRIVER=cloudinary
-CLOUDINARY_CLOUD_NAME=cloud-name-kamu
-CLOUDINARY_API_KEY=api-key-kamu
-CLOUDINARY_API_SECRET=api-secret-kamu
-CLOUDINARY_FOLDER=furusato
-CLOUDINARY_UPLOAD_TIMEOUT_MS=25000
+UPLOAD_DRIVER=blob
+BLOB_ACCESS=public
+BLOB_READ_WRITE_TOKEN=isi-token-dari-vercel
 MAX_UPLOAD_BYTES=8388608
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password-yang-kuat

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { fallbackAboutContent } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson } from '../lib/api';
+import { fetchJson, resolveMediaUrl } from '../lib/api';
 
 function ProgramSection() {
   const [programs, setPrograms] = useState(fallbackAboutContent.programs);
@@ -22,7 +22,7 @@ function ProgramSection() {
           <article
             className={`sticker-card ${program.imageUrl ? 'has-program-bg' : ''}`}
             key={program.id || program.title}
-            style={program.imageUrl ? { '--program-bg': `url(${API_BASE_URL}${program.imageUrl})` } : undefined}
+            style={program.imageUrl ? { '--program-bg': `url(${resolveMediaUrl(program.imageUrl)})` } : undefined}
           >
             <h3>{program.title}</h3>
             <p>{program.description}</p>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchSite } from '../lib/api';
+import { fetchSite, resolveMediaUrl } from '../lib/api';
 
 function SocialIcon({ name }) {
   const iconName = name.toLowerCase();
@@ -64,7 +64,7 @@ function Footer() {
     fetchSite(fallbackSite).then(setSite);
   }, []);
 
-  const logoSrc = site.logoUrl ? `${API_BASE_URL}${site.logoUrl}` : '';
+  const logoSrc = resolveMediaUrl(site.logoUrl);
 
   return (
     <footer className="site-footer">

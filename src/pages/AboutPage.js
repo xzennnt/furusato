@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackAboutContent, fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson, fetchSite } from '../lib/api';
+import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 
 function AboutPage() {
   const [aboutContent, setAboutContent] = useState(fallbackAboutContent);
   const [site, setSite] = useState(fallbackSite);
   const aboutHeroBackground = site.backgrounds?.aboutPageUrl || site.backgrounds?.homeAboutUrl || '';
   const aboutHeroStyle = aboutHeroBackground
-    ? { '--page-hero-bg': `url(${API_BASE_URL}${aboutHeroBackground})` }
+    ? { '--page-hero-bg': `url(${resolveMediaUrl(aboutHeroBackground)})` }
     : undefined;
 
   useEffect(() => {
@@ -52,7 +52,7 @@ function AboutPage() {
         {aboutContent.chairman.imageUrl ? (
           <img
             className="about-chairman-photo"
-            src={`${API_BASE_URL}${aboutContent.chairman.imageUrl}`}
+            src={resolveMediaUrl(aboutContent.chairman.imageUrl)}
             alt={aboutContent.chairman.name}
           />
         ) : (
@@ -85,7 +85,7 @@ function AboutPage() {
           {aboutContent.programs.map((program) => (
             <article className="about-program-card sticker-card" key={program.id}>
               {program.imageUrl ? (
-                <img src={`${API_BASE_URL}${program.imageUrl}`} alt={program.title} />
+                <img src={resolveMediaUrl(program.imageUrl)} alt={program.title} />
               ) : (
                 <div className="gallery-placeholder image-marker">
                   <span>PROGRAM</span>

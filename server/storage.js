@@ -1,6 +1,7 @@
 const fs = require('fs');
 const mysql = require('mysql2/promise');
 const path = require('path');
+const { get: getBlob, put: putBlob } = require('@vercel/blob');
 
 const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
@@ -14,8 +15,14 @@ function hasMysqlConfig() {
   );
 }
 
-const useMysql = process.env.DATA_DRIVER === 'mysql' || hasMysqlConfig();
 const isServerless = Boolean(process.env.VERCEL);
+const hasBlobConfig = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const explicitDataDriver = (process.env.DATA_DRIVER || '').toLowerCase();
+const useBlob = explicitDataDriver === 'blob'
+  || (isServerless && hasBlobConfig && !hasMysqlConfig());
+const useMysql = explicitDataDriver === 'mysql'
+  ? hasMysqlConfig()
+  : hasMysqlConfig() && !useBlob;
 let pool;
 
 function readJson(filePath) {
@@ -24,10 +31,83 @@ function readJson(filePath) {
 
 function writeJson(filePath, data) {
   if (isServerless) {
-    throw new Error('Production belum terhubung ke MySQL. Isi MYSQL_URL atau MYSQL_HOST/MYSQL_USER/MYSQL_DATABASE di Vercel Environment Variables.');
+    throw new Error('Storage production belum dikonfigurasi. Isi MYSQL_URL/MYSQL_HOST atau BLOB_READ_WRITE_TOKEN di Vercel Environment Variables.');
   }
 
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+}
+
+function getBlobToken() {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error('Konfigurasi Blob belum lengkap. Isi BLOB_READ_WRITE_TOKEN di Vercel Environment Variables.');
+  }
+
+  return process.env.BLOB_READ_WRITE_TOKEN;
+}
+
+function getDocumentBlobPath(documentKey) {
+  return `dashboard/${documentKey}.json`;
+}
+
+async function readStreamText(stream) {
+  if (!stream) {
+    return '';
+  }
+
+  if (typeof Response !== 'undefined') {
+    return new Response(stream).text();
+  }
+
+  const reader = stream.getReader();
+  const chunks = [];
+
+  // Fallback for older runtimes that do not expose Response globally.
+  // The blob SDK returns a web stream here, so we gather the chunks manually.
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const { done, value } = await reader.read();
+
+    if (done) {
+      break;
+    }
+
+    chunks.push(Buffer.from(value));
+  }
+
+  return Buffer.concat(chunks).toString('utf8');
+}
+
+async function readBlobDocument(documentKey, fallbackPath) {
+  const blobPath = getDocumentBlobPath(documentKey);
+  const result = await getBlob(blobPath, {
+    access: 'private',
+    token: getBlobToken(),
+  });
+
+  if (result?.stream) {
+    const text = await readStreamText(result.stream);
+    if (text) {
+      return JSON.parse(text);
+    }
+  }
+
+  const fallback = readJson(fallbackPath);
+
+  if (process.env.BLOB_AUTO_SEED !== 'false') {
+    await writeBlobDocument(documentKey, fallback);
+  }
+
+  return fallback;
+}
+
+async function writeBlobDocument(documentKey, data) {
+  const blobPath = getDocumentBlobPath(documentKey);
+  await putBlob(blobPath, JSON.stringify(data, null, 2), {
+    access: 'private',
+    contentType: 'application/json',
+    allowOverwrite: true,
+    token: getBlobToken(),
+  });
 }
 
 function getMysqlPool() {
@@ -114,14 +194,19 @@ async function writeMysqlDocument(documentKey, data) {
 
 function getStorageStatus() {
   return {
-    driver: useMysql ? 'mysql' : 'json',
+    driver: useMysql ? 'mysql' : (useBlob ? 'blob' : 'json'),
     mysqlConfigured: hasMysqlConfig(),
+    blobConfigured: hasBlobConfig,
   };
 }
 
 async function readContent() {
   if (useMysql) {
     return readMysqlDocument('content', dataPath);
+  }
+
+  if (useBlob) {
+    return readBlobDocument('content', dataPath);
   }
 
   return readJson(dataPath);
@@ -133,12 +218,21 @@ async function writeContent(content) {
     return;
   }
 
+  if (useBlob) {
+    await writeBlobDocument('content', content);
+    return;
+  }
+
   writeJson(dataPath, content);
 }
 
 async function readAccounts() {
   if (useMysql) {
     return readMysqlDocument('accounts', accountsPath);
+  }
+
+  if (useBlob) {
+    return readBlobDocument('accounts', accountsPath);
   }
 
   return readJson(accountsPath);
@@ -150,6 +244,11 @@ async function writeAccounts(accounts) {
     return;
   }
 
+  if (useBlob) {
+    await writeBlobDocument('accounts', accounts);
+    return;
+  }
+
   writeJson(accountsPath, accounts);
 }
 
@@ -158,12 +257,21 @@ async function readSite() {
     return readMysqlDocument('site', sitePath);
   }
 
+  if (useBlob) {
+    return readBlobDocument('site', sitePath);
+  }
+
   return readJson(sitePath);
 }
 
 async function writeSite(site) {
   if (useMysql) {
     await writeMysqlDocument('site', site);
+    return;
+  }
+
+  if (useBlob) {
+    await writeBlobDocument('site', site);
     return;
   }
 

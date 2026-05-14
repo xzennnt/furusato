@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchSite } from '../lib/api';
+import { fetchSite, resolveMediaUrl } from '../lib/api';
 
 const menuItems = [
   { label: 'Home', href: '/' },
@@ -13,15 +13,27 @@ const menuItems = [
 
 function NavigationBar() {
   const [site, setSite] = useState(fallbackSite);
+  const [isCompact, setIsCompact] = useState(false);
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
   }, []);
 
-  const logoSrc = site.logoUrl ? `${API_BASE_URL}${site.logoUrl}` : '';
+  useEffect(() => {
+    const updateCompactState = () => {
+      setIsCompact(window.scrollY > 24);
+    };
+
+    updateCompactState();
+    window.addEventListener('scroll', updateCompactState, { passive: true });
+
+    return () => window.removeEventListener('scroll', updateCompactState);
+  }, []);
+
+  const logoSrc = resolveMediaUrl(site.logoUrl);
 
   return (
-    <header className="site-header yutaka-header">
+    <header className={`site-header yutaka-header ${isCompact ? 'is-compact' : ''}`}>
       <NavLink className="brand yutaka-brand" to="/" aria-label="Furusato home">
         {logoSrc ? (
           <img src={logoSrc} alt={site.brandName} />

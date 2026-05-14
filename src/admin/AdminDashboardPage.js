@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
-  API_BASE_URL,
   clearAdminToken,
   createGallery,
   createNews,
@@ -24,6 +23,7 @@ import {
   updateSiteSettings,
   uploadImage,
 } from './adminApi';
+import { resolveMediaUrl } from '../lib/api';
 import { fallbackAboutContent } from '../data/fallbackContent';
 
 function getTodayDate() {
@@ -744,7 +744,7 @@ function AdminDashboardPage() {
               <input value={newsForm.imageUrl || ''} onChange={(event) => setNewsForm({ ...newsForm, imageUrl: event.target.value })} placeholder="/uploads/gambar-berita.jpg" />
             </label>
             {newsForm.imageUrl && (
-              <img className="admin-image-preview" src={`${API_BASE_URL}${newsForm.imageUrl}`} alt="Preview berita" />
+              <img className="admin-image-preview" src={resolveMediaUrl(newsForm.imageUrl)} alt="Preview berita" />
             )}
             <div className="admin-form-actions">
               <button type="submit">{newsForm.id ? 'Update Berita' : 'Tambah Berita'}</button>
@@ -756,7 +756,7 @@ function AdminDashboardPage() {
             <h2>Daftar Berita</h2>
             {newsItems.map((item) => (
               <article data-admin-row="news" data-row-id={item.id} key={item.id}>
-                {item.imageUrl && <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />}
+                {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />}
                 <time>{item.date}</time>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
@@ -789,7 +789,7 @@ function AdminDashboardPage() {
               <input value={galleryForm.imageUrl} onChange={(event) => setGalleryForm({ ...galleryForm, imageUrl: event.target.value })} placeholder="/uploads/nama-file.jpg" />
             </label>
             {galleryForm.imageUrl && (
-              <img className="admin-image-preview" src={`${API_BASE_URL}${galleryForm.imageUrl}`} alt="Preview galeri" />
+              <img className="admin-image-preview" src={resolveMediaUrl(galleryForm.imageUrl)} alt="Preview galeri" />
             )}
             <div className="admin-form-actions">
               <button type="submit">{galleryForm.id ? 'Update Galeri' : 'Tambah Galeri'}</button>
@@ -801,7 +801,7 @@ function AdminDashboardPage() {
             <h2>Daftar Galeri</h2>
             {galleryItems.map((item) => (
               <article data-admin-row="gallery" data-row-id={item.id} key={item.id}>
-                {item.imageUrl && <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />}
+                {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />}
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <div className="admin-item-actions">
@@ -851,7 +851,7 @@ function AdminDashboardPage() {
                 <input value={aboutContentForm.chairman.imageUrl || ''} onChange={(event) => setAboutContentForm({ ...aboutContentForm, chairman: { ...aboutContentForm.chairman, imageUrl: event.target.value } })} placeholder="/uploads/foto-ketua.jpg" />
               </label>
               {aboutContentForm.chairman.imageUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${aboutContentForm.chairman.imageUrl}`} alt="Preview foto ketua" />
+                <img className="admin-image-preview" src={resolveMediaUrl(aboutContentForm.chairman.imageUrl)} alt="Preview foto ketua" />
               )}
               <label>
                 Isi sambutan
@@ -933,7 +933,7 @@ function AdminDashboardPage() {
                   <input value={program.imageUrl || ''} onChange={(event) => updateAboutProgram(index, { imageUrl: event.target.value })} placeholder="/uploads/program.jpg" />
                 </label>
                 {program.imageUrl && (
-                  <img className="admin-image-preview" src={`${API_BASE_URL}${program.imageUrl}`} alt={program.title} />
+                  <img className="admin-image-preview" src={resolveMediaUrl(program.imageUrl)} alt={program.title} />
                 )}
                 <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
               </div>
@@ -996,7 +996,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {siteForm.backgrounds.homeHeroUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeHeroUrl}`} alt="Preview background hero home" />
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.homeHeroUrl)} alt="Preview background hero home" />
               )}
             </div>
 
@@ -1019,7 +1019,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {siteForm.backgrounds.homeAboutUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeAboutUrl}`} alt="Preview background tentang kami home" />
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.homeAboutUrl)} alt="Preview background tentang kami home" />
               )}
             </div>
 
@@ -1042,7 +1042,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {siteForm.backgrounds.homeNewsUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeNewsUrl}`} alt="Preview background berita home" />
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.homeNewsUrl)} alt="Preview background berita home" />
               )}
             </div>
 
@@ -1098,7 +1098,7 @@ function AdminDashboardPage() {
                   />
                 </label>
                 {program.imageUrl && (
-                  <img className="admin-image-preview" src={`${API_BASE_URL}${program.imageUrl}`} alt={program.title} />
+                <img className="admin-image-preview" src={resolveMediaUrl(program.imageUrl)} alt={program.title} />
                 )}
                 <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
               </div>
@@ -1124,7 +1124,7 @@ function AdminDashboardPage() {
                 <input value={siteForm.logoUrl} onChange={(event) => setSiteForm({ ...siteForm, logoUrl: event.target.value })} placeholder="/uploads/logo.png" />
               </label>
               {siteForm.logoUrl && (
-                <img className="admin-logo-preview" src={`${API_BASE_URL}${siteForm.logoUrl}`} alt="Preview logo" />
+                <img className="admin-logo-preview" src={resolveMediaUrl(siteForm.logoUrl)} alt="Preview logo" />
               )}
             </div>
             <div className="admin-field-group">
@@ -1146,7 +1146,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {siteForm.backgrounds.aboutPageUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.aboutPageUrl}`} alt="Preview background page tentang furusato" />
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.aboutPageUrl)} alt="Preview background page tentang furusato" />
               )}
             </div>
             <div className="admin-field-group">
@@ -1168,7 +1168,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {siteForm.backgrounds.galleryPageUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.galleryPageUrl}`} alt="Preview background page galeri" />
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.galleryPageUrl)} alt="Preview background page galeri" />
               )}
             </div>
           </div>
@@ -1291,7 +1291,7 @@ function AdminDashboardPage() {
                 />
               </label>
               {homeContentForm.jobBanner.imageUrl && (
-                <img className="admin-image-preview" src={`${API_BASE_URL}${homeContentForm.jobBanner.imageUrl}`} alt="Preview banner job" />
+                <img className="admin-image-preview" src={resolveMediaUrl(homeContentForm.jobBanner.imageUrl)} alt="Preview banner job" />
               )}
               <div className="admin-form-actions">
                 <button
@@ -1327,7 +1327,7 @@ function AdminDashboardPage() {
                     URL icon
                     <input value={partner.iconUrl} onChange={(event) => updatePartner(index, { iconUrl: event.target.value })} />
                   </label>
-                  {partner.iconUrl && <img className="admin-logo-preview" src={`${API_BASE_URL}${partner.iconUrl}`} alt={partner.name} />}
+                  {partner.iconUrl && <img className="admin-logo-preview" src={resolveMediaUrl(partner.iconUrl)} alt={partner.name} />}
                   <button type="button" className="danger-button" onClick={() => removePartner(index)}>Hapus Mitra</button>
                 </div>
               ))}

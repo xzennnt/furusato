@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchSite } from '../lib/api';
+import { fetchSite, resolveMediaUrl } from '../lib/api';
 
 function HeroSection() {
   const [site, setSite] = useState(fallbackSite);
   const heroBackgroundUrl = site.backgrounds?.homeHeroUrl || '';
-  const backgroundUrl = heroBackgroundUrl
-    ? `${API_BASE_URL}${heroBackgroundUrl}`
-    : '';
+  const backgroundUrl = resolveMediaUrl(heroBackgroundUrl);
 
   useEffect(() => {
     fetchSite(fallbackSite).then((data) => {

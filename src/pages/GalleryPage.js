@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackGallery, fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson, fetchSite } from '../lib/api';
+import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 
 const getGalleryItemId = (id) => `galeri-${id}`;
 
@@ -11,7 +11,7 @@ function GalleryPage() {
   const location = useLocation();
   const galleryHeroBackground = site.backgrounds?.galleryPageUrl || '';
   const galleryHeroStyle = galleryHeroBackground
-    ? { '--page-hero-bg': `url(${API_BASE_URL}${galleryHeroBackground})` }
+    ? { '--page-hero-bg': `url(${resolveMediaUrl(galleryHeroBackground)})` }
     : undefined;
 
   useEffect(() => {
@@ -27,7 +27,18 @@ function GalleryPage() {
 
   useEffect(() => {
     if (location.hash) {
-      document.querySelector(location.hash)?.scrollIntoView({ block: 'start' });
+      window.requestAnimationFrame(() => {
+        const target = document.querySelector(location.hash);
+
+        if (!target) {
+          return;
+        }
+
+        const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - (headerHeight + 24);
+
+        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+      });
     }
   }, [galleryItems, location.hash]);
 
@@ -46,7 +57,7 @@ function GalleryPage() {
         {galleryItems.map((item) => (
           <article className="gallery-card sticker-card" id={getGalleryItemId(item.id)} key={item.id}>
             {item.imageUrl ? (
-              <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />
+              <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />
             ) : (
               <div className="gallery-placeholder image-marker">
                 <span>UPLOAD GAMBAR</span>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackNews, fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson, fetchSite } from '../lib/api';
+import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 
 function NewsPage() {
   const location = useLocation();
@@ -10,7 +10,7 @@ function NewsPage() {
   const [expandedNewsId, setExpandedNewsId] = useState('');
   const newsHeroBackground = site.backgrounds?.homeNewsUrl || '';
   const newsHeroStyle = newsHeroBackground
-    ? { '--page-hero-bg': `url(${API_BASE_URL}${newsHeroBackground})` }
+    ? { '--page-hero-bg': `url(${resolveMediaUrl(newsHeroBackground)})` }
     : undefined;
 
   useEffect(() => {
@@ -34,7 +34,16 @@ function NewsPage() {
 
     window.requestAnimationFrame(() => {
       window.requestAnimationFrame(() => {
-        document.querySelector(location.hash)?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        const target = document.querySelector(location.hash);
+
+        if (!target) {
+          return;
+        }
+
+        const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - (headerHeight + 24);
+
+        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
       });
     });
   }, [location.hash, newsItems]);
@@ -52,7 +61,7 @@ function NewsPage() {
           <article className={`sticker-card ${expandedNewsId === item.id ? 'is-expanded' : ''}`} id={item.id} key={item.id}>
             {item.imageUrl && (
               <div className="news-card-media">
-                <img className="news-card-image" src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />
+                <img className="news-card-image" src={resolveMediaUrl(item.imageUrl)} alt={item.title} />
               </div>
             )}
             <div className="news-card-body">

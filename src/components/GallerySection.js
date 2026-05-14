@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackGallery } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson } from '../lib/api';
+import { fetchJson, resolveMediaUrl } from '../lib/api';
 
 const getGalleryItemId = (id) => `galeri-${id}`;
 
@@ -23,7 +23,7 @@ function GallerySection() {
       <div className="gallery-marquee" aria-label="Galeri berjalan">
         <div className="gallery-marquee-track">
           {marqueeItems.map((item, index) => {
-            const imageSrc = item.imageUrl ? `${API_BASE_URL}${item.imageUrl}` : '';
+            const imageSrc = resolveMediaUrl(item.imageUrl);
             const cardContent = (
               <>
                 {imageSrc ? (

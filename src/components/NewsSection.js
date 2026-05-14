@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackNews, fallbackSite } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson, fetchSite } from '../lib/api';
+import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 
 function NewsSection() {
   const [site, setSite] = useState(fallbackSite);
   const [newsItems, setNewsItems] = useState(fallbackNews.slice(0, 2));
   const newsBackgroundUrl = site.backgrounds?.homeNewsUrl || '';
-  const backgroundUrl = newsBackgroundUrl ? `${API_BASE_URL}${newsBackgroundUrl}` : '';
+  const backgroundUrl = resolveMediaUrl(newsBackgroundUrl);
 
   useEffect(() => {
     fetchSite(fallbackSite).then((data) => {
@@ -40,7 +40,7 @@ function NewsSection() {
               {item.imageUrl && (
                 <img
                   className="news-home-thumb"
-                  src={`${API_BASE_URL}${item.imageUrl}`}
+                  src={resolveMediaUrl(item.imageUrl)}
                   alt={item.title}
                 />
               )}
