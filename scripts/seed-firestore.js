@@ -3,6 +3,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const admin = require('firebase-admin');
+const { getFirestore } = require('firebase-admin/firestore');
 
 const rootDir = path.join(__dirname, '..');
 const contentPath = path.join(rootDir, 'server', 'data', 'content.json');
@@ -39,9 +40,10 @@ async function main() {
     });
   }
 
+  const app = admin.app();
   const db = process.env.FIRESTORE_DATABASE_ID
-    ? admin.firestore(process.env.FIRESTORE_DATABASE_ID)
-    : admin.firestore();
+    ? getFirestore(app, process.env.FIRESTORE_DATABASE_ID)
+    : getFirestore(app);
   const batch = db.batch();
   const documents = [
     ['content', 'main', readJson(contentPath)],

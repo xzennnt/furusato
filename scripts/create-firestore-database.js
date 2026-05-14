@@ -76,7 +76,7 @@ async function waitForOperation(operationName, token) {
 
 async function main() {
   const projectId = process.env.FIREBASE_PROJECT_ID || getServiceAccount().project_id;
-  const databaseId = process.env.FIRESTORE_DATABASE_ID || '(default)';
+  const databaseId = process.env.FIRESTORE_DATABASE_ID || 'default';
   const locationId = process.env.FIRESTORE_LOCATION_ID || defaultLocationId;
   const token = await getAccessToken();
   const databaseUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/${encodeURIComponent(databaseId)}`;

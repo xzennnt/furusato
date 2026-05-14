@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { getFirestore: getAdminFirestore } = require('firebase-admin/firestore');
 
 const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
@@ -52,9 +53,10 @@ function getFirestore() {
     });
   }
 
+  const app = admin.app();
   firestore = process.env.FIRESTORE_DATABASE_ID
-    ? admin.firestore(process.env.FIRESTORE_DATABASE_ID)
-    : admin.firestore();
+    ? getAdminFirestore(app, process.env.FIRESTORE_DATABASE_ID)
+    : getAdminFirestore(app);
   return firestore;
 }
 

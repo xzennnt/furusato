@@ -159,7 +159,7 @@ Secara default backend masih memakai file JSON lokal agar development tetap muda
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
-FIRESTORE_DATABASE_ID=
+FIRESTORE_DATABASE_ID=default
 FIRESTORE_LOCATION_ID=asia-southeast2
 FIRESTORE_AUTO_SEED=true
 ```
@@ -170,7 +170,7 @@ Jika tidak ingin menaruh file JSON credential di server, gunakan format base64:
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
-FIRESTORE_DATABASE_ID=
+FIRESTORE_DATABASE_ID=default
 FIRESTORE_LOCATION_ID=asia-southeast2
 FIRESTORE_AUTO_SEED=true
 ```
