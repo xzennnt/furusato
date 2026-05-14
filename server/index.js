@@ -81,6 +81,10 @@ function verifyAdminToken(token) {
 
   const expectedSignature = signTokenPayload(payload);
 
+  if (Buffer.byteLength(signature) !== Buffer.byteLength(expectedSignature)) {
+    return false;
+  }
+
   if (
     !crypto.timingSafeEqual(
       Buffer.from(signature),
