@@ -776,12 +776,24 @@ p {
 }
 
 .background-home-admin-grid .admin-image-preview {
-  max-height: 96px;
+  aspect-ratio: 4 / 3;
+  max-height: 84px;
   object-fit: cover;
 }
 
 .background-home-admin-grid .admin-field-group[data-admin-row="program"] .admin-image-preview {
-  max-height: 88px;
+  max-height: 80px;
+}
+
+.background-home-admin-grid .admin-panel p {
+  max-width: 60ch;
+}
+
+.background-home-admin-grid .admin-field-group h3::after {
+  color: var(--muted);
+  content: " 1600 x 1200";
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .about-admin-grid {
@@ -792,6 +804,19 @@ p {
 .site-admin-grid {
   align-items: start;
   grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.05fr);
+}
+
+.site-admin-grid .admin-field-group h3::after {
+  color: var(--muted);
+  content: " 1600 x 1200";
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.site-admin-grid .admin-image-preview {
+  aspect-ratio: 4 / 3;
+  max-height: 84px;
+  object-fit: cover;
 }
 
 .admin-panel {
@@ -935,9 +960,9 @@ p {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  max-height: 124px;
+  max-height: 108px;
   object-fit: contain;
-  padding: 12px;
+  padding: 10px;
   width: 100%;
 }
 
@@ -2636,7 +2661,7 @@ a.gallery-run-card:hover {
 }
 
 .page-hero.has-page-hero-bg {
-  background-position: center;
+  background-position: center 56%;
   min-height: clamp(360px, 46vw, 540px);
   padding-bottom: clamp(72px, 10vw, 128px);
   padding-top: clamp(88px, 11vw, 140px);
@@ -2647,20 +2672,20 @@ a.gallery-run-card:hover {
 }
 
 .money-hero.has-hero-bg {
-  background-position: center;
+  background-position: center 56%;
   min-height: clamp(420px, 52vw, 620px);
 }
 
 .about-section.has-section-bg,
 .news-section.has-section-bg {
   background-attachment: scroll;
-  background-position: center;
+  background-position: center 56%;
   min-height: clamp(420px, 44vw, 620px);
 }
 
 @media (max-width: 960px) {
   .page-hero.has-page-hero-bg {
-    background-position: center 58%;
+    background-position: center 60%;
     min-height: clamp(340px, 62vw, 520px);
   }
 
@@ -2671,7 +2696,7 @@ a.gallery-run-card:hover {
   .money-hero.has-hero-bg,
   .about-section.has-section-bg,
   .news-section.has-section-bg {
-    background-position: center 58%;
+    background-position: center 60%;
     background-attachment: scroll;
   }
 }
