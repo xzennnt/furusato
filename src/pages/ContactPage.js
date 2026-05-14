@@ -15,7 +15,7 @@ function ContactPage() {
       <section className="contact-hero">
         <div>
           <p className="eyebrow">Kontak Furusato</p>
-          <h1>Mari bicara tentang kelas, pendaftaran, dan rencana kerja ke Jepang.</h1>
+          <h1>Mari bicara tentang kelas, pendaftaran, dan rencana kerja ke Jepang dari Temanggung.</h1>
         </div>
         <div className="contact-card">
           <span>Hubungi Kami</span>
@@ -30,6 +30,7 @@ function ContactPage() {
           <span>01</span>
           <h2>Alamat</h2>
           <p>{site.address}</p>
+          <p>Furusato Temanggung melayani peserta dari Temanggung, Jawa Tengah, dan sekitarnya.</p>
         </article>
         <article>
           <span>02</span>

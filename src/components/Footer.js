@@ -80,6 +80,7 @@ function Footer() {
               </>
             )}
           </Link>
+          <p className="footer-brand-note">Lembaga pelatihan kerja bahasa Jepang di Temanggung.</p>
           <p className="footer-address">{site.address}</p>
         </div>
 

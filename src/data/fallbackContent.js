@@ -49,7 +49,7 @@ export const fallbackSite = {
     aboutPageUrl: '',
     galleryPageUrl: '',
   },
-  address: 'Isi alamat lengkap Furusato di dashboard admin.',
+  address: 'Temanggung, Jawa Tengah, Indonesia',
   phone: '+62 000 0000 0000',
   email: 'info@furusato.co.id',
   whatsapp: 'https://wa.me/6200000000000',

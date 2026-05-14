@@ -1947,6 +1947,14 @@ a.gallery-run-card:hover {
   max-width: 360px;
 }
 
+.footer-brand-note {
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 12px 0 0;
+}
+
 .footer-address {
   line-height: 1.65;
   margin-top: 6px;
