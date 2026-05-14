@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getFirestore: getAdminFirestore } = require('firebase-admin/firestore');
+const { getStorage } = require('firebase-admin/storage');
 
 const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
@@ -8,6 +9,7 @@ const sitePath = path.join(__dirname, 'data', 'site.json');
 
 const useFirestore = process.env.DATA_DRIVER === 'firestore';
 let firestore;
+let firebaseApp;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, 'utf8'));
@@ -17,16 +19,12 @@ function writeJson(filePath, data) {
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
-function getFirestore() {
-  if (!useFirestore) {
-    return null;
-  }
-
-  if (firestore) {
-    return firestore;
-  }
-
+function getFirebaseApp() {
   const admin = require('firebase-admin');
+
+  if (firebaseApp) {
+    return firebaseApp;
+  }
 
   if (!admin.apps.length) {
     const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
@@ -50,14 +48,35 @@ function getFirestore() {
     admin.initializeApp({
       credential,
       projectId: process.env.FIREBASE_PROJECT_ID,
+      storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
     });
   }
 
-  const app = admin.app();
+  firebaseApp = admin.app();
+  return firebaseApp;
+}
+
+function getFirestore() {
+  if (!useFirestore) {
+    return null;
+  }
+
+  if (firestore) {
+    return firestore;
+  }
+
+  const app = getFirebaseApp();
   firestore = process.env.FIRESTORE_DATABASE_ID
     ? getAdminFirestore(app, process.env.FIRESTORE_DATABASE_ID)
     : getAdminFirestore(app);
   return firestore;
+}
+
+function getFirebaseStorageBucket() {
+  const app = getFirebaseApp();
+  const bucketName = process.env.FIREBASE_STORAGE_BUCKET || `${process.env.FIREBASE_PROJECT_ID}.firebasestorage.app`;
+
+  return getStorage(app).bucket(bucketName);
 }
 
 async function readFirestoreDocument(collectionName, documentId, fallbackPath) {
@@ -138,6 +157,7 @@ module.exports = {
   readAccounts,
   readContent,
   readSite,
+  getFirebaseStorageBucket,
   writeAccounts,
   writeContent,
   writeSite,

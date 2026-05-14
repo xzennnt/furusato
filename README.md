@@ -159,8 +159,10 @@ Secara default backend masih memakai file JSON lokal agar development tetap muda
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
+FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
 FIRESTORE_DATABASE_ID=default
 FIRESTORE_LOCATION_ID=asia-southeast2
+UPLOAD_DRIVER=firebase
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -170,8 +172,10 @@ Jika tidak ingin menaruh file JSON credential di server, gunakan format base64:
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
+FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
 FIRESTORE_DATABASE_ID=default
 FIRESTORE_LOCATION_ID=asia-southeast2
+UPLOAD_DRIVER=firebase
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -203,7 +207,7 @@ npm run firebase:create-db
 npm run firebase:seed
 ```
 
-Catatan: upload gambar masih disimpan di folder lokal `server/uploads`. Ini aman untuk VPS biasa, tetapi untuk deploy serverless seperti Vercel sebaiknya dipindah ke Firebase Storage atau Cloudinary.
+Catatan: untuk Vercel, upload gambar memakai Firebase Storage. Gambar lama dari `server/uploads` juga disalin ke `public/uploads`, sehingga URL lama seperti `/uploads/nama-file.jpg` tetap terbaca setelah deploy.
 
 ## Deploy ke Vercel
 
@@ -214,8 +218,10 @@ Di dashboard Vercel, isi Environment Variables berikut:
 ```bash
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=furusato-homepage
+FIREBASE_STORAGE_BUCKET=furusato-homepage.firebasestorage.app
 FIRESTORE_DATABASE_ID=default
 FIRESTORE_AUTO_SEED=false
+UPLOAD_DRIVER=firebase
 ADMIN_USERNAME=admin
 ADMIN_PASSWORD=password-yang-kuat
 ```

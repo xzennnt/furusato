@@ -10,6 +10,7 @@ const {
   readAccounts,
   readContent,
   readSite,
+  getFirebaseStorageBucket,
   writeAccounts,
   writeContent,
   writeSite,
@@ -22,10 +23,13 @@ const uploadDir = path.join(__dirname, 'uploads');
 const buildPath = path.join(__dirname, '..', 'build');
 const buildIndexPath = path.join(buildPath, 'index.html');
 const ADMIN_SESSION_MS = 20 * 60 * 1000;
+const uploadDriver = process.env.UPLOAD_DRIVER || (process.env.VERCEL ? 'firebase' : 'local');
 
-fs.mkdirSync(uploadDir, { recursive: true });
+if (uploadDriver === 'local') {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
 
-const storage = multer.diskStorage({
+const diskStorage = multer.diskStorage({
   destination: uploadDir,
   filename: (_req, file, callback) => {
     const safeName = file.originalname.replace(/[^a-zA-Z0-9.-]/g, '-');
@@ -33,7 +37,12 @@ const storage = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage: uploadDriver === 'firebase' ? multer.memoryStorage() : diskStorage,
+  limits: {
+    fileSize: 8 * 1024 * 1024,
+  },
+});
 
 app.use(cors());
 app.use(express.json());
@@ -367,16 +376,39 @@ app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res)
   res.status(204).send();
 }));
 
-app.post('/api/admin/upload', requireAdmin, upload.single('image'), (req, res) => {
+app.post('/api/admin/upload', requireAdmin, upload.single('image'), asyncHandler(async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: 'File gambar belum dikirim.' });
+  }
+
+  if (uploadDriver === 'firebase') {
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9.-]/g, '-');
+    const filename = `${Date.now()}-${safeName}`;
+    const filePath = `uploads/${filename}`;
+    const downloadToken = crypto.randomUUID();
+    const bucket = getFirebaseStorageBucket();
+
+    await bucket.file(filePath).save(req.file.buffer, {
+      contentType: req.file.mimetype,
+      resumable: false,
+      metadata: {
+        metadata: {
+          firebaseStorageDownloadTokens: downloadToken,
+        },
+      },
+    });
+
+    return res.status(201).json({
+      filename,
+      imageUrl: `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(filePath)}?alt=media&token=${downloadToken}`,
+    });
   }
 
   return res.status(201).json({
     filename: req.file.filename,
     imageUrl: `/uploads/${req.file.filename}`,
   });
-});
+}));
 
 app.use('/api', (error, _req, res, _next) => {
   console.error(error);
