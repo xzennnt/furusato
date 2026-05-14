@@ -61,24 +61,24 @@ function JobPartnerSection() {
         </div>
 
         {isExternalJobLink ? (
-          <a className="job-banner-card sticker-card is-straight-card" href={jobLink} target="_blank" rel="noreferrer">
+          <a className="job-banner-card is-straight-card" href={jobLink} target="_blank" rel="noreferrer">
             {jobBannerContent}
           </a>
         ) : (
-          <Link className="job-banner-card sticker-card is-straight-card" to={jobLink}>
+          <Link className="job-banner-card is-straight-card" to={jobLink}>
             {jobBannerContent}
           </Link>
         )}
 
         <aside
-          className={`partner-panel sticker-card is-straight-card partner-count-${partners.length} ${partners.length > 4 ? 'has-many-partners' : ''}`}
+          className={`partner-panel is-straight-card partner-count-${partners.length} ${partners.length > 4 ? 'has-many-partners' : ''}`}
           aria-label="Mitra kerja sama"
         >
           <p className="eyebrow">Mitra Kerja Sama</p>
           <h2>Perusahaan dan LPK rekanan</h2>
           <div className="partner-list">
             {partners.map((partner) => (
-              <div className="partner-item sticker-card is-straight-card" key={partner.id}>
+              <div className="partner-item is-straight-card" key={partner.id}>
                 <div className="partner-icon">
                   {partner.iconUrl ? (
                     <img src={resolveMediaUrl(partner.iconUrl)} alt={partner.name} />

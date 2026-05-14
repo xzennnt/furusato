@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
@@ -14,42 +14,32 @@ const menuItems = [
 function NavigationBar() {
   const [site, setSite] = useState(fallbackSite);
   const [isCompact, setIsCompact] = useState(false);
-  const compactRef = useRef(false);
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
   }, []);
 
   useEffect(() => {
-    let frameId = 0;
+    const sentinel = document.getElementById('scroll-sentinel');
 
-    const updateCompactState = () => {
-      frameId = 0;
-      const nextCompact = window.scrollY > 24;
+    if (!sentinel || typeof IntersectionObserver === 'undefined') {
+      setIsCompact(window.scrollY > 24);
+      return undefined;
+    }
 
-      if (compactRef.current !== nextCompact) {
-        compactRef.current = nextCompact;
-        setIsCompact(nextCompact);
-      }
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsCompact(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+      },
+    );
 
-    updateCompactState();
-    const onScroll = () => {
-      if (frameId) {
-        return;
-      }
+    observer.observe(sentinel);
 
-      frameId = window.requestAnimationFrame(updateCompactState);
-    };
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (frameId) {
-        window.cancelAnimationFrame(frameId);
-      }
-    };
+    return () => observer.disconnect();
   }, []);
 
   const logoSrc = resolveMediaUrl(site.logoUrl);

@@ -3450,8 +3450,7 @@ body {
   min-height: 72px;
   padding-bottom: 10px;
   padding-top: 10px;
-  box-shadow: 0 8px 20px rgba(16, 36, 58, 0.12);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 6px 14px rgba(16, 36, 58, 0.08);
 }
 
 .yutaka-header.is-compact .yutaka-brand img {
@@ -3486,6 +3485,35 @@ body {
 
 .program-section .program-list article:nth-child(3n) {
   margin-top: 8px;
+}
+
+.site-header {
+  background: rgba(247, 250, 248, 0.98);
+}
+
+.yutaka-header {
+  backdrop-filter: none;
+}
+
+.job-banner-card,
+.partner-panel,
+.partner-item {
+  --sticker-tilt: 0deg;
+  --sticker-shadow-color: transparent;
+  --sticker-shadow-x: 0px;
+  --sticker-shadow-y: 0px;
+  box-shadow: none;
+  transform: none;
+}
+
+.job-banner-card:hover,
+.job-banner-card:focus-visible,
+.partner-panel:hover,
+.partner-panel:focus-visible,
+.partner-item:hover,
+.partner-item:focus-visible {
+  box-shadow: none;
+  transform: none;
 }
 
 @media (max-width: 720px) {
