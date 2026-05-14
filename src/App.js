@@ -6,6 +6,7 @@ import AdminDashboardPage from './admin/AdminDashboardPage';
 import AdminLoginPage from './admin/AdminLoginPage';
 import Footer from './components/Footer';
 import NavigationBar from './components/NavigationBar';
+import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import HomePage from './pages/HomePage';
@@ -26,13 +27,15 @@ function AppShell() {
         delay: 0.15,
         ease: 'power3.out',
       });
-      gsap.from('.image-marker, .gallery-card, .news-page-list article', {
+      gsap.from('.image-marker, .sticker-card', {
+        y: 28,
+        rotate: -1.5,
         scale: 0.96,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.08,
+        duration: 0.72,
+        stagger: 0.07,
         delay: 0.25,
-        ease: 'power3.out',
+        ease: 'back.out(1.35)',
       });
     }, rootRef);
 
@@ -40,11 +43,29 @@ function AppShell() {
   }, [location.pathname]);
 
   useEffect(() => {
+    let hashScrollTimer;
+
     if (location.hash) {
-      document.querySelector(location.hash)?.scrollIntoView();
+      hashScrollTimer = window.setTimeout(() => {
+        const target = document.querySelector(location.hash);
+
+        if (!target) {
+          return;
+        }
+
+        const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
+        const offset = headerHeight + 24;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - offset;
+
+        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+      }, 120);
     } else if (process.env.NODE_ENV !== 'test') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+
+    return () => {
+      window.clearTimeout(hashScrollTimer);
+    };
   }, [location]);
 
   return (
@@ -52,6 +73,7 @@ function AppShell() {
       <NavigationBar />
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/tentang" element={<AboutPage />} />
         <Route path="/galeri" element={<GalleryPage />} />
         <Route path="/berita" element={<NewsPage />} />
         <Route path="/kontak" element={<ContactPage />} />

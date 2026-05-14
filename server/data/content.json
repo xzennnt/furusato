@@ -1,18 +1,47 @@
 {
   "news": [
     {
+      "id": "news-1778700029649",
+      "date": "2026-05-13",
+      "title": "17 MAN GAJI BERSIH",
+      "description": "DI CARI CEWEK 2 COWOK 2 DOMI JEPANG, DAN DOMI INDO\nSYARAT : SSW JFT DI BUTUHKAN",
+      "content": "DI CARI CEWEK 2 COWOK 2 DOMI JEPANG, DAN DOMI INDO\nSYARAT : SSW JFT DI BUTUHKAN\n\nLink informasi: /berita",
+      "imageUrl": "/uploads/1778699956716-Screenshot-2026-05-13-150527.png",
+      "source": "job-banner"
+    },
+    {
+      "id": "news-1778699672825",
+      "date": "2026-05-13",
+      "title": "duo pemenang",
+      "description": "duo pemenang saber dan acer",
+      "content": "untuk memenangkan perang cawan mereka bergabung membuat tim",
+      "imageUrl": "/uploads/1778699668565-64b0708143ed03bf5cadeb71134beec2.jpg",
+      "source": ""
+    },
+    {
+      "id": "news-1778699595366",
+      "date": "2026-05-13",
+      "title": "saber bingung",
+      "description": "saber pengen makan hamburger",
+      "content": "jadi pada 20 maret 2026 saber kelaparan",
+      "imageUrl": "/uploads/1778699593505-saber.jpg",
+      "source": ""
+    },
+    {
       "id": "news-001",
       "date": "2026.05",
       "title": "Pendaftaran kelas persiapan kerja gelombang baru",
       "description": "Informasi jadwal, syarat peserta, dan tahapan seleksi dapat diperbarui di area ini.",
-      "content": "Gunakan dashboard admin untuk mengganti isi berita ini dengan pengumuman resmi Furusato."
+      "content": "Gunakan dashboard admin untuk mengganti isi berita ini dengan pengumuman resmi Furusato.",
+      "imageUrl": ""
     },
     {
       "id": "news-002",
       "date": "2026.05",
       "title": "Kegiatan pembinaan budaya kerja dan kedisiplinan",
       "description": "Ringkasan kegiatan pelatihan, dokumentasi, atau pengumuman resmi Furusato.",
-      "content": "Konten lengkap berita dapat berisi dokumentasi kelas, agenda pelatihan, dan informasi untuk peserta."
+      "content": "Konten lengkap berita dapat berisi dokumentasi kelas, agenda pelatihan, dan informasi untuk peserta.",
+      "imageUrl": ""
     }
   ],
   "gallery": [
@@ -41,17 +70,19 @@
       "imageUrl": ""
     }
   ],
-  "heroBackgroundUrl": "",
+  "heroBackgroundUrl": "/uploads/1778673395165-furusato-training-map.png",
   "jobBanner": {
-    "title": "life care group job",
-    "description": "Update peluang kerja, seleksi, dan kelas persiapan akan ditampilkan di area ini.",
-    "imageUrl": "/uploads/1778661030374-Screenshot-2026-05-13-150527.png",
+    "label": "kaigo aichiken",
+    "title": "17 MAN GAJI BERSIH",
+    "description": "DI CARI CEWEK 2 COWOK 2 DOMI JEPANG, DAN DOMI INDO\nSYARAT : SSW JFT DI BUTUHKAN",
+    "imageUrl": "/uploads/1778699956716-Screenshot-2026-05-13-150527.png",
     "linkUrl": "/berita"
   },
   "jobInfo": {
-    "title": "Info Job",
-    "description": "Ringkasan peluang kerja terbaru, jadwal seleksi, dan bidang kerja yang sedang dibuka.",
-    "linkUrl": "/berita"
+    "label": "kaigo aichiken",
+    "title": "17 MAN GAJI BERSIH",
+    "description": "DI CARI CEWEK 2 COWOK 2 DOMI JEPANG, DAN DOMI INDO\nSYARAT : SSW JFT DI BUTUHKAN",
+    "linkUrl": "/berita#news-1778700029649"
   },
   "partners": [
     {
@@ -60,14 +91,81 @@
       "iconUrl": "/uploads/1778660614913-createMyojiImage.png"
     },
     {
-      "id": "partner-002",
-      "name": "Mitra Bahasa",
+      "id": "partner-1778695249206",
+      "name": "Mitra Baru",
       "iconUrl": ""
     },
     {
-      "id": "partner-003",
-      "name": "Mitra Penempatan",
+      "id": "partner-1778698528410",
+      "name": "Mitra Baru",
+      "iconUrl": ""
+    },
+    {
+      "id": "partner-1778698653493",
+      "name": "Mitra Baru",
+      "iconUrl": ""
+    },
+    {
+      "id": "partner-1778698662934",
+      "name": "Mitra Baru",
       "iconUrl": ""
     }
-  ]
+  ],
+  "aboutContent": {
+    "profile": {
+      "eyebrow": "Tentang Furusato",
+      "title": "LPK Furusato",
+      "body": "Furusato adalah lembaga pelatihan kerja yang ikut berperan mengembangkan potensi sumber daya manusia Indonesia agar siap memasuki dunia kerja profesional, khususnya peluang kerja ke Jepang."
+    },
+    "chairman": {
+      "eyebrow": "Sambutan Ketua",
+      "name": "AZKI",
+      "body": "Kami berkomitmen memberikan pelatihan, pendampingan, dan pembinaan terbaik agar peserta tidak hanya siap bekerja, tetapi juga mampu membawa sikap disiplin, tangguh, dan bertanggung jawab.",
+      "imageUrl": "/uploads/1778719969014-Screenshot-2025-10-06-135806.png"
+    },
+    "visionMission": {
+      "visionTitle": "VISI",
+      "vision": "Menjadi lembaga pelatihan kerja yang dapat dipercaya, terbukti, dan bertanggung jawab dalam menyiapkan peserta menuju karier yang lebih baik.",
+      "missionTitle": "MISI",
+      "mission": "Mencetak sumber daya manusia yang berkualitas dan bersaing.\nMemberikan pelatihan bahasa, budaya kerja, dan karakter secara terarah.\nMenjalin kerja sama yang baik dengan mitra dan peserta."
+    },
+    "programs": [
+      {
+        "id": "program-001",
+        "title": "Program Bahasa Jepang",
+        "description": "Pembelajaran bahasa Jepang terarah untuk membantu peserta membangun kemampuan komunikasi dasar.",
+        "imageUrl": "/uploads/1778719158953-Screenshot-2025-09-28-184355.png"
+      },
+      {
+        "id": "program-002",
+        "title": "Pembinaan Budaya Kerja",
+        "description": "Pembinaan kedisiplinan, etika kerja, dan kesiapan mental untuk memasuki lingkungan kerja profesional.",
+        "imageUrl": "/uploads/1778719167273-Screenshot-2025-09-28-182723.png"
+      },
+      {
+        "id": "program-003",
+        "title": "Persiapan Seleksi",
+        "description": "Pendampingan dokumen, wawancara, dan simulasi seleksi agar peserta lebih siap mengikuti tahapan kerja.",
+        "imageUrl": "/uploads/1778719170621-Screenshot-2025-09-28-182815.png"
+      },
+      {
+        "id": "program-1778696751957",
+        "title": "Program Baru",
+        "description": "",
+        "imageUrl": "/uploads/1778719178128-Screenshot-2025-09-28-182925.png"
+      },
+      {
+        "id": "program-1778698964686",
+        "title": "Program Baru",
+        "description": "",
+        "imageUrl": "/uploads/1778719184223-Screenshot-2025-09-28-194224.png"
+      }
+    ],
+    "slogan": {
+      "eyebrow": "Langkah Kecilmu Hari Ini",
+      "title": "Bisa sampai ke Jepang esok hari.",
+      "buttonText": "Hubungi Kami",
+      "buttonUrl": "/kontak"
+    }
+  }
 }

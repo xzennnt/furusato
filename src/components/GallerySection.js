@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { fallbackGallery } from '../data/fallbackContent';
 import { API_BASE_URL, fetchJson } from '../lib/api';
 
+const getGalleryItemId = (id) => `galeri-${id}`;
+
 function GallerySection() {
   const [galleryItems, setGalleryItems] = useState(fallbackGallery);
   const marqueeItems = [...galleryItems, ...galleryItems];
@@ -20,18 +22,31 @@ function GallerySection() {
       </div>
       <div className="gallery-marquee" aria-label="Galeri berjalan">
         <div className="gallery-marquee-track">
-          {marqueeItems.map((item, index) => (
-            <article className="gallery-run-card" key={`${item.id}-${index}`}>
-              {item.imageUrl ? (
-                <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />
-              ) : (
-                <div className="gallery-placeholder image-marker">
-                  <span>UPLOAD GAMBAR</span>
-                </div>
-              )}
-              <strong>{item.title}</strong>
-            </article>
-          ))}
+          {marqueeItems.map((item, index) => {
+            const imageSrc = item.imageUrl ? `${API_BASE_URL}${item.imageUrl}` : '';
+            const cardContent = (
+              <>
+                {imageSrc ? (
+                  <img src={imageSrc} alt={item.title} />
+                ) : (
+                  <div className="gallery-placeholder image-marker">
+                    <span>UPLOAD GAMBAR</span>
+                  </div>
+                )}
+                <strong>{item.title}</strong>
+              </>
+            );
+
+            return (
+              <Link
+                className="gallery-run-card sticker-card"
+                key={`${item.id}-${index}`}
+                to={`/galeri#${getGalleryItemId(item.id)}`}
+              >
+                {cardContent}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>

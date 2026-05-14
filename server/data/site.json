@@ -1,15 +1,22 @@
 {
-  "brandName": "Furusato",
-  "brandSubtitle": "Lembaga Pelatihan Kerja",
-  "logoUrl": "/uploads/1778658893293-createMyojiImage.png",
-  "address": "Isi alamat lengkap Furusato di dashboard admin.",
-  "phone": "+62 000 0000 0000",
-  "email": "info@furusato.co.id",
-  "whatsapp": "https://wa.me/6200000000000",
+  "brandName": "FURUSATO",
+  "brandSubtitle": "LPK FURUSATO TEMANGGUNG",
+  "logoUrl": "/uploads/1778684122156-createMyojiImage.png",
+  "backgrounds": {
+    "homeHeroUrl": "/uploads/1778699864233-4WdfWUurzfA.jpg",
+    "homeAboutUrl": "/uploads/1778678324751-95f991cf-549b-4f22-a512-433c270501cf.png",
+    "homeNewsUrl": "/uploads/1778678261278-4f0548ef6043081b1fbf7db9a7b36c35d226ffbbr1-1920-1360v2-uhq.jpg",
+    "galleryPageUrl": "/uploads/1778678243335--2022.09.22--Roselia---Sonnenschein.mkv-snapshot-01.35.56.184.jpg",
+    "aboutPageUrl": "/uploads/1778678282101--DBD-Raws--BanG-Dream--12th---LIVE-DAY2--MyGO-------------------------------1080P--BDRip--HEVC-10bit--FLAC-.mkv-snapshot-01.29.42.012.jpg"
+  },
+  "address": "JL KUTILANG RAYA RT 1 RW 6 SUSUKAN NGEMPLAK UNGARAN TIMUR, KABUPATEN SEMARNAG, JAWA TENGAH, INDONESIA",
+  "phone": "0834123123213",
+  "email": "furusato123@gmail.com",
+  "whatsapp": "https://wa.me/628123456789",
   "socials": {
-    "instagram": "https://instagram.com/",
-    "facebook": "https://facebook.com/",
-    "youtube": "https://youtube.com/",
-    "tiktok": "https://tiktok.com/"
+    "instagram": "https://www.instagram.com/furusato.tmg/",
+    "facebook": "",
+    "youtube": "",
+    "tiktok": ""
   }
 }

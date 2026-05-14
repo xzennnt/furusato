@@ -5,7 +5,7 @@ import { API_BASE_URL, fetchSite } from '../lib/api';
 
 const menuItems = [
   { label: 'Home', href: '/' },
-  { label: 'Tentang Furusato', href: '/#tentang' },
+  { label: 'Tentang Furusato', href: '/tentang' },
   { label: 'Map', href: '/#map' },
   { label: 'Galeri', href: '/galeri' },
   { label: 'Berita', href: '/berita' },

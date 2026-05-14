@@ -3,17 +3,60 @@ import { API_BASE_URL } from '../lib/api';
 export { API_BASE_URL };
 
 const TOKEN_KEY = 'furusato_admin_token';
+const ADMIN_SESSION_SECONDS = 20 * 60;
+
+function getCookie(name) {
+  const cookie = document.cookie
+    .split('; ')
+    .find((item) => item.startsWith(`${name}=`));
+
+  return cookie ? decodeURIComponent(cookie.split('=').slice(1).join('=')) : '';
+}
+
+function setAdminCookie(token) {
+  document.cookie = `${TOKEN_KEY}=${encodeURIComponent(token)}; max-age=${ADMIN_SESSION_SECONDS}; path=/; samesite=lax`;
+}
+
+function clearAdminCookie() {
+  document.cookie = `${TOKEN_KEY}=; max-age=0; path=/; samesite=lax`;
+}
 
 export function getAdminToken() {
-  return localStorage.getItem(TOKEN_KEY);
+  const token = getCookie(TOKEN_KEY);
+
+  if (token) {
+    return token;
+  }
+
+  const legacySessionToken = sessionStorage.getItem(TOKEN_KEY);
+
+  if (legacySessionToken) {
+    setAdminCookie(legacySessionToken);
+    sessionStorage.removeItem(TOKEN_KEY);
+    return legacySessionToken;
+  }
+
+  return '';
 }
 
 export function setAdminToken(token) {
-  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  setAdminCookie(token);
 }
 
 export function clearAdminToken() {
   localStorage.removeItem(TOKEN_KEY);
+  sessionStorage.removeItem(TOKEN_KEY);
+  clearAdminCookie();
+}
+
+export function refreshAdminSession() {
+  const token = getAdminToken();
+
+  if (token) {
+    setAdminCookie(token);
+  }
 }
 
 export function isAdminLoggedIn() {
@@ -30,14 +73,24 @@ async function request(path, options = {}) {
   let response;
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, { ...options, headers });
+    response = await fetch(`${API_BASE_URL}${path}`, { cache: 'no-store', ...options, headers });
   } catch (_error) {
+    if (getAdminToken()) {
+      clearAdminToken();
+    }
     throw new Error('Tidak bisa terhubung ke backend. Jalankan server dengan npm.cmd run server.');
   }
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: 'Request gagal.' }));
+    if (response.status === 401) {
+      clearAdminToken();
+    }
     throw new Error(error.message || 'Request gagal.');
+  }
+
+  if (getAdminToken()) {
+    refreshAdminSession();
   }
 
   if (response.status === 204) {
@@ -134,8 +187,26 @@ export async function getHomeContent() {
   return request('/api/home-content');
 }
 
+export async function getAboutContent() {
+  return request('/api/about-content');
+}
+
 export async function updateHomeContent(payload) {
   return request('/api/admin/home-content', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateJobBanner(payload) {
+  return request('/api/admin/home-content/job-banner', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateAboutContent(payload) {
+  return request('/api/admin/about-content', {
     method: 'PUT',
     body: JSON.stringify(payload),
   });

@@ -1,17 +1,21 @@
 import { useEffect, useState } from 'react';
-import { fallbackHomeContent } from '../data/fallbackContent';
-import { API_BASE_URL, fetchJson } from '../lib/api';
-import NewsTicker from './NewsTicker';
+import { fallbackSite } from '../data/fallbackContent';
+import { API_BASE_URL, fetchSite } from '../lib/api';
 
 function HeroSection() {
-  const [homeContent, setHomeContent] = useState(fallbackHomeContent);
-  const backgroundUrl = homeContent.heroBackgroundUrl
-    ? `${API_BASE_URL}${homeContent.heroBackgroundUrl}`
+  const [site, setSite] = useState(fallbackSite);
+  const heroBackgroundUrl = site.backgrounds?.homeHeroUrl || '';
+  const backgroundUrl = heroBackgroundUrl
+    ? `${API_BASE_URL}${heroBackgroundUrl}`
     : '';
 
   useEffect(() => {
-    fetchJson('/api/home-content', fallbackHomeContent).then((data) => {
-      setHomeContent({ ...fallbackHomeContent, ...data });
+    fetchSite(fallbackSite).then((data) => {
+      setSite({
+        ...fallbackSite,
+        ...data,
+        backgrounds: { ...fallbackSite.backgrounds, ...(data.backgrounds || {}) },
+      });
     });
   }, []);
 
@@ -34,13 +38,6 @@ function HeroSection() {
         </div>
       </div>
 
-      <div className="hero-feature image-marker">
-        <div>
-          <span className="hero-badge">Berita Terkini</span>
-          <h2>Informasi kelas, seleksi, dan kegiatan peserta.</h2>
-        </div>
-        <NewsTicker />
-      </div>
     </section>
   );
 }

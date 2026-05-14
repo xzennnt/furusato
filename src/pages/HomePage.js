@@ -10,11 +10,11 @@ function HomePage() {
   return (
     <>
       <HeroSection />
-      <JobPartnerSection />
       <AboutSection />
       <ProgramSection />
-      <MapSection />
+      <JobPartnerSection />
       <GallerySection />
+      <MapSection />
       <NewsSection />
     </>
   );

@@ -34,7 +34,7 @@ function AdminLoginPage() {
         <div>
           <p className="eyebrow">Admin Furusato</p>
           <h1>Masuk Dashboard</h1>
-          <p>Login terlebih dahulu untuk mengelola berita dan galeri website.</p>
+          <p>Login terlebih dahulu untuk mengelola informasi dan gambar.</p>
         </div>
 
         <label>

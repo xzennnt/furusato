@@ -1,11 +1,33 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fallbackNews } from '../data/fallbackContent';
+import { fallbackNews, fallbackSite } from '../data/fallbackContent';
+import { API_BASE_URL, fetchJson, fetchSite } from '../lib/api';
 
 function NewsSection() {
-  const newsItems = fallbackNews.slice(0, 2);
+  const [site, setSite] = useState(fallbackSite);
+  const [newsItems, setNewsItems] = useState(fallbackNews.slice(0, 2));
+  const newsBackgroundUrl = site.backgrounds?.homeNewsUrl || '';
+  const backgroundUrl = newsBackgroundUrl ? `${API_BASE_URL}${newsBackgroundUrl}` : '';
+
+  useEffect(() => {
+    fetchSite(fallbackSite).then((data) => {
+      setSite({
+        ...fallbackSite,
+        ...data,
+        backgrounds: { ...fallbackSite.backgrounds, ...(data.backgrounds || {}) },
+      });
+    });
+    fetchJson('/api/news', fallbackNews).then((items) => {
+      setNewsItems(items.slice(0, 2));
+    });
+  }, []);
 
   return (
-    <section id="berita" className="news-section">
+    <section
+      id="berita"
+      className={`news-section ${backgroundUrl ? 'has-section-bg' : ''}`}
+      style={backgroundUrl ? { '--section-bg': `url(${backgroundUrl})` } : undefined}
+    >
       <p className="eyebrow">Berita</p>
       <div>
         <div className="section-heading-row">
@@ -14,10 +36,19 @@ function NewsSection() {
         </div>
         <div className="news-list">
           {newsItems.map((item) => (
-            <article key={item.id}>
-              <time>{item.date}</time>
-              <h3>{item.title}</h3>
-              <p>{item.description}</p>
+            <article className={`sticker-card ${item.imageUrl ? 'has-news-thumb' : ''}`} key={item.id}>
+              {item.imageUrl && (
+                <img
+                  className="news-home-thumb"
+                  src={`${API_BASE_URL}${item.imageUrl}`}
+                  alt={item.title}
+                />
+              )}
+              <div className="news-home-copy">
+                <time>{item.date}</time>
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
             </article>
           ))}
         </div>

@@ -1,4 +1,5 @@
 const cors = require('cors');
+const crypto = require('crypto');
 const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
@@ -10,7 +11,7 @@ const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
 const sitePath = path.join(__dirname, 'data', 'site.json');
 const uploadDir = path.join(__dirname, 'uploads');
-const adminToken = process.env.ADMIN_TOKEN || 'furusato-admin-token';
+const activeAdminTokens = new Set();
 
 fs.mkdirSync(uploadDir, { recursive: true });
 
@@ -27,6 +28,11 @@ const upload = multer({ storage });
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(uploadDir));
+
+app.use('/api', (_req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 
 app.get('/', (_req, res) => {
   res.json({
@@ -63,7 +69,7 @@ function writeSite(site) {
 function requireAdmin(req, res, next) {
   const token = req.headers.authorization?.replace('Bearer ', '');
 
-  if (token !== adminToken) {
+  if (!token || !activeAdminTokens.has(token)) {
     return res.status(401).json({ message: 'Akses admin diperlukan.' });
   }
 
@@ -75,7 +81,12 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.get('/api/news', (_req, res) => {
-  res.json(readContent().news);
+  const content = readContent();
+  res.json((content.news || []).map((item) => ({
+    imageUrl: '',
+    source: '',
+    ...item,
+  })));
 });
 
 app.get('/api/gallery', (_req, res) => {
@@ -86,10 +97,15 @@ app.get('/api/home-content', (_req, res) => {
   const content = readContent();
   res.json({
     heroBackgroundUrl: content.heroBackgroundUrl || '',
-    jobInfo: content.jobInfo,
-    jobBanner: content.jobBanner,
+    jobInfo: content.jobInfo || {},
+    jobBanner: content.jobBanner || {},
     partners: content.partners || [],
   });
+});
+
+app.get('/api/about-content', (_req, res) => {
+  const content = readContent();
+  res.json(content.aboutContent || {});
 });
 
 app.get('/api/site', (_req, res) => {
@@ -102,7 +118,9 @@ app.post('/api/admin/login', (req, res) => {
   const password = process.env.ADMIN_PASSWORD || accounts.admin.password;
 
   if (req.body.username === username && req.body.password === password) {
-    return res.json({ token: adminToken });
+    const token = crypto.randomUUID();
+    activeAdminTokens.add(token);
+    return res.json({ token });
   }
 
   return res.status(401).json({ message: 'Username atau password salah.' });
@@ -133,6 +151,10 @@ app.put('/api/admin/site', requireAdmin, (req, res) => {
   const nextSite = {
     ...currentSite,
     ...req.body,
+    backgrounds: {
+      ...(currentSite.backgrounds || {}),
+      ...(req.body.backgrounds || {}),
+    },
     socials: {
       ...currentSite.socials,
       ...(req.body.socials || {}),
@@ -145,7 +167,11 @@ app.put('/api/admin/site', requireAdmin, (req, res) => {
 
 app.put('/api/admin/home-content', requireAdmin, (req, res) => {
   const content = readContent();
-  content.heroBackgroundUrl = req.body.heroBackgroundUrl || '';
+
+  if (Object.prototype.hasOwnProperty.call(req.body, 'heroBackgroundUrl')) {
+    content.heroBackgroundUrl = req.body.heroBackgroundUrl || '';
+  }
+
   content.jobInfo = {
     ...(content.jobInfo || {}),
     ...(req.body.jobInfo || {}),
@@ -165,14 +191,66 @@ app.put('/api/admin/home-content', requireAdmin, (req, res) => {
   });
 });
 
+app.put('/api/admin/home-content/job-banner', requireAdmin, (req, res) => {
+  const content = readContent();
+  content.jobInfo = {
+    ...(content.jobInfo || {}),
+    ...(req.body.jobInfo || {}),
+  };
+  content.jobBanner = {
+    ...(content.jobBanner || {}),
+    ...(req.body.jobBanner || {}),
+  };
+  writeContent(content);
+
+  return res.json({
+    heroBackgroundUrl: content.heroBackgroundUrl || '',
+    jobInfo: content.jobInfo || {},
+    jobBanner: content.jobBanner || {},
+    partners: content.partners || [],
+  });
+});
+
+app.put('/api/admin/about-content', requireAdmin, (req, res) => {
+  const content = readContent();
+  content.aboutContent = {
+    ...(content.aboutContent || {}),
+    ...req.body,
+    profile: {
+      ...(content.aboutContent?.profile || {}),
+      ...(req.body.profile || {}),
+    },
+    chairman: {
+      ...(content.aboutContent?.chairman || {}),
+      ...(req.body.chairman || {}),
+    },
+    visionMission: {
+      ...(content.aboutContent?.visionMission || {}),
+      ...(req.body.visionMission || {}),
+    },
+    programs: req.body.programs || content.aboutContent?.programs || [],
+    slogan: {
+      ...(content.aboutContent?.slogan || {}),
+      ...(req.body.slogan || {}),
+    },
+  };
+  writeContent(content);
+  return res.json(content.aboutContent);
+});
+
 app.post('/api/admin/news', requireAdmin, (req, res) => {
   const content = readContent();
+  const imageUrl = req.body.imageUrl || (
+    req.body.source === 'job-banner' ? content.jobBanner?.imageUrl || '' : ''
+  );
   const item = {
     id: `news-${Date.now()}`,
-    date: req.body.date || '',
+    date: req.body.date || new Date().toISOString().slice(0, 10),
     title: req.body.title || 'Judul berita baru',
     description: req.body.description || '',
     content: req.body.content || '',
+    imageUrl,
+    source: req.body.source || '',
   };
 
   content.news.unshift(item);
@@ -188,7 +266,14 @@ app.put('/api/admin/news/:id', requireAdmin, (req, res) => {
     return res.status(404).json({ message: 'Berita tidak ditemukan.' });
   }
 
-  content.news[index] = { ...content.news[index], ...req.body, id: req.params.id };
+  content.news[index] = {
+    imageUrl: '',
+    source: '',
+    ...content.news[index],
+    ...req.body,
+    imageUrl: req.body.imageUrl ?? content.news[index].imageUrl ?? '',
+    id: req.params.id,
+  };
   writeContent(content);
   return res.json(content.news[index]);
 });

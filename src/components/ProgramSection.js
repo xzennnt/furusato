@@ -1,19 +1,16 @@
-const programs = [
-  {
-    title: 'Kelas bahasa Jepang',
-    description: 'Pembelajaran dasar hingga persiapan komunikasi kerja dengan bimbingan bertahap.',
-  },
-  {
-    title: 'Budaya dan etika kerja',
-    description: 'Pembinaan kedisiplinan, kebiasaan kerja, dan kesiapan mental sebelum seleksi.',
-  },
-  {
-    title: 'Pendampingan seleksi',
-    description: 'Simulasi wawancara, dokumen, dan pengarahan bidang kerja sesuai tujuan peserta.',
-  },
-];
+import { useEffect, useState } from 'react';
+import { fallbackAboutContent } from '../data/fallbackContent';
+import { API_BASE_URL, fetchJson } from '../lib/api';
 
 function ProgramSection() {
+  const [programs, setPrograms] = useState(fallbackAboutContent.programs);
+
+  useEffect(() => {
+    fetchJson('/api/about-content', fallbackAboutContent).then((data) => {
+      setPrograms(data.programs?.length ? data.programs : fallbackAboutContent.programs);
+    });
+  }, []);
+
   return (
     <section className="program-section">
       <p className="eyebrow">Program</p>
@@ -21,9 +18,12 @@ function ProgramSection() {
         <h2>Mulai karirmu dengan persiapan yang jelas.</h2>
       </div>
       <div className="program-list">
-        {programs.map((program, index) => (
-          <article key={program.title}>
-            <span>{String(index + 1).padStart(2, '0')}</span>
+        {programs.map((program) => (
+          <article
+            className={`sticker-card ${program.imageUrl ? 'has-program-bg' : ''}`}
+            key={program.id || program.title}
+            style={program.imageUrl ? { '--program-bg': `url(${API_BASE_URL}${program.imageUrl})` } : undefined}
+          >
             <h3>{program.title}</h3>
             <p>{program.description}</p>
           </article>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
   API_BASE_URL,
@@ -7,27 +7,43 @@ import {
   createNews,
   deleteGallery,
   deleteNews,
+  getAboutContent,
   getAdminAccount,
   getGallery,
   getHomeContent,
   getNews,
   getSiteSettings,
   isAdminLoggedIn,
+  refreshAdminSession,
   updateAdminAccount,
+  updateAboutContent,
   updateGallery,
   updateHomeContent,
+  updateJobBanner,
   updateNews,
   updateSiteSettings,
   uploadImage,
 } from './adminApi';
+import { fallbackAboutContent } from '../data/fallbackContent';
 
-const emptyNews = { id: '', date: '', title: '', description: '', content: '' };
+function getTodayDate() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+const emptyNews = { id: '', date: getTodayDate(), title: '', description: '', content: '', imageUrl: '' };
 const emptyGallery = { id: '', title: '', description: '', imageUrl: '' };
 const emptyAccount = { username: '', password: '' };
 const emptySite = {
   brandName: '',
   brandSubtitle: '',
   logoUrl: '',
+  backgrounds: {
+    homeHeroUrl: '',
+    homeAboutUrl: '',
+    homeNewsUrl: '',
+    aboutPageUrl: '',
+    galleryPageUrl: '',
+  },
   address: '',
   phone: '',
   email: '',
@@ -35,11 +51,20 @@ const emptySite = {
   socials: { instagram: '', facebook: '', youtube: '', tiktok: '' },
 };
 const emptyHomeContent = {
-  heroBackgroundUrl: '',
-  jobInfo: { title: '', description: '', linkUrl: '/berita' },
+  jobInfo: { label: 'Info Job', title: '', description: '', linkUrl: '/berita' },
   jobBanner: { title: '', description: '', imageUrl: '', linkUrl: '/berita' },
   partners: [],
 };
+
+function normalizeHomeContent(homeContent) {
+  return {
+    ...emptyHomeContent,
+    ...homeContent,
+    jobInfo: { ...emptyHomeContent.jobInfo, ...(homeContent.jobInfo || {}) },
+    jobBanner: { ...emptyHomeContent.jobBanner, ...(homeContent.jobBanner || {}) },
+    partners: homeContent.partners || [],
+  };
+}
 
 function AdminDashboardPage() {
   const navigate = useNavigate();
@@ -51,8 +76,45 @@ function AdminDashboardPage() {
   const [accountForm, setAccountForm] = useState(emptyAccount);
   const [siteForm, setSiteForm] = useState(emptySite);
   const [homeContentForm, setHomeContentForm] = useState(emptyHomeContent);
+  const [aboutContentForm, setAboutContentForm] = useState(fallbackAboutContent);
   const [message, setMessage] = useState('');
+  const [messageTone, setMessageTone] = useState('success');
   const [error, setError] = useState('');
+
+  const refreshContent = useCallback(async () => {
+    try {
+      const [news, gallery, account, site, homeContent, aboutContent] = await Promise.all([
+        getNews(),
+        getGallery(),
+        getAdminAccount(),
+        getSiteSettings(),
+        getHomeContent(),
+        getAboutContent(),
+      ]);
+      setNewsItems(news);
+      setGalleryItems(gallery);
+      setAccountForm({ username: account.username, password: '' });
+      setSiteForm({
+        ...emptySite,
+        ...site,
+        backgrounds: { ...emptySite.backgrounds, ...(site.backgrounds || {}) },
+        socials: { ...emptySite.socials, ...(site.socials || {}) },
+      });
+      setHomeContentForm(normalizeHomeContent(homeContent));
+      setAboutContentForm({
+        ...fallbackAboutContent,
+        ...aboutContent,
+        profile: { ...fallbackAboutContent.profile, ...(aboutContent.profile || {}) },
+        chairman: { ...fallbackAboutContent.chairman, ...(aboutContent.chairman || {}) },
+        visionMission: { ...fallbackAboutContent.visionMission, ...(aboutContent.visionMission || {}) },
+        programs: aboutContent.programs?.length ? aboutContent.programs : fallbackAboutContent.programs,
+        slogan: { ...fallbackAboutContent.slogan, ...(aboutContent.slogan || {}) },
+      });
+    } catch (requestError) {
+      clearAdminToken();
+      navigate('/admin/login', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (!isAdminLoggedIn()) {
@@ -60,56 +122,171 @@ function AdminDashboardPage() {
     }
 
     refreshContent();
-  }, []);
+  }, [refreshContent]);
+
+  useEffect(() => {
+    if (!isAdminLoggedIn()) {
+      return undefined;
+    }
+
+    const verifyAdminSession = async () => {
+      try {
+        await getAdminAccount();
+        refreshAdminSession();
+      } catch (_requestError) {
+        clearAdminToken();
+        navigate('/admin/login', { replace: true });
+      }
+    };
+
+    const timer = window.setInterval(verifyAdminSession, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!message && !error) {
+      return undefined;
+    }
+
+    const timer = window.setTimeout(() => {
+      setMessage('');
+      setError('');
+    }, 3000);
+
+    return () => window.clearTimeout(timer);
+  }, [message, error]);
 
   if (!isAdminLoggedIn()) {
     return <Navigate to="/admin/login" replace />;
   }
 
-  async function refreshContent() {
-    try {
-      const [news, gallery, account, site, homeContent] = await Promise.all([
-        getNews(),
-        getGallery(),
-        getAdminAccount(),
-        getSiteSettings(),
-        getHomeContent(),
-      ]);
-      setNewsItems(news);
-      setGalleryItems(gallery);
-      setAccountForm({ username: account.username, password: '' });
-      setSiteForm({ ...emptySite, ...site, socials: { ...emptySite.socials, ...(site.socials || {}) } });
-      setHomeContentForm({
-        heroBackgroundUrl: homeContent.heroBackgroundUrl || '',
-        jobInfo: { ...emptyHomeContent.jobInfo, ...(homeContent.jobInfo || {}) },
-        jobBanner: { ...emptyHomeContent.jobBanner, ...(homeContent.jobBanner || {}) },
-        partners: homeContent.partners || [],
+  function resetFeedback() {
+    setMessage('');
+    setMessageTone('success');
+    setError('');
+  }
+
+  function showToast(text, tone = 'success') {
+    setMessageTone(tone);
+    setMessage(text);
+  }
+
+  function scrollToAdminRow(rowType, rowId) {
+    if (!rowType || !rowId) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        const targetRow = document.querySelector(`[data-admin-row="${rowType}"][data-row-id="${rowId}"]`);
+        targetRow?.scrollIntoView({ block: 'start', behavior: 'smooth' });
       });
-    } catch (requestError) {
-      setError(requestError.message);
+    });
+  }
+
+  function scrollToProgramRow(programId) {
+    scrollToAdminRow('program', programId);
+  }
+
+  function scrollToPartnerRow(partnerId) {
+    scrollToAdminRow('partner', partnerId);
+  }
+
+  function getDashboardScrollY() {
+    return window.scrollY || window.pageYOffset || 0;
+  }
+
+  function restoreDashboardScroll(scrollY) {
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: scrollY, behavior: 'auto' });
+      });
+    });
+  }
+
+  async function keepDashboardPosition(action) {
+    const scrollY = getDashboardScrollY();
+
+    try {
+      return await action();
+    } finally {
+      restoreDashboardScroll(scrollY);
     }
   }
 
-  function resetFeedback() {
-    setMessage('');
-    setError('');
+  async function saveHomeContent(payload, messageText) {
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const updatedHomeContent = await updateHomeContent(payload);
+        setHomeContentForm(normalizeHomeContent(updatedHomeContent));
+        setMessage(messageText);
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
+  async function saveJobBanner() {
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const updatedHomeContent = await updateJobBanner({
+          jobInfo: homeContentForm.jobInfo,
+          jobBanner: {
+            ...homeContentForm.jobBanner,
+            label: homeContentForm.jobInfo.label,
+            title: homeContentForm.jobInfo.title,
+            description: homeContentForm.jobInfo.description,
+            linkUrl: homeContentForm.jobInfo.linkUrl,
+          },
+        });
+        setHomeContentForm(normalizeHomeContent(updatedHomeContent));
+        setMessage('Banner info job berhasil disimpan.');
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
   }
 
   async function handleNewsSubmit(event) {
     event.preventDefault();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        if (newsForm.id) {
+          await updateNews(newsForm.id, newsForm);
+          setMessage('Berita berhasil diperbarui.');
+        } else {
+          await createNews(newsForm);
+          setMessage('Berita baru berhasil ditambahkan.');
+        }
+
+        setNewsForm({ ...emptyNews, date: getTodayDate() });
+        await refreshContent();
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
+  async function handleNewsImageUpload(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
     resetFeedback();
 
     try {
-      if (newsForm.id) {
-        await updateNews(newsForm.id, newsForm);
-        setMessage('Berita berhasil diperbarui.');
-      } else {
-        await createNews(newsForm);
-        setMessage('Berita baru berhasil ditambahkan.');
-      }
-
-      setNewsForm(emptyNews);
-      await refreshContent();
+      const result = await uploadImage(file);
+      setNewsForm((currentForm) => ({ ...currentForm, imageUrl: result.imageUrl }));
+      setMessage('Gambar berita berhasil diupload. Klik Tambah/Update Berita untuk menyimpan.');
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -117,22 +294,24 @@ function AdminDashboardPage() {
 
   async function handleGallerySubmit(event) {
     event.preventDefault();
-    resetFeedback();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
 
-    try {
-      if (galleryForm.id) {
-        await updateGallery(galleryForm.id, galleryForm);
-        setMessage('Galeri berhasil diperbarui.');
-      } else {
-        await createGallery(galleryForm);
-        setMessage('Galeri baru berhasil ditambahkan.');
+      try {
+        if (galleryForm.id) {
+          await updateGallery(galleryForm.id, galleryForm);
+          setMessage('Galeri berhasil diperbarui.');
+        } else {
+          await createGallery(galleryForm);
+          setMessage('Galeri baru berhasil ditambahkan.');
+        }
+
+        setGalleryForm(emptyGallery);
+        await refreshContent();
+      } catch (requestError) {
+        setError(requestError.message);
       }
-
-      setGalleryForm(emptyGallery);
-      await refreshContent();
-    } catch (requestError) {
-      setError(requestError.message);
-    }
+    });
   }
 
   async function handleAccountSubmit(event) {
@@ -196,17 +375,46 @@ function AdminDashboardPage() {
 
     try {
       const result = await uploadImage(file);
-      setHomeContentForm({
-        ...homeContentForm,
-        jobBanner: { ...homeContentForm.jobBanner, imageUrl: result.imageUrl },
-      });
-      setMessage('Banner job berhasil diupload. Klik Simpan Job & Mitra untuk memakai banner ini.');
+      setHomeContentForm((currentForm) => ({
+        ...currentForm,
+        jobBanner: {
+          ...currentForm.jobBanner,
+          imageUrl: result.imageUrl,
+          label: currentForm.jobInfo.label,
+          title: currentForm.jobInfo.title,
+          description: currentForm.jobInfo.description,
+          linkUrl: currentForm.jobInfo.linkUrl,
+        },
+      }));
+      setMessage('Banner job berhasil diupload. Klik Simpan Banner untuk memakai gambar ini.');
     } catch (requestError) {
       setError(requestError.message);
     }
   }
 
-  async function handleHeroBackgroundUpload(event) {
+  async function handleSiteBackgroundUpload(key, file) {
+    if (!file) {
+      return;
+    }
+
+    resetFeedback();
+
+    try {
+      const result = await uploadImage(file);
+      setSiteForm({
+        ...siteForm,
+        backgrounds: {
+          ...siteForm.backgrounds,
+          [key]: result.imageUrl,
+        },
+      });
+      setMessage('Background berhasil diupload. Klik Simpan Site untuk memakai gambar ini.');
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
+  async function handleChairmanImageUpload(event) {
     const file = event.target.files?.[0];
 
     if (!file) {
@@ -217,14 +425,17 @@ function AdminDashboardPage() {
 
     try {
       const result = await uploadImage(file);
-      setHomeContentForm({ ...homeContentForm, heroBackgroundUrl: result.imageUrl });
-      setMessage('Background home berhasil diupload. Klik Simpan Job & Mitra untuk memakai background ini.');
+      setAboutContentForm({
+        ...aboutContentForm,
+        chairman: { ...aboutContentForm.chairman, imageUrl: result.imageUrl },
+      });
+      setMessage('Foto ketua berhasil diupload. Klik Simpan Tentang Furusato untuk memakai foto ini.');
     } catch (requestError) {
       setError(requestError.message);
     }
   }
 
-  async function handlePartnerIconUpload(index, file) {
+  async function handleAboutProgramImageUpload(index, file) {
     if (!file) {
       return;
     }
@@ -233,27 +444,111 @@ function AdminDashboardPage() {
 
     try {
       const result = await uploadImage(file);
-      const partners = homeContentForm.partners.map((partner, partnerIndex) => (
-        partnerIndex === index ? { ...partner, iconUrl: result.imageUrl } : partner
+      const programs = aboutContentForm.programs.map((program, programIndex) => (
+        programIndex === index ? { ...program, imageUrl: result.imageUrl } : program
       ));
-      setHomeContentForm({ ...homeContentForm, partners });
-      setMessage('Icon mitra berhasil diupload. Klik Simpan Job & Mitra untuk menyimpan.');
+      setAboutContentForm({ ...aboutContentForm, programs });
+      setMessage('Gambar program berhasil diupload. Klik tombol simpan pada panel terkait untuk menyimpan.');
     } catch (requestError) {
       setError(requestError.message);
     }
   }
 
-  async function handleHomeContentSubmit(event) {
-    event.preventDefault();
-    resetFeedback();
+  function updateAboutProgram(index, patch) {
+    const programs = aboutContentForm.programs.map((program, programIndex) => (
+      programIndex === index ? { ...program, ...patch } : program
+    ));
+    setAboutContentForm({ ...aboutContentForm, programs });
+  }
 
-    try {
-      await updateHomeContent(homeContentForm);
-      setMessage('Banner job dan mitra berhasil diperbarui.');
-      await refreshContent();
-    } catch (requestError) {
-      setError(requestError.message);
+  function addAboutProgram() {
+    const newProgram = { id: `program-${Date.now()}`, title: 'Program Baru', description: '', imageUrl: '' };
+
+    setAboutContentForm({
+      ...aboutContentForm,
+      programs: [
+        ...aboutContentForm.programs,
+        newProgram,
+      ],
+    });
+    showToast(activeTab === 'about' ? 'Program kerja Furusato berhasil ditambahkan.' : 'Program home berhasil ditambahkan.');
+    scrollToProgramRow(newProgram.id);
+  }
+
+  function removeAboutProgram(index) {
+    const nextPrograms = aboutContentForm.programs.filter((_program, programIndex) => programIndex !== index);
+    const nextProgram = nextPrograms[Math.min(index, nextPrograms.length - 1)];
+
+    setAboutContentForm({
+      ...aboutContentForm,
+      programs: nextPrograms,
+    });
+    showToast(activeTab === 'about' ? 'Program kerja Furusato berhasil dihapus.' : 'Program home berhasil dihapus.', 'delete');
+    scrollToProgramRow(nextProgram?.id);
+  }
+
+  function updateSiteBackground(key, value) {
+    setSiteForm({
+      ...siteForm,
+      backgrounds: {
+        ...siteForm.backgrounds,
+        [key]: value,
+      },
+    });
+  }
+
+  async function handlePartnerIconUpload(index, file) {
+    if (!file) {
+      return;
     }
+
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const result = await uploadImage(file);
+        const partners = homeContentForm.partners.map((partner, partnerIndex) => (
+          partnerIndex === index ? { ...partner, iconUrl: result.imageUrl } : partner
+        ));
+        setHomeContentForm({ ...homeContentForm, partners });
+        setMessage('Icon mitra berhasil diupload. Klik Simpan Mitra untuk menyimpan.');
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
+  async function handlePublishJobNews() {
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const today = new Date();
+        const publishedNews = await createNews({
+          date: today.toISOString().slice(0, 10),
+          title: homeContentForm.jobInfo.title || 'Info Job Baru',
+          description: homeContentForm.jobInfo.description || '',
+          content: [
+            homeContentForm.jobInfo.description || '',
+            homeContentForm.jobInfo.linkUrl ? `Link informasi: ${homeContentForm.jobInfo.linkUrl}` : '',
+          ].filter(Boolean).join('\n\n'),
+          imageUrl: homeContentForm.jobBanner.imageUrl || '',
+          source: 'job-banner',
+        });
+        const nextHomeContent = {
+          ...homeContentForm,
+          jobInfo: {
+            ...homeContentForm.jobInfo,
+            linkUrl: `/berita#${publishedNews.id}`,
+          },
+        };
+        const updatedHomeContent = await updateHomeContent(nextHomeContent);
+        setHomeContentForm(normalizeHomeContent(updatedHomeContent));
+        setMessage('Info job berhasil diposting ke Berita dan link banner sudah diarahkan ke artikel tersebut.');
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
   }
 
   function updatePartner(index, patch) {
@@ -264,47 +559,118 @@ function AdminDashboardPage() {
   }
 
   function addPartner() {
+    const newPartner = { id: `partner-${Date.now()}`, name: 'Mitra Baru', iconUrl: '' };
+
     setHomeContentForm({
       ...homeContentForm,
       partners: [
         ...homeContentForm.partners,
-        { id: `partner-${Date.now()}`, name: 'Mitra Baru', iconUrl: '' },
+        newPartner,
       ],
     });
+    showToast('Mitra kerja sama berhasil ditambahkan.');
+    scrollToPartnerRow(newPartner.id);
   }
 
   function removePartner(index) {
+    const nextPartners = homeContentForm.partners.filter((_partner, partnerIndex) => partnerIndex !== index);
+    const nextPartner = nextPartners[Math.min(index, nextPartners.length - 1)];
+
     setHomeContentForm({
       ...homeContentForm,
-      partners: homeContentForm.partners.filter((_partner, partnerIndex) => partnerIndex !== index),
+      partners: nextPartners,
     });
+    showToast('Mitra kerja sama berhasil dihapus.', 'delete');
+    scrollToPartnerRow(nextPartner?.id);
   }
 
   async function handleSiteSubmit(event) {
     event.preventDefault();
-    resetFeedback();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
 
-    try {
-      await updateSiteSettings(siteForm);
-      setMessage('Logo dan informasi website berhasil diperbarui.');
-      await refreshContent();
-    } catch (requestError) {
-      setError(requestError.message);
-    }
+      try {
+        await updateSiteSettings(siteForm);
+        setMessage('Logo dan informasi website berhasil diperbarui.');
+        await refreshContent();
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
+  async function handleAboutContentSubmit(event) {
+    event.preventDefault();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const updatedAboutContent = await updateAboutContent(aboutContentForm);
+        setAboutContentForm({
+          ...fallbackAboutContent,
+          ...updatedAboutContent,
+          profile: { ...fallbackAboutContent.profile, ...(updatedAboutContent.profile || {}) },
+          chairman: { ...fallbackAboutContent.chairman, ...(updatedAboutContent.chairman || {}) },
+          visionMission: { ...fallbackAboutContent.visionMission, ...(updatedAboutContent.visionMission || {}) },
+          programs: updatedAboutContent.programs?.length ? updatedAboutContent.programs : fallbackAboutContent.programs,
+          slogan: { ...fallbackAboutContent.slogan, ...(updatedAboutContent.slogan || {}) },
+        });
+        setMessage('Konten Tentang Furusato berhasil disimpan.');
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
+  async function handleProgramHomeSubmit(event) {
+    event.preventDefault();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        const updatedAboutContent = await updateAboutContent(aboutContentForm);
+        setAboutContentForm({
+          ...fallbackAboutContent,
+          ...updatedAboutContent,
+          profile: { ...fallbackAboutContent.profile, ...(updatedAboutContent.profile || {}) },
+          chairman: { ...fallbackAboutContent.chairman, ...(updatedAboutContent.chairman || {}) },
+          visionMission: { ...fallbackAboutContent.visionMission, ...(updatedAboutContent.visionMission || {}) },
+          programs: updatedAboutContent.programs?.length ? updatedAboutContent.programs : fallbackAboutContent.programs,
+          slogan: { ...fallbackAboutContent.slogan, ...(updatedAboutContent.slogan || {}) },
+        });
+        setMessage('Program home berhasil disimpan.');
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
   }
 
   async function handleDeleteNews(id) {
-    resetFeedback();
-    await deleteNews(id);
-    setMessage('Berita berhasil dihapus.');
-    await refreshContent();
+    const nextItems = newsItems.filter((item) => item.id !== id);
+    const removedIndex = newsItems.findIndex((item) => item.id === id);
+    const nextItem = nextItems[Math.min(Math.max(removedIndex, 0), nextItems.length - 1)];
+
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+      await deleteNews(id);
+      showToast('Berita berhasil dihapus.', 'delete');
+      await refreshContent();
+    });
+    scrollToAdminRow('news', nextItem?.id);
   }
 
   async function handleDeleteGallery(id) {
-    resetFeedback();
-    await deleteGallery(id);
-    setMessage('Galeri berhasil dihapus.');
-    await refreshContent();
+    const nextItems = galleryItems.filter((item) => item.id !== id);
+    const removedIndex = galleryItems.findIndex((item) => item.id === id);
+    const nextItem = nextItems[Math.min(Math.max(removedIndex, 0), nextItems.length - 1)];
+
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+      await deleteGallery(id);
+      showToast('Galeri berhasil dihapus.', 'delete');
+      await refreshContent();
+    });
+    scrollToAdminRow('gallery', nextItem?.id);
   }
 
   function logout() {
@@ -329,18 +695,24 @@ function AdminDashboardPage() {
         <button className={activeTab === 'gallery' ? 'active' : ''} type="button" onClick={() => setActiveTab('gallery')}>
           Galeri
         </button>
+        <button className={activeTab === 'about' ? 'active' : ''} type="button" onClick={() => setActiveTab('about')}>
+          Tentang Furusato
+        </button>
         <button className={activeTab === 'account' ? 'active' : ''} type="button" onClick={() => setActiveTab('account')}>
           Setting Akun
         </button>
         <button className={activeTab === 'site' ? 'active' : ''} type="button" onClick={() => setActiveTab('site')}>
           Logo & Site
         </button>
+        <button className={activeTab === 'homeBackgrounds' ? 'active' : ''} type="button" onClick={() => setActiveTab('homeBackgrounds')}>
+          Background Home
+        </button>
         <button className={activeTab === 'home' ? 'active' : ''} type="button" onClick={() => setActiveTab('home')}>
           Job & Mitra
         </button>
       </div>
 
-      {message && <div className="admin-success">{message}</div>}
+      {message && <div className={`admin-success ${messageTone === 'delete' ? 'is-delete' : ''}`}>{message}</div>}
       {error && <div className="admin-error">{error}</div>}
 
       {activeTab === 'news' ? (
@@ -349,7 +721,7 @@ function AdminDashboardPage() {
             <h2>{newsForm.id ? 'Edit Berita' : 'Tambah Berita'}</h2>
             <label>
               Tanggal
-              <input value={newsForm.date} onChange={(event) => setNewsForm({ ...newsForm, date: event.target.value })} placeholder="2026.05" />
+              <input type="date" value={newsForm.date || getTodayDate()} onChange={(event) => setNewsForm({ ...newsForm, date: event.target.value })} />
             </label>
             <label>
               Judul
@@ -363,16 +735,28 @@ function AdminDashboardPage() {
               Isi berita
               <textarea value={newsForm.content} onChange={(event) => setNewsForm({ ...newsForm, content: event.target.value })} rows="6" />
             </label>
+            <label>
+              Upload gambar berita
+              <input type="file" accept="image/*" onChange={handleNewsImageUpload} />
+            </label>
+            <label>
+              URL gambar berita
+              <input value={newsForm.imageUrl || ''} onChange={(event) => setNewsForm({ ...newsForm, imageUrl: event.target.value })} placeholder="/uploads/gambar-berita.jpg" />
+            </label>
+            {newsForm.imageUrl && (
+              <img className="admin-image-preview" src={`${API_BASE_URL}${newsForm.imageUrl}`} alt="Preview berita" />
+            )}
             <div className="admin-form-actions">
               <button type="submit">{newsForm.id ? 'Update Berita' : 'Tambah Berita'}</button>
-              {newsForm.id && <button type="button" className="ghost-button" onClick={() => setNewsForm(emptyNews)}>Batal</button>}
+              {newsForm.id && <button type="button" className="ghost-button" onClick={() => setNewsForm({ ...emptyNews, date: getTodayDate() })}>Batal</button>}
             </div>
           </form>
 
           <div className="admin-panel admin-list">
             <h2>Daftar Berita</h2>
             {newsItems.map((item) => (
-              <article key={item.id}>
+              <article data-admin-row="news" data-row-id={item.id} key={item.id}>
+                {item.imageUrl && <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />}
                 <time>{item.date}</time>
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
@@ -416,7 +800,7 @@ function AdminDashboardPage() {
           <div className="admin-panel admin-list">
             <h2>Daftar Galeri</h2>
             {galleryItems.map((item) => (
-              <article key={item.id}>
+              <article data-admin-row="gallery" data-row-id={item.id} key={item.id}>
                 {item.imageUrl && <img src={`${API_BASE_URL}${item.imageUrl}`} alt={item.title} />}
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
@@ -427,6 +811,137 @@ function AdminDashboardPage() {
               </article>
             ))}
           </div>
+        </div>
+      ) : activeTab === 'about' ? (
+        <div className="admin-grid about-admin-grid">
+          <form className="admin-panel" onSubmit={handleAboutContentSubmit}>
+            <h2>Tentang Furusato</h2>
+            <div className="admin-field-group">
+              <h3>1. Konten Tentang Furusato</h3>
+              <label>
+                Label kecil
+                <input value={aboutContentForm.profile.eyebrow} onChange={(event) => setAboutContentForm({ ...aboutContentForm, profile: { ...aboutContentForm.profile, eyebrow: event.target.value } })} />
+              </label>
+              <label>
+                Judul
+                <input value={aboutContentForm.profile.title} onChange={(event) => setAboutContentForm({ ...aboutContentForm, profile: { ...aboutContentForm.profile, title: event.target.value } })} />
+              </label>
+              <label>
+                Isi konten
+                <textarea value={aboutContentForm.profile.body} onChange={(event) => setAboutContentForm({ ...aboutContentForm, profile: { ...aboutContentForm.profile, body: event.target.value } })} rows="7" />
+              </label>
+            </div>
+
+            <div className="admin-field-group">
+              <h3>2. Sambutan Ketua</h3>
+              <label>
+                Label kecil
+                <input value={aboutContentForm.chairman.eyebrow} onChange={(event) => setAboutContentForm({ ...aboutContentForm, chairman: { ...aboutContentForm.chairman, eyebrow: event.target.value } })} />
+              </label>
+              <label>
+                Nama ketua
+                <input value={aboutContentForm.chairman.name} onChange={(event) => setAboutContentForm({ ...aboutContentForm, chairman: { ...aboutContentForm.chairman, name: event.target.value } })} />
+              </label>
+              <label>
+                Upload foto ketua
+                <input type="file" accept="image/*" onChange={handleChairmanImageUpload} />
+              </label>
+              <label>
+                URL foto ketua
+                <input value={aboutContentForm.chairman.imageUrl || ''} onChange={(event) => setAboutContentForm({ ...aboutContentForm, chairman: { ...aboutContentForm.chairman, imageUrl: event.target.value } })} placeholder="/uploads/foto-ketua.jpg" />
+              </label>
+              {aboutContentForm.chairman.imageUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${aboutContentForm.chairman.imageUrl}`} alt="Preview foto ketua" />
+              )}
+              <label>
+                Isi sambutan
+                <textarea value={aboutContentForm.chairman.body} onChange={(event) => setAboutContentForm({ ...aboutContentForm, chairman: { ...aboutContentForm.chairman, body: event.target.value } })} rows="7" />
+              </label>
+            </div>
+
+            <div className="admin-field-group">
+              <h3>3. Visi Misi</h3>
+              <label>
+                Judul visi
+                <input value={aboutContentForm.visionMission.visionTitle} onChange={(event) => setAboutContentForm({ ...aboutContentForm, visionMission: { ...aboutContentForm.visionMission, visionTitle: event.target.value } })} />
+              </label>
+              <label>
+                Isi visi
+                <textarea value={aboutContentForm.visionMission.vision} onChange={(event) => setAboutContentForm({ ...aboutContentForm, visionMission: { ...aboutContentForm.visionMission, vision: event.target.value } })} rows="4" />
+              </label>
+              <label>
+                Judul misi
+                <input value={aboutContentForm.visionMission.missionTitle} onChange={(event) => setAboutContentForm({ ...aboutContentForm, visionMission: { ...aboutContentForm.visionMission, missionTitle: event.target.value } })} />
+              </label>
+              <label>
+                Isi misi
+                <textarea value={aboutContentForm.visionMission.mission} onChange={(event) => setAboutContentForm({ ...aboutContentForm, visionMission: { ...aboutContentForm.visionMission, mission: event.target.value } })} rows="6" />
+              </label>
+            </div>
+
+            <div className="admin-field-group">
+              <h3>4. Slogan</h3>
+              <label>
+                Label kecil
+                <input value={aboutContentForm.slogan.eyebrow} onChange={(event) => setAboutContentForm({ ...aboutContentForm, slogan: { ...aboutContentForm.slogan, eyebrow: event.target.value } })} />
+              </label>
+              <label>
+                Judul slogan
+                <input value={aboutContentForm.slogan.title} onChange={(event) => setAboutContentForm({ ...aboutContentForm, slogan: { ...aboutContentForm.slogan, title: event.target.value } })} />
+              </label>
+              <label>
+                Teks tombol
+                <input value={aboutContentForm.slogan.buttonText} onChange={(event) => setAboutContentForm({ ...aboutContentForm, slogan: { ...aboutContentForm.slogan, buttonText: event.target.value } })} />
+              </label>
+              <label>
+                URL tombol
+                <input value={aboutContentForm.slogan.buttonUrl} onChange={(event) => setAboutContentForm({ ...aboutContentForm, slogan: { ...aboutContentForm.slogan, buttonUrl: event.target.value } })} />
+              </label>
+            </div>
+
+            <div className="admin-form-actions">
+              <button type="submit">Simpan Tentang Furusato</button>
+            </div>
+          </form>
+
+          <form className="admin-panel" onSubmit={handleProgramHomeSubmit}>
+            <div className="section-heading-row">
+              <h2>Program Kerja Furusato</h2>
+                <button type="button" className="ghost-button add-button" onClick={addAboutProgram}>Tambah Program</button>
+            </div>
+            {aboutContentForm.programs.map((program, index) => (
+              <div
+                className="admin-partner-row"
+                data-admin-row="program"
+                data-row-id={program.id}
+                key={program.id}
+              >
+                <label>
+                  Judul program
+                  <input value={program.title} onChange={(event) => updateAboutProgram(index, { title: event.target.value })} />
+                </label>
+                <label>
+                  Deskripsi program
+                  <textarea value={program.description} onChange={(event) => updateAboutProgram(index, { description: event.target.value })} rows="3" />
+                </label>
+                <label>
+                  Upload gambar program
+                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(index, event.target.files?.[0])} />
+                </label>
+                <label>
+                  URL gambar program
+                  <input value={program.imageUrl || ''} onChange={(event) => updateAboutProgram(index, { imageUrl: event.target.value })} placeholder="/uploads/program.jpg" />
+                </label>
+                {program.imageUrl && (
+                  <img className="admin-image-preview" src={`${API_BASE_URL}${program.imageUrl}`} alt={program.title} />
+                )}
+                <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
+              </div>
+            ))}
+            <div className="admin-form-actions">
+              <button type="submit">Simpan Program Kerja</button>
+            </div>
+          </form>
         </div>
       ) : activeTab === 'account' ? (
         <div className="admin-grid single-admin-grid">
@@ -456,21 +971,210 @@ function AdminDashboardPage() {
             </div>
           </form>
         </div>
-      ) : activeTab === 'site' ? (
-        <div className="admin-grid single-admin-grid">
+      ) : activeTab === 'homeBackgrounds' ? (
+        <div className="admin-grid background-home-admin-grid">
           <form className="admin-panel" onSubmit={handleSiteSubmit}>
-            <h2>Logo & Informasi Website</h2>
-            <label>
-              Upload logo navbar
-              <input type="file" accept="image/*" onChange={handleLogoUpload} />
-            </label>
-            <label>
-              URL logo
-              <input value={siteForm.logoUrl} onChange={(event) => setSiteForm({ ...siteForm, logoUrl: event.target.value })} placeholder="/uploads/logo.png" />
-            </label>
-            {siteForm.logoUrl && (
-              <img className="admin-logo-preview" src={`${API_BASE_URL}${siteForm.logoUrl}`} alt="Preview logo" />
-            )}
+            <h2>Background Home</h2>
+            <p>Kelola semua background yang tampil di halaman beranda dari satu tempat.</p>
+
+            <div className="admin-field-group">
+              <h3>Hero Home</h3>
+              <label>
+                Upload background hero
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('homeHeroUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background hero
+                <input
+                  value={siteForm.backgrounds.homeHeroUrl}
+                  onChange={(event) => updateSiteBackground('homeHeroUrl', event.target.value)}
+                  placeholder="/uploads/background-home.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.homeHeroUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeHeroUrl}`} alt="Preview background hero home" />
+              )}
+            </div>
+
+            <div className="admin-field-group">
+              <h3>Tentang Kami Home</h3>
+              <label>
+                Upload background tentang kami
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('homeAboutUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background tentang kami
+                <input
+                  value={siteForm.backgrounds.homeAboutUrl}
+                  onChange={(event) => updateSiteBackground('homeAboutUrl', event.target.value)}
+                  placeholder="/uploads/background-tentang.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.homeAboutUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeAboutUrl}`} alt="Preview background tentang kami home" />
+              )}
+            </div>
+
+            <div className="admin-field-group">
+              <h3>Berita Home</h3>
+              <label>
+                Upload background informasi terbaru
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('homeNewsUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background informasi terbaru
+                <input
+                  value={siteForm.backgrounds.homeNewsUrl}
+                  onChange={(event) => updateSiteBackground('homeNewsUrl', event.target.value)}
+                  placeholder="/uploads/background-berita.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.homeNewsUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.homeNewsUrl}`} alt="Preview background berita home" />
+              )}
+            </div>
+
+            <div className="admin-form-actions">
+              <button type="submit">Simpan Background Home</button>
+            </div>
+          </form>
+
+          <form className="admin-panel" onSubmit={handleProgramHomeSubmit}>
+            <div className="section-heading-row">
+              <div>
+                <h2>Program Home</h2>
+                <p>Kelola card program di halaman beranda, termasuk judul, deskripsi, dan background.</p>
+              </div>
+              <button type="button" className="ghost-button add-button" onClick={addAboutProgram}>Tambah Program</button>
+            </div>
+
+            {aboutContentForm.programs.map((program, index) => (
+              <div
+                className="admin-field-group"
+                data-admin-row="program"
+                data-row-id={program.id}
+                key={program.id || program.title}
+              >
+                <h3>{program.title || `Program ${index + 1}`}</h3>
+                <label>
+                  Judul program
+                  <input
+                    value={program.title}
+                    onChange={(event) => updateAboutProgram(index, { title: event.target.value })}
+                    placeholder="Judul program"
+                  />
+                </label>
+                <label>
+                  Deskripsi program
+                  <textarea
+                    value={program.description}
+                    onChange={(event) => updateAboutProgram(index, { description: event.target.value })}
+                    rows="3"
+                    placeholder="Deskripsi singkat program"
+                  />
+                </label>
+                <label>
+                  Upload background program
+                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(index, event.target.files?.[0])} />
+                </label>
+                <label>
+                  URL background program
+                  <input
+                    value={program.imageUrl || ''}
+                    onChange={(event) => updateAboutProgram(index, { imageUrl: event.target.value })}
+                    placeholder="/uploads/program.jpg"
+                  />
+                </label>
+                {program.imageUrl && (
+                  <img className="admin-image-preview" src={`${API_BASE_URL}${program.imageUrl}`} alt={program.title} />
+                )}
+                <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
+              </div>
+            ))}
+
+            <div className="admin-form-actions">
+              <button type="submit">Simpan Program Home</button>
+            </div>
+          </form>
+        </div>
+      ) : activeTab === 'site' ? (
+        <form className="admin-grid site-admin-grid" onSubmit={handleSiteSubmit}>
+          <div className="admin-panel">
+            <h2>Logo & Media Website</h2>
+            <div className="admin-field-group">
+              <h3>Logo Navbar</h3>
+              <label>
+                Upload logo navbar
+                <input type="file" accept="image/*" onChange={handleLogoUpload} />
+              </label>
+              <label>
+                URL logo
+                <input value={siteForm.logoUrl} onChange={(event) => setSiteForm({ ...siteForm, logoUrl: event.target.value })} placeholder="/uploads/logo.png" />
+              </label>
+              {siteForm.logoUrl && (
+                <img className="admin-logo-preview" src={`${API_BASE_URL}${siteForm.logoUrl}`} alt="Preview logo" />
+              )}
+            </div>
+            <div className="admin-field-group">
+              <h3>Header Page Tentang Furusato</h3>
+              <label>
+                Upload background header tentang furusato
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('aboutPageUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background header tentang furusato
+                <input
+                  value={siteForm.backgrounds.aboutPageUrl}
+                  onChange={(event) => updateSiteBackground('aboutPageUrl', event.target.value)}
+                  placeholder="/uploads/background-page-tentang.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.aboutPageUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.aboutPageUrl}`} alt="Preview background page tentang furusato" />
+              )}
+            </div>
+            <div className="admin-field-group">
+              <h3>Header Page Galeri</h3>
+              <label>
+                Upload background header galeri
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('galleryPageUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background header galeri
+                <input
+                  value={siteForm.backgrounds.galleryPageUrl}
+                  onChange={(event) => updateSiteBackground('galleryPageUrl', event.target.value)}
+                  placeholder="/uploads/background-page-galeri.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.galleryPageUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${siteForm.backgrounds.galleryPageUrl}`} alt="Preview background page galeri" />
+              )}
+            </div>
+          </div>
+
+          <div className="admin-panel">
+            <h2>Informasi Website</h2>
             <label>
               Nama brand
               <input value={siteForm.brandName} onChange={(event) => setSiteForm({ ...siteForm, brandName: event.target.value })} />
@@ -514,117 +1218,103 @@ function AdminDashboardPage() {
             <div className="admin-form-actions">
               <button type="submit">Simpan Site</button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       ) : (
-        <div className="admin-grid single-admin-grid">
-          <form className="admin-panel" onSubmit={handleHomeContentSubmit}>
-            <h2>Banner Job & Mitra</h2>
-            <label>
-              Upload background home
-              <input type="file" accept="image/*" onChange={handleHeroBackgroundUpload} />
-            </label>
-            <label>
-              URL background home
-              <input
-                value={homeContentForm.heroBackgroundUrl}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  heroBackgroundUrl: event.target.value,
-                })}
-                placeholder="/uploads/background-home.jpg"
-              />
-            </label>
-            {homeContentForm.heroBackgroundUrl && (
-              <img className="admin-image-preview" src={`${API_BASE_URL}${homeContentForm.heroBackgroundUrl}`} alt="Preview background home" />
-            )}
-            <label>
-              Judul info job
-              <input
-                value={homeContentForm.jobInfo.title}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobInfo: { ...homeContentForm.jobInfo, title: event.target.value },
-                })}
-              />
-            </label>
-            <label>
-              Deskripsi info job
-              <textarea
-                value={homeContentForm.jobInfo.description}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobInfo: { ...homeContentForm.jobInfo, description: event.target.value },
-                })}
-                rows="3"
-              />
-            </label>
-            <label>
-              Link info job
-              <input
-                value={homeContentForm.jobInfo.linkUrl}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobInfo: { ...homeContentForm.jobInfo, linkUrl: event.target.value },
-                })}
-              />
-            </label>
-            <label>
-              Judul banner job
-              <input
-                value={homeContentForm.jobBanner.title}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobBanner: { ...homeContentForm.jobBanner, title: event.target.value },
-                })}
-              />
-            </label>
-            <label>
-              Deskripsi banner job
-              <textarea
-                value={homeContentForm.jobBanner.description}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobBanner: { ...homeContentForm.jobBanner, description: event.target.value },
-                })}
-                rows="3"
-              />
-            </label>
-            <label>
-              Link banner
-              <input
-                value={homeContentForm.jobBanner.linkUrl}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobBanner: { ...homeContentForm.jobBanner, linkUrl: event.target.value },
-                })}
-              />
-            </label>
-            <label>
-              Upload banner job
-              <input type="file" accept="image/*" onChange={handleJobBannerUpload} />
-            </label>
-            <label>
-              URL banner job
-              <input
-                value={homeContentForm.jobBanner.imageUrl}
-                onChange={(event) => setHomeContentForm({
-                  ...homeContentForm,
-                  jobBanner: { ...homeContentForm.jobBanner, imageUrl: event.target.value },
-                })}
-              />
-            </label>
-            {homeContentForm.jobBanner.imageUrl && (
-              <img className="admin-image-preview" src={`${API_BASE_URL}${homeContentForm.jobBanner.imageUrl}`} alt="Preview banner job" />
-            )}
+        <div className="admin-grid job-mitra-admin-grid">
+          <form className="admin-panel" onSubmit={(event) => event.preventDefault()}>
+            <div className="admin-field-group">
+              <h3>Banner Info Job</h3>
+              <label>
+                Label kecil
+                <input
+                  value={homeContentForm.jobInfo.label}
+                  onChange={(event) => setHomeContentForm({
+                    ...homeContentForm,
+                    jobInfo: { ...homeContentForm.jobInfo, label: event.target.value },
+                  })}
+                  placeholder="Info Job"
+                />
+              </label>
+              <label>
+                Judul banner
+                <input
+                  value={homeContentForm.jobInfo.title}
+                  onChange={(event) => setHomeContentForm({
+                    ...homeContentForm,
+                    jobInfo: { ...homeContentForm.jobInfo, title: event.target.value },
+                  })}
+                />
+              </label>
+              <label>
+                Deskripsi banner
+                <textarea
+                  value={homeContentForm.jobInfo.description}
+                  onChange={(event) => setHomeContentForm({
+                    ...homeContentForm,
+                    jobInfo: { ...homeContentForm.jobInfo, description: event.target.value },
+                  })}
+                  rows="3"
+                />
+              </label>
+              <label>
+                Link banner
+                <input
+                  value={homeContentForm.jobInfo.linkUrl}
+                  onChange={(event) => setHomeContentForm({
+                    ...homeContentForm,
+                    jobInfo: { ...homeContentForm.jobInfo, linkUrl: event.target.value },
+                  })}
+                  placeholder="/berita"
+                />
+              </label>
+              <label>
+                Upload gambar banner
+                <input type="file" accept="image/*" onChange={handleJobBannerUpload} />
+              </label>
+              <label>
+                URL gambar banner
+                <input
+                  value={homeContentForm.jobBanner.imageUrl}
+                  onChange={(event) => setHomeContentForm({
+                    ...homeContentForm,
+                    jobBanner: {
+                      ...homeContentForm.jobBanner,
+                      imageUrl: event.target.value,
+                      label: homeContentForm.jobInfo.label,
+                      title: homeContentForm.jobInfo.title,
+                      description: homeContentForm.jobInfo.description,
+                      linkUrl: homeContentForm.jobInfo.linkUrl,
+                    },
+                  })}
+                  placeholder="/uploads/banner-job.jpg"
+                />
+              </label>
+              {homeContentForm.jobBanner.imageUrl && (
+                <img className="admin-image-preview" src={`${API_BASE_URL}${homeContentForm.jobBanner.imageUrl}`} alt="Preview banner job" />
+              )}
+              <div className="admin-form-actions">
+                <button
+                  type="button"
+                  onClick={saveJobBanner}
+                >
+                  Simpan Banner
+                </button>
+                <button type="button" className="ghost-button" onClick={handlePublishJobNews}>
+                  Posting Info Job ke Berita
+                </button>
+              </div>
+            </div>
+          </form>
 
+          <form className="admin-panel" onSubmit={(event) => event.preventDefault()}>
             <div className="admin-partner-editor">
               <div className="section-heading-row">
                 <h2>Mitra Kerja Sama</h2>
-                <button type="button" className="ghost-button" onClick={addPartner}>Tambah Mitra</button>
+                <button type="button" className="ghost-button add-button" onClick={addPartner}>Tambah Mitra</button>
               </div>
               {homeContentForm.partners.map((partner, index) => (
-                <div className="admin-partner-row" key={partner.id}>
+                <div className="admin-partner-row" data-admin-row="partner" data-row-id={partner.id} key={partner.id}>
                   <label>
                     Nama mitra
                     <input value={partner.name} onChange={(event) => updatePartner(index, { name: event.target.value })} />
@@ -641,10 +1331,17 @@ function AdminDashboardPage() {
                   <button type="button" className="danger-button" onClick={() => removePartner(index)}>Hapus Mitra</button>
                 </div>
               ))}
-            </div>
-
-            <div className="admin-form-actions">
-              <button type="submit">Simpan Job & Mitra</button>
+              <div className="admin-form-actions">
+                <button
+                  type="button"
+                  onClick={() => saveHomeContent(
+                    { partners: homeContentForm.partners },
+                    'Mitra kerja sama berhasil disimpan.',
+                  )}
+                >
+                  Simpan Mitra
+                </button>
+              </div>
             </div>
           </form>
         </div>

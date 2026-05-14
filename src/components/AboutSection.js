@@ -1,6 +1,28 @@
+import { useEffect, useState } from 'react';
+import { fallbackSite } from '../data/fallbackContent';
+import { API_BASE_URL, fetchSite } from '../lib/api';
+
 function AboutSection() {
+  const [site, setSite] = useState(fallbackSite);
+  const aboutBackgroundUrl = site.backgrounds?.homeAboutUrl || '';
+  const backgroundUrl = aboutBackgroundUrl ? `${API_BASE_URL}${aboutBackgroundUrl}` : '';
+
+  useEffect(() => {
+    fetchSite(fallbackSite).then((data) => {
+      setSite({
+        ...fallbackSite,
+        ...data,
+        backgrounds: { ...fallbackSite.backgrounds, ...(data.backgrounds || {}) },
+      });
+    });
+  }, []);
+
   return (
-    <section id="tentang" className="section-grid about-section">
+    <section
+      id="tentang"
+      className={`section-grid about-section ${backgroundUrl ? 'has-section-bg' : ''}`}
+      style={backgroundUrl ? { '--section-bg': `url(${backgroundUrl})` } : undefined}
+    >
       <div>
         <p className="eyebrow">Tentang Furusato</p>
         <h2>Pelatihan kerja yang dekat dengan kebutuhan peserta dan mitra.</h2>
