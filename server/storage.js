@@ -6,7 +6,16 @@ const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
 const sitePath = path.join(__dirname, 'data', 'site.json');
 
-const useMysql = process.env.DATA_DRIVER === 'mysql';
+function hasMysqlConfig() {
+  return Boolean(
+    process.env.MYSQL_URL
+    || process.env.DATABASE_URL
+    || (process.env.MYSQL_HOST && process.env.MYSQL_USER && process.env.MYSQL_DATABASE)
+  );
+}
+
+const useMysql = process.env.DATA_DRIVER === 'mysql' || hasMysqlConfig();
+const isServerless = Boolean(process.env.VERCEL);
 let pool;
 
 function readJson(filePath) {
@@ -14,6 +23,10 @@ function readJson(filePath) {
 }
 
 function writeJson(filePath, data) {
+  if (isServerless) {
+    throw new Error('Production belum terhubung ke MySQL. Isi MYSQL_URL atau MYSQL_HOST/MYSQL_USER/MYSQL_DATABASE di Vercel Environment Variables.');
+  }
+
   fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
 }
 
@@ -28,8 +41,16 @@ function getMysqlPool() {
 
   const connectionUri = process.env.MYSQL_URL || process.env.DATABASE_URL;
 
+  if (!connectionUri && !hasMysqlConfig()) {
+    throw new Error('Konfigurasi MySQL belum lengkap. Isi MYSQL_URL atau MYSQL_HOST, MYSQL_USER, dan MYSQL_DATABASE.');
+  }
+
   pool = connectionUri
-    ? mysql.createPool(connectionUri)
+    ? mysql.createPool({
+      uri: connectionUri,
+      waitForConnections: true,
+      connectionLimit: Number(process.env.MYSQL_CONNECTION_LIMIT || 5),
+    })
     : mysql.createPool({
       host: process.env.MYSQL_HOST,
       port: Number(process.env.MYSQL_PORT || 3306),

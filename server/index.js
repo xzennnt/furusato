@@ -464,7 +464,12 @@ app.use('/api', (error, _req, res, _next) => {
     return res.status(413).json({ message: `Ukuran gambar terlalu besar. Maksimal ${maxUploadMb} MB.` });
   }
 
-  res.status(500).json({ message: 'Terjadi kesalahan pada server.' });
+  const isConfigurationError = /MySQL|Cloudinary|Production belum terhubung/.test(error.message || '');
+  const message = process.env.NODE_ENV === 'production' && !isConfigurationError
+    ? 'Terjadi kesalahan pada server.'
+    : error.message || 'Terjadi kesalahan pada server.';
+
+  res.status(500).json({ message });
 });
 
 if (fs.existsSync(buildIndexPath)) {

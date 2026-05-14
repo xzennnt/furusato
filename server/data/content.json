@@ -26,22 +26,6 @@
       "content": "jadi pada 20 maret 2026 saber kelaparan",
       "imageUrl": "/uploads/1778699593505-saber.jpg",
       "source": ""
-    },
-    {
-      "id": "news-001",
-      "date": "2026.05",
-      "title": "Pendaftaran kelas persiapan kerja gelombang baru",
-      "description": "Informasi jadwal, syarat peserta, dan tahapan seleksi dapat diperbarui di area ini.",
-      "content": "Gunakan dashboard admin untuk mengganti isi berita ini dengan pengumuman resmi Furusato.",
-      "imageUrl": ""
-    },
-    {
-      "id": "news-002",
-      "date": "2026.05",
-      "title": "Kegiatan pembinaan budaya kerja dan kedisiplinan",
-      "description": "Ringkasan kegiatan pelatihan, dokumentasi, atau pengumuman resmi Furusato.",
-      "content": "Konten lengkap berita dapat berisi dokumentasi kelas, agenda pelatihan, dan informasi untuk peserta.",
-      "imageUrl": ""
     }
   ],
   "gallery": [
@@ -56,24 +40,6 @@
       "title": "TG RESTORAN COE TERTUNDA",
       "description": "Pada tanggal 27 maret 2026 pemerintah jepang menyatakan akan memperhentikan penerimaan visa kerja tokutei ginou nomer 1 sektor restoran jadi coe TG resto tertunda sampai kapan tidak tahu",
       "imageUrl": "/uploads/1778657268776--2022.09.22--Roselia---Sonnenschein.mkv-snapshot-01.35.56.739.jpg"
-    },
-    {
-      "id": "gallery-001",
-      "title": "Ruang kelas bahasa Jepang",
-      "description": "Dokumentasi kelas bahasa dan komunikasi kerja.",
-      "imageUrl": ""
-    },
-    {
-      "id": "gallery-002",
-      "title": "Workshop keterampilan kerja",
-      "description": "Dokumentasi praktik keterampilan dan simulasi kerja.",
-      "imageUrl": ""
-    },
-    {
-      "id": "gallery-003",
-      "title": "Simulasi wawancara dan budaya kerja",
-      "description": "Dokumentasi pembinaan karakter dan persiapan seleksi.",
-      "imageUrl": ""
     }
   ],
   "heroBackgroundUrl": "/uploads/1778673395165-furusato-training-map.png",
