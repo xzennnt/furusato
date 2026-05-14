@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
+import { scrollToMapSection } from '../lib/scroll';
 
 const menuItems = [
   { label: 'Home', href: '/' },
@@ -13,10 +14,18 @@ const menuItems = [
 
 function NavigationBar() {
   const [site, setSite] = useState(fallbackSite);
+  const location = useLocation();
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
   }, []);
+
+  function handleMapClick(event) {
+    if (location.pathname === '/' && location.hash === '#map') {
+      event.preventDefault();
+      scrollToMapSection();
+    }
+  }
 
   const logoSrc = resolveMediaUrl(site.logoUrl);
 
@@ -38,7 +47,11 @@ function NavigationBar() {
           const LinkComponent = item.href.includes('#') ? Link : NavLink;
 
           return (
-            <LinkComponent key={item.href} to={item.href}>
+            <LinkComponent
+              key={item.href}
+              to={item.href}
+              onClick={item.href === '/#map' ? handleMapClick : undefined}
+            >
               {item.label}
             </LinkComponent>
           );

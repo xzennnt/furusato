@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import './App.css';
 import AdminDashboardPage from './admin/AdminDashboardPage';
@@ -83,6 +83,7 @@ function AppShell() {
         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer />
       {showBackToTop && (
@@ -96,6 +97,21 @@ function AppShell() {
         </button>
       )}
     </main>
+  );
+}
+
+function NotFoundPage() {
+  return (
+    <section className="page-section not-found-page">
+      <div className="page-hero">
+        <p className="eyebrow">Halaman tidak tersedia</p>
+        <h1>URL ini tidak dipublikasikan untuk pengunjung.</h1>
+        <p>
+          Gunakan halaman yang tersedia: Home, Tentang Furusato, Map, Galeri, Berita, dan Kontak.
+        </p>
+        <Link className="primary-action" to="/">Kembali ke Home</Link>
+      </div>
+    </section>
   );
 }
 

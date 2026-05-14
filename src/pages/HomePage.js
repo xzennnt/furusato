@@ -7,6 +7,7 @@ import JobPartnerSection from '../components/JobPartnerSection';
 import MapSection from '../components/MapSection';
 import NewsSection from '../components/NewsSection';
 import ProgramSection from '../components/ProgramSection';
+import { scrollToMapSection } from '../lib/scroll';
 
 function HomePage() {
   const location = useLocation();
@@ -25,17 +26,13 @@ function HomePage() {
         return;
       }
 
-      const target = document.getElementById('map');
-
-      if (!target) {
+      if (!scrollToMapSection()) {
         if (attempt < 30) {
           attempt += 1;
           timeoutId = window.setTimeout(scrollToMap, 50);
         }
         return;
       }
-
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
     timeoutId = window.setTimeout(scrollToMap, 0);
