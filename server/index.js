@@ -341,16 +341,20 @@ if (fs.existsSync(buildIndexPath)) {
   });
 }
 
-const server = app.listen(port, host, () => {
-  console.log(`Furusato berjalan di http://${host}:${port}`);
-});
-
-function shutdown(signal) {
-  console.log(`${signal} diterima, server dimatikan...`);
-  server.close(() => {
-    process.exit(0);
+if (require.main === module) {
+  const server = app.listen(port, host, () => {
+    console.log(`Furusato berjalan di http://${host}:${port}`);
   });
+
+  function shutdown(signal) {
+    console.log(`${signal} diterima, server dimatikan...`);
+    server.close(() => {
+      process.exit(0);
+    });
+  }
+
+  process.on('SIGINT', shutdown);
+  process.on('SIGTERM', shutdown);
 }
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+module.exports = app;

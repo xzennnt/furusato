@@ -204,3 +204,44 @@ npm run firebase:seed
 ```
 
 Catatan: upload gambar masih disimpan di folder lokal `server/uploads`. Ini aman untuk VPS biasa, tetapi untuk deploy serverless seperti Vercel sebaiknya dipindah ke Firebase Storage atau Cloudinary.
+
+## Deploy ke Vercel
+
+Vercel tidak menjalankan `npm run server` atau PM2. Backend Express dijalankan sebagai serverless function melalui folder `api/`.
+
+Di dashboard Vercel, isi Environment Variables berikut:
+
+```bash
+DATA_DRIVER=firestore
+FIREBASE_PROJECT_ID=furusato-homepage
+FIRESTORE_DATABASE_ID=default
+FIRESTORE_AUTO_SEED=false
+ADMIN_USERNAME=admin
+ADMIN_PASSWORD=password-yang-kuat
+```
+
+Credential Firebase tidak boleh mengandalkan file lokal `.json`, karena file private key tidak ikut dipush ke GitHub. Gunakan salah satu:
+
+```bash
+FIREBASE_SERVICE_ACCOUNT_BASE64=hasil-base64-service-account-json
+```
+
+atau:
+
+```bash
+FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
+```
+
+Untuk membuat base64 dari file service account:
+
+```bash
+base64 -w 0 furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
+```
+
+Di Windows PowerShell:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json"))
+```
+
+Setelah environment variable disimpan, redeploy project di Vercel.
