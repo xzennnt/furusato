@@ -126,23 +126,23 @@ function getPageTitle(pathname, hash) {
   }
 
   if (pathname === '/') {
-    return 'Furusato | Home';
+    return 'Furusato Temanggung | LPK Jepang';
   }
 
   if (pathname === '/tentang') {
-    return 'Furusato | Tentang Furusato';
+    return 'Tentang Furusato Temanggung';
   }
 
   if (pathname === '/galeri') {
-    return 'Furusato | Galeri';
+    return 'Galeri Furusato Temanggung';
   }
 
   if (pathname === '/berita') {
-    return 'Furusato | Berita';
+    return 'Berita Furusato Temanggung';
   }
 
   if (pathname === '/kontak') {
-    return 'Furusato | Kontak';
+    return 'Kontak Furusato Temanggung';
   }
 
   if (pathname === '/admin/login') {
@@ -153,7 +153,7 @@ function getPageTitle(pathname, hash) {
     return 'Furusato Admin | Dashboard';
   }
 
-  return 'Furusato | Halaman Tidak Ditemukan';
+  return 'Furusato Temanggung | Halaman Tidak Ditemukan';
 }
 
 function App() {
