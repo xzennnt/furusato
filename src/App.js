@@ -18,6 +18,11 @@ function AppShell() {
   const [showBackToTop, setShowBackToTop] = useState(false);
 
   useEffect(() => {
+    const pageTitle = getPageTitle(location.pathname, location.hash);
+    document.title = pageTitle;
+  }, [location.hash, location.pathname]);
+
+  useEffect(() => {
     const ctx = gsap.context(() => {
       gsap.from('.hero-copy > *, .page-hero > *', {
         y: 34,
@@ -113,6 +118,42 @@ function NotFoundPage() {
       </div>
     </section>
   );
+}
+
+function getPageTitle(pathname, hash) {
+  if (pathname === '/' && hash === '#map') {
+    return 'Furusato | Map';
+  }
+
+  if (pathname === '/') {
+    return 'Furusato | Home';
+  }
+
+  if (pathname === '/tentang') {
+    return 'Furusato | Tentang Furusato';
+  }
+
+  if (pathname === '/galeri') {
+    return 'Furusato | Galeri';
+  }
+
+  if (pathname === '/berita') {
+    return 'Furusato | Berita';
+  }
+
+  if (pathname === '/kontak') {
+    return 'Furusato | Kontak';
+  }
+
+  if (pathname === '/admin/login') {
+    return 'Furusato Admin | Login';
+  }
+
+  if (pathname === '/admin/dashboard') {
+    return 'Furusato Admin | Dashboard';
+  }
+
+  return 'Furusato | Halaman Tidak Ditemukan';
 }
 
 function App() {
