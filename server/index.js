@@ -11,6 +11,7 @@ const {
   readAccounts,
   readContent,
   readSite,
+  getStorageStatus,
   writeAccounts,
   writeContent,
   writeSite,
@@ -145,7 +146,17 @@ function requireAdmin(req, res, next) {
 }
 
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok', service: 'furusato-api' });
+  res.json({
+    status: 'ok',
+    service: 'furusato-api',
+    storage: getStorageStatus(),
+    uploadDriver,
+    cloudinaryConfigured: Boolean(
+      process.env.CLOUDINARY_CLOUD_NAME
+      && process.env.CLOUDINARY_API_KEY
+      && process.env.CLOUDINARY_API_SECRET
+    ),
+  });
 });
 
 app.get('/api/news', asyncHandler(async (_req, res) => {
@@ -465,8 +476,9 @@ app.use('/api', (error, _req, res, _next) => {
   }
 
   const isConfigurationError = /MySQL|Cloudinary|Production belum terhubung/.test(error.message || '');
+  const isDatabaseError = Boolean(error.code && /^(ER_|ECONN|ETIMEDOUT|ENOTFOUND|PROTOCOL_)/.test(error.code));
   const message = process.env.NODE_ENV === 'production' && !isConfigurationError
-    ? 'Terjadi kesalahan pada server.'
+    ? (isDatabaseError ? `Database error: ${error.code}` : 'Terjadi kesalahan pada server.')
     : error.message || 'Terjadi kesalahan pada server.';
 
   res.status(500).json({ message });

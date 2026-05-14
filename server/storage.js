@@ -70,7 +70,7 @@ async function ensureMysqlSchema() {
   await db.query(`
     CREATE TABLE IF NOT EXISTS app_documents (
       document_key VARCHAR(50) PRIMARY KEY,
-      data JSON NOT NULL,
+      data LONGTEXT NOT NULL,
       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )
   `);
@@ -106,10 +106,17 @@ async function writeMysqlDocument(documentKey, data) {
     `
       INSERT INTO app_documents (document_key, data)
       VALUES (?, ?)
-      ON DUPLICATE KEY UPDATE data = VALUES(data)
+      ON DUPLICATE KEY UPDATE data = ?
     `,
-    [documentKey, JSON.stringify(data)],
+    [documentKey, JSON.stringify(data), JSON.stringify(data)],
   );
+}
+
+function getStorageStatus() {
+  return {
+    driver: useMysql ? 'mysql' : 'json',
+    mysqlConfigured: hasMysqlConfig(),
+  };
 }
 
 async function readContent() {
@@ -165,6 +172,7 @@ async function writeSite(site) {
 
 module.exports = {
   ensureMysqlSchema,
+  getStorageStatus,
   readAccounts,
   readContent,
   readSite,
