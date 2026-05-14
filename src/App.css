@@ -15,6 +15,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 118px;
 }
 
 body {
@@ -46,6 +47,7 @@ a {
   top: 0;
   z-index: 20;
   backdrop-filter: blur(16px);
+  will-change: transform, padding, min-height;
 }
 
 .brand {
@@ -108,15 +110,15 @@ a {
 
 .hero-section {
   display: grid;
-  gap: 44px;
+  gap: clamp(28px, 4vw, 40px);
   grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
   min-height: calc(100vh - 86px);
-  padding: 82px 5vw 64px;
+  padding: clamp(70px, 7vw, 92px) 5vw 54px;
 }
 
 .hero-copy {
   align-self: center;
-  max-width: 660px;
+  max-width: 620px;
 }
 
 .eyebrow {
@@ -136,28 +138,28 @@ p {
 }
 
 h1 {
-  font-size: clamp(44px, 6vw, 88px);
-  line-height: 0.98;
-  margin: 0 0 24px;
-  max-width: 760px;
+  font-size: clamp(38px, 5.2vw, 72px);
+  line-height: 1.02;
+  margin: 0 0 20px;
+  max-width: 700px;
 }
 
 h2 {
-  font-size: clamp(30px, 4vw, 58px);
-  line-height: 1.05;
+  font-size: clamp(28px, 3.6vw, 48px);
+  line-height: 1.08;
   margin: 0;
 }
 
 h3 {
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1.18;
   margin: 0 0 12px;
 }
 
 p {
   color: var(--muted);
-  font-size: 17px;
-  line-height: 1.8;
+  font-size: 16px;
+  line-height: 1.72;
 }
 
 .hero-actions {
@@ -175,8 +177,8 @@ p {
   display: inline-flex;
   font-weight: 800;
   justify-content: center;
-  min-height: 46px;
-  padding: 12px 20px;
+  min-height: 42px;
+  padding: 10px 18px;
 }
 
 .primary-action,
@@ -202,7 +204,7 @@ p {
   color: var(--white);
   display: flex;
   justify-content: center;
-  min-height: 540px;
+  min-height: 480px;
   overflow: hidden;
   position: relative;
 }
@@ -3171,6 +3173,10 @@ body {
   border-bottom: 3px solid var(--furusato-red);
 }
 
+.money-hero .hero-copy {
+  padding-top: 18px;
+}
+
 .money-hero .hero-copy h1,
 .page-hero h1 {
   background: var(--furusato-paper);
@@ -3178,7 +3184,7 @@ body {
   box-shadow: 8px 8px 0 var(--furusato-red);
   color: var(--furusato-red);
   display: inline-block;
-  max-width: min(980px, 100%);
+  max-width: min(820px, 100%);
   padding: clamp(14px, 2.4vw, 28px);
   transform: rotate(-1.3deg);
 }
@@ -3350,6 +3356,65 @@ body {
 }
 
 @media (max-width: 720px) {
+  html {
+    scroll-padding-top: 98px;
+  }
+
+  .site-header {
+    gap: 14px;
+    padding: 12px 4vw;
+  }
+
+  .brand-kanji {
+    font-size: 28px;
+  }
+
+  .brand-romaji {
+    font-size: 11px;
+  }
+
+  .menu-bar {
+    gap: 6px;
+  }
+
+  .menu-bar a {
+    font-size: 13px;
+    padding: 8px 11px;
+  }
+
+  .hero-section {
+    gap: 22px;
+    padding: 28px 4vw 40px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: clamp(30px, 11vw, 42px);
+    line-height: 1.05;
+    margin-bottom: 16px;
+  }
+
+  .hero-copy p:not(.eyebrow),
+  .money-hero .hero-copy p:not(.eyebrow) {
+    font-size: 15px;
+    line-height: 1.65;
+  }
+
+  .hero-actions {
+    gap: 10px;
+    margin-top: 22px;
+  }
+
+  .primary-action,
+  .secondary-action,
+  .map-copy a {
+    min-height: 40px;
+    padding: 10px 16px;
+  }
+
   .money-hero .hero-copy h1,
   .page-hero h1 {
     box-shadow: 5px 5px 0 var(--sticker-ink);
@@ -3363,6 +3428,10 @@ body {
     box-shadow: 4px 4px 0 var(--furusato-red);
     padding: 8px 12px;
   }
+
+  .money-hero .hero-copy {
+    padding-top: 10px;
+  }
 }
 
 /* Final layout tweaks for sticky header, map anchor, and program cards. */
@@ -3373,29 +3442,35 @@ body {
 .yutaka-header {
   top: 0;
   z-index: 120;
-  transition: min-height 180ms ease, padding 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  transition: min-height 180ms ease, padding 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
 }
 
 .yutaka-header.is-compact {
-  min-height: 82px;
-  padding-bottom: 14px;
-  padding-top: 14px;
-  box-shadow: 0 8px 22px rgba(16, 36, 58, 0.12);
+  background: rgba(255, 255, 255, 0.98);
+  min-height: 72px;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  box-shadow: 0 8px 20px rgba(16, 36, 58, 0.12);
+  backdrop-filter: blur(12px);
 }
 
 .yutaka-header.is-compact .yutaka-brand img {
-  max-height: 46px;
+  max-height: 40px;
+}
+
+.yutaka-header.is-compact .brand-kanji {
+  font-size: 28px;
 }
 
 .program-section .program-list {
   align-items: stretch;
-  gap: clamp(26px, 3vw, 38px) 24px;
-  margin-top: clamp(22px, 3vw, 34px);
+  gap: clamp(24px, 3vw, 34px) 24px;
+  margin-top: clamp(18px, 3vw, 30px);
 }
 
 .program-section .program-list article {
-  min-height: 250px;
-  padding: 28px 24px 30px;
+  min-height: 230px;
+  padding: 24px 22px 26px;
   transform-origin: center top;
 }
 
@@ -3419,7 +3494,7 @@ body {
   }
 
   .yutaka-header.is-compact {
-    min-height: 72px;
+    min-height: 66px;
   }
 
   .program-section .program-list {
