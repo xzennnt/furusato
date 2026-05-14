@@ -6,7 +6,7 @@ const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
-const { put } = require('@vercel/blob');
+const { del, put } = require('@vercel/blob');
 const {
   readAccounts,
   readContent,
@@ -64,6 +64,35 @@ function base64UrlEncode(data) {
 
 function base64UrlDecode(data) {
   return Buffer.from(data, 'base64url').toString('utf8');
+}
+
+function isRemoteBlobUrl(urlOrPathname) {
+  return Boolean(urlOrPathname) && /^https?:\/\//i.test(urlOrPathname);
+}
+
+async function deleteStoredImage(urlOrPathname) {
+  if (!urlOrPathname) {
+    return;
+  }
+
+  try {
+    if (uploadDriver === 'blob' && isRemoteBlobUrl(urlOrPathname)) {
+      await del(urlOrPathname, {
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      });
+      return;
+    }
+
+    if (urlOrPathname.startsWith('/uploads/')) {
+      const localFilePath = path.join(uploadDir, path.basename(urlOrPathname));
+
+      if (fs.existsSync(localFilePath)) {
+        await fs.promises.unlink(localFilePath);
+      }
+    }
+  } catch (error) {
+    console.warn('Gagal menghapus file gambar lama:', error.message || error);
+  }
 }
 
 function getAdminTokenSecret() {
@@ -339,20 +368,34 @@ app.put('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
     return res.status(404).json({ message: 'Berita tidak ditemukan.' });
   }
 
+  const currentItem = content.news[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
   content.news[index] = {
     imageUrl: '',
     source: '',
-    ...content.news[index],
+    ...currentItem,
     ...req.body,
-    imageUrl: req.body.imageUrl ?? content.news[index].imageUrl ?? '',
+    imageUrl: nextImageUrl,
     id: req.params.id,
   };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
   await writeContent(content);
   return res.json(content.news[index]);
 }));
 
 app.delete('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
+  const currentItem = content.news.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
   content.news = content.news.filter((item) => item.id !== req.params.id);
   await writeContent(content);
   res.status(204).send();
@@ -380,13 +423,27 @@ app.put('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) =>
     return res.status(404).json({ message: 'Galeri tidak ditemukan.' });
   }
 
-  content.gallery[index] = { ...content.gallery[index], ...req.body, id: req.params.id };
+  const currentItem = content.gallery[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+  content.gallery[index] = { ...currentItem, ...req.body, imageUrl: nextImageUrl, id: req.params.id };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
   await writeContent(content);
   return res.json(content.gallery[index]);
 }));
 
 app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
+  const currentItem = content.gallery.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
   content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
   await writeContent(content);
   res.status(204).send();
