@@ -387,7 +387,7 @@ p {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.78), rgba(36, 36, 36, 0.38)),
     var(--page-hero-bg);
-  background-position: center 42%;
+  background-position: center 56%;
   background-size: cover;
   color: var(--white);
   min-height: 420px;
@@ -638,7 +638,7 @@ p {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.82), rgba(36, 36, 36, 0.48)),
     var(--page-hero-bg, linear-gradient(135deg, var(--red), var(--orange)));
-  background-position: center 42%;
+  background-position: center 56%;
   background-size: cover;
   border-radius: 8px;
   color: var(--white);
@@ -760,6 +760,28 @@ p {
 .background-home-admin-grid {
   align-items: start;
   grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.05fr);
+}
+
+.background-home-admin-grid .admin-panel {
+  gap: 14px;
+}
+
+.background-home-admin-grid .admin-field-group {
+  gap: 10px;
+  padding-top: 14px;
+}
+
+.background-home-admin-grid .admin-field-group h3 {
+  font-size: 16px;
+}
+
+.background-home-admin-grid .admin-image-preview {
+  max-height: 96px;
+  object-fit: cover;
+}
+
+.background-home-admin-grid .admin-field-group[data-admin-row="program"] .admin-image-preview {
+  max-height: 88px;
 }
 
 .about-admin-grid {
@@ -913,9 +935,9 @@ p {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  max-height: 160px;
+  max-height: 124px;
   object-fit: contain;
-  padding: 18px;
+  padding: 12px;
   width: 100%;
 }
 
@@ -1439,7 +1461,7 @@ body {
   background:
     linear-gradient(90deg, rgba(16, 36, 58, 0.56), rgba(16, 36, 58, 0.18)),
     var(--hero-bg);
-  background-position: center 42%;
+  background-position: center 56%;
   background-size: cover;
   background-attachment: fixed;
   color: var(--white);
@@ -1534,7 +1556,7 @@ body {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.82), rgba(36, 36, 36, 0.46)),
     var(--section-bg);
-  background-position: center 42%;
+  background-position: center 56%;
   background-size: cover;
   color: var(--white);
 }
@@ -2638,7 +2660,7 @@ a.gallery-run-card:hover {
 
 @media (max-width: 960px) {
   .page-hero.has-page-hero-bg {
-    background-position: center 46%;
+    background-position: center 58%;
     min-height: clamp(340px, 62vw, 520px);
   }
 
@@ -2649,7 +2671,7 @@ a.gallery-run-card:hover {
   .money-hero.has-hero-bg,
   .about-section.has-section-bg,
   .news-section.has-section-bg {
-    background-position: center 46%;
+    background-position: center 58%;
     background-attachment: scroll;
   }
 }
@@ -2662,7 +2684,7 @@ a.gallery-run-card:hover {
   }
 
   .page-hero.has-page-hero-bg {
-    background-position: center 48%;
+    background-position: center 60%;
     margin-left: -20px;
     margin-right: -20px;
     min-height: 360px;
@@ -2674,14 +2696,14 @@ a.gallery-run-card:hover {
   }
 
   .money-hero.has-hero-bg {
-    background-position: center 48%;
+    background-position: center 60%;
     background-attachment: scroll;
     min-height: 300px;
   }
 
   .about-section.has-section-bg,
   .news-section.has-section-bg {
-    background-position: center 48%;
+    background-position: center 60%;
     background-attachment: scroll;
     min-height: 420px;
   }
