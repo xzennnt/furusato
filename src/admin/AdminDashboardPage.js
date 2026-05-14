@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
   clearAdminToken,
@@ -80,6 +80,7 @@ function AdminDashboardPage() {
   const [message, setMessage] = useState('');
   const [messageTone, setMessageTone] = useState('success');
   const [error, setError] = useState('');
+  const siteFormRef = useRef(emptySite);
 
   const refreshContent = useCallback(async () => {
     try {
@@ -123,6 +124,10 @@ function AdminDashboardPage() {
 
     refreshContent();
   }, [refreshContent]);
+
+  useEffect(() => {
+    siteFormRef.current = siteForm;
+  }, [siteForm]);
 
   useEffect(() => {
     if (!isAdminLoggedIn()) {
@@ -363,7 +368,7 @@ function AdminDashboardPage() {
 
     try {
       const result = await uploadImage(file);
-      setSiteForm({ ...siteForm, logoUrl: result.imageUrl });
+      setSiteForm((currentForm) => ({ ...currentForm, logoUrl: result.imageUrl }));
       setMessage('Logo berhasil diupload. Klik Simpan Site untuk memakai logo ini.');
     } catch (requestError) {
       setError(requestError.message);
@@ -407,13 +412,13 @@ function AdminDashboardPage() {
 
     try {
       const result = await uploadImage(file);
-      setSiteForm({
-        ...siteForm,
+      setSiteForm((currentForm) => ({
+        ...currentForm,
         backgrounds: {
-          ...siteForm.backgrounds,
+          ...currentForm.backgrounds,
           [key]: result.imageUrl,
         },
-      });
+      }));
       setMessage('Background berhasil diupload. Klik Simpan Site untuk memakai gambar ini.');
     } catch (requestError) {
       setError(requestError.message);
@@ -596,9 +601,14 @@ function AdminDashboardPage() {
       resetFeedback();
 
       try {
-        await updateSiteSettings(siteForm);
+        const updatedSite = await updateSiteSettings(siteFormRef.current);
+        setSiteForm({
+          ...emptySite,
+          ...updatedSite,
+          backgrounds: { ...emptySite.backgrounds, ...(updatedSite.backgrounds || {}) },
+          socials: { ...emptySite.socials, ...(updatedSite.socials || {}) },
+        });
         setMessage('Logo dan informasi website berhasil diperbarui.');
-        await refreshContent();
       } catch (requestError) {
         setError(requestError.message);
       }
