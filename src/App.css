@@ -1424,7 +1424,7 @@ body {
 
 .money-hero.has-hero-bg {
   background:
-    linear-gradient(90deg, rgba(36, 36, 36, 0.78), rgba(36, 36, 36, 0.42)),
+    linear-gradient(90deg, rgba(16, 36, 58, 0.56), rgba(16, 36, 58, 0.18)),
     var(--hero-bg);
   background-position: center;
   background-size: cover;
@@ -1435,25 +1435,24 @@ body {
 
 .money-hero.has-hero-bg .hero-copy {
   align-self: end;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(255, 255, 255, 0.38);
+  background: transparent;
+  border: 0;
   border-radius: 0;
-  box-shadow: 10px 10px 0 rgba(16, 36, 58, 0.12);
   grid-column: 1 / 2;
-  max-width: 430px;
-  padding: 22px 22px 20px;
-  backdrop-filter: blur(6px);
+  max-width: 520px;
+  padding: 22px 0 20px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.28);
 }
 
 .money-hero.has-hero-bg .hero-copy .eyebrow,
 .money-hero.has-hero-bg .hero-copy h1,
 .money-hero.has-hero-bg .hero-copy p {
-  color: var(--ink);
+  color: var(--white);
 }
 
 .money-hero h1 {
-  color: var(--ink);
-  font-size: clamp(30px, 4.6vw, 48px);
+  color: var(--white);
+  font-size: clamp(28px, 4vw, 44px);
   line-height: 1.05;
   max-width: 820px;
 }
@@ -3203,18 +3202,21 @@ body {
   padding-top: 0;
 }
 
-.money-hero .hero-copy h1,
-.page-hero h1 {
-  color: var(--furusato-red);
+.money-hero .hero-copy h1 {
+  color: var(--white);
   display: inline-block;
-  max-width: min(760px, 100%);
+  max-width: min(620px, 100%);
   padding: 0;
   transform: none;
 }
 
+.page-hero h1 {
+  color: var(--furusato-red);
+}
+
 .money-hero.has-hero-bg .hero-copy h1,
 .page-hero.has-page-hero-bg h1 {
-  color: var(--furusato-red);
+  color: var(--white);
 }
 
 .money-hero .hero-copy p:not(.eyebrow),
@@ -3224,7 +3226,7 @@ body {
   color: var(--white);
   font-weight: 700;
   font-size: 13px;
-  max-width: 720px;
+  max-width: 560px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
 }
 

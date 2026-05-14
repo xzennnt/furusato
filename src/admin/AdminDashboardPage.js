@@ -259,15 +259,18 @@ function AdminDashboardPage() {
 
       try {
         if (newsForm.id) {
-          await updateNews(newsForm.id, newsForm);
+          const updatedNews = await updateNews(newsForm.id, newsForm);
+          setNewsItems((currentItems) => (
+            currentItems.map((item) => (item.id === updatedNews.id ? updatedNews : item))
+          ));
           setMessage('Berita berhasil diperbarui.');
         } else {
-          await createNews(newsForm);
+          const createdNews = await createNews(newsForm);
+          setNewsItems((currentItems) => [createdNews, ...currentItems]);
           setMessage('Berita baru berhasil ditambahkan.');
         }
 
         setNewsForm({ ...emptyNews, date: getTodayDate() });
-        await refreshContent();
       } catch (requestError) {
         setError(requestError.message);
       }
@@ -299,15 +302,18 @@ function AdminDashboardPage() {
 
       try {
         if (galleryForm.id) {
-          await updateGallery(galleryForm.id, galleryForm);
+          const updatedGallery = await updateGallery(galleryForm.id, galleryForm);
+          setGalleryItems((currentItems) => (
+            currentItems.map((item) => (item.id === updatedGallery.id ? updatedGallery : item))
+          ));
           setMessage('Galeri berhasil diperbarui.');
         } else {
-          await createGallery(galleryForm);
+          const createdGallery = await createGallery(galleryForm);
+          setGalleryItems((currentItems) => [createdGallery, ...currentItems]);
           setMessage('Galeri baru berhasil ditambahkan.');
         }
 
         setGalleryForm(emptyGallery);
-        await refreshContent();
       } catch (requestError) {
         setError(requestError.message);
       }
@@ -646,31 +652,21 @@ function AdminDashboardPage() {
   }
 
   async function handleDeleteNews(id) {
-    const nextItems = newsItems.filter((item) => item.id !== id);
-    const removedIndex = newsItems.findIndex((item) => item.id === id);
-    const nextItem = nextItems[Math.min(Math.max(removedIndex, 0), nextItems.length - 1)];
-
     await keepDashboardPosition(async () => {
       resetFeedback();
       await deleteNews(id);
+      setNewsItems((currentItems) => currentItems.filter((item) => item.id !== id));
       showToast('Berita berhasil dihapus.', 'delete');
-      await refreshContent();
     });
-    scrollToAdminRow('news', nextItem?.id);
   }
 
   async function handleDeleteGallery(id) {
-    const nextItems = galleryItems.filter((item) => item.id !== id);
-    const removedIndex = galleryItems.findIndex((item) => item.id === id);
-    const nextItem = nextItems[Math.min(Math.max(removedIndex, 0), nextItems.length - 1)];
-
     await keepDashboardPosition(async () => {
       resetFeedback();
       await deleteGallery(id);
+      setGalleryItems((currentItems) => currentItems.filter((item) => item.id !== id));
       showToast('Galeri berhasil dihapus.', 'delete');
-      await refreshContent();
     });
-    scrollToAdminRow('gallery', nextItem?.id);
   }
 
   function logout() {
@@ -761,7 +757,7 @@ function AdminDashboardPage() {
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <div className="admin-item-actions">
-                  <button type="button" onClick={() => setNewsForm(item)}>Edit</button>
+                  <button type="button" onClick={() => setNewsForm({ ...item })}>Edit</button>
                   <button type="button" className="danger-button" onClick={() => handleDeleteNews(item.id)}>Hapus</button>
                 </div>
               </article>
@@ -805,7 +801,7 @@ function AdminDashboardPage() {
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
                 <div className="admin-item-actions">
-                  <button type="button" onClick={() => setGalleryForm(item)}>Edit</button>
+                  <button type="button" onClick={() => setGalleryForm({ ...item })}>Edit</button>
                   <button type="button" className="danger-button" onClick={() => handleDeleteGallery(item.id)}>Hapus</button>
                 </div>
               </article>
