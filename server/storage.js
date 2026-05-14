@@ -80,7 +80,7 @@ async function readStreamText(stream) {
 async function readBlobDocument(documentKey, fallbackPath) {
   const blobPath = getDocumentBlobPath(documentKey);
   const result = await getBlob(blobPath, {
-    access: 'private',
+    access: process.env.BLOB_ACCESS || 'public',
     token: getBlobToken(),
   });
 
@@ -103,7 +103,7 @@ async function readBlobDocument(documentKey, fallbackPath) {
 async function writeBlobDocument(documentKey, data) {
   const blobPath = getDocumentBlobPath(documentKey);
   await putBlob(blobPath, JSON.stringify(data, null, 2), {
-    access: 'private',
+    access: process.env.BLOB_ACCESS || 'public',
     contentType: 'application/json',
     allowOverwrite: true,
     token: getBlobToken(),
