@@ -50,8 +50,8 @@ function HomePage() {
       <ProgramSection />
       <JobPartnerSection />
       <GallerySection />
-      <MapSection />
       <NewsSection />
+      <MapSection />
     </>
   );
 }
