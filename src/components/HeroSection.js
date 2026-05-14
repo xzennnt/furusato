@@ -23,7 +23,7 @@ function HeroSection() {
       className={`hero-section money-hero ${backgroundUrl ? 'has-hero-bg' : ''}`}
       style={backgroundUrl ? { '--hero-bg': `url(${backgroundUrl})` } : undefined}
     >
-      <div className="hero-copy">
+      <div className="hero-copy hero-copy--narrow">
         <p className="eyebrow">LPK Furusato</p>
         <h1>Raih mimpi kerja ke Jepang bersama Furusato.</h1>
         <p>

@@ -110,15 +110,19 @@ a {
 
 .hero-section {
   display: grid;
-  gap: clamp(28px, 4vw, 40px);
+  gap: clamp(20px, 3vw, 32px);
   grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1.08fr);
-  min-height: calc(100vh - 86px);
-  padding: clamp(70px, 7vw, 92px) 5vw 54px;
+  min-height: calc(92vh - 86px);
+  padding: clamp(54px, 6vw, 74px) 5vw 44px;
 }
 
 .hero-copy {
   align-self: center;
-  max-width: 620px;
+  max-width: 560px;
+}
+
+.hero-copy--narrow {
+  max-width: 520px;
 }
 
 .eyebrow {
@@ -138,35 +142,35 @@ p {
 }
 
 h1 {
-  font-size: clamp(38px, 5.2vw, 72px);
-  line-height: 1.02;
-  margin: 0 0 20px;
-  max-width: 700px;
+  font-size: clamp(34px, 4.8vw, 64px);
+  line-height: 1.04;
+  margin: 0 0 18px;
+  max-width: 640px;
 }
 
 h2 {
-  font-size: clamp(28px, 3.6vw, 48px);
-  line-height: 1.08;
+  font-size: clamp(26px, 3.2vw, 42px);
+  line-height: 1.1;
   margin: 0;
 }
 
 h3 {
-  font-size: 20px;
+  font-size: 19px;
   line-height: 1.18;
   margin: 0 0 12px;
 }
 
 p {
   color: var(--muted);
-  font-size: 16px;
-  line-height: 1.72;
+  font-size: 15.5px;
+  line-height: 1.68;
 }
 
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 34px;
+  margin-top: 26px;
 }
 
 .primary-action,
@@ -204,7 +208,7 @@ p {
   color: var(--white);
   display: flex;
   justify-content: center;
-  min-height: 480px;
+  min-height: 420px;
   overflow: hidden;
   position: relative;
 }
@@ -376,7 +380,7 @@ p {
 }
 
 .page-hero h1 {
-  font-size: clamp(42px, 5.6vw, 78px);
+  font-size: clamp(38px, 5vw, 68px);
 }
 
 .page-hero.has-page-hero-bg {
@@ -2269,6 +2273,18 @@ a.gallery-run-card:hover {
   position: relative;
 }
 
+.job-banner-media {
+  background: var(--soft-orange);
+  border: 1px solid #f3d8c5;
+  border-radius: 8px;
+  display: grid;
+  height: calc(100% - 60px);
+  min-height: 0;
+  margin: 30px;
+  overflow: hidden;
+  width: calc(100% - 60px);
+}
+
 .job-banner-card img,
 .job-banner-placeholder {
   aspect-ratio: 16 / 9;
@@ -3200,6 +3216,7 @@ body {
 .page-hero.has-page-hero-bg p {
   color: var(--white);
   font-weight: 700;
+  font-size: 14px;
   max-width: 720px;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.42);
 }
@@ -3399,7 +3416,7 @@ body {
 
   .hero-copy p:not(.eyebrow),
   .money-hero .hero-copy p:not(.eyebrow) {
-    font-size: 15px;
+    font-size: 13px;
     line-height: 1.65;
   }
 
@@ -3442,23 +3459,20 @@ body {
 .yutaka-header {
   top: 0;
   z-index: 120;
-  transition: min-height 180ms ease, padding 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-color 180ms ease;
+  min-height: 88px;
+  will-change: auto;
 }
 
 .yutaka-header.is-compact {
   background: rgba(255, 255, 255, 0.98);
-  min-height: 72px;
-  padding-bottom: 10px;
-  padding-top: 10px;
-  box-shadow: 0 6px 14px rgba(16, 36, 58, 0.08);
 }
 
 .yutaka-header.is-compact .yutaka-brand img {
-  max-height: 40px;
+  max-height: 42px;
 }
 
 .yutaka-header.is-compact .brand-kanji {
-  font-size: 28px;
+  font-size: 30px;
 }
 
 .program-section .program-list {
@@ -3499,11 +3513,16 @@ body {
 .partner-panel,
 .partner-item {
   --sticker-tilt: 0deg;
-  --sticker-shadow-color: transparent;
-  --sticker-shadow-x: 0px;
-  --sticker-shadow-y: 0px;
-  box-shadow: none;
   transform: none;
+}
+
+.job-banner-card {
+  --sticker-shadow-color: var(--sticker-magenta);
+  --sticker-shadow-x: 7px;
+  --sticker-shadow-y: 7px;
+  box-shadow:
+    var(--sticker-shadow-x) var(--sticker-shadow-y) 0 var(--sticker-shadow-color),
+    calc(var(--sticker-shadow-x) + 3px) calc(var(--sticker-shadow-y) + 3px) 0 var(--sticker-ink);
 }
 
 .job-banner-card:hover,
@@ -3512,8 +3531,32 @@ body {
 .partner-panel:focus-visible,
 .partner-item:hover,
 .partner-item:focus-visible {
-  box-shadow: none;
   transform: none;
+}
+
+.back-to-top-button {
+  align-items: center;
+  background: var(--ink);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  bottom: 22px;
+  box-shadow: 0 16px 30px rgba(16, 36, 58, 0.22);
+  color: var(--white);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 22px;
+  height: 48px;
+  justify-content: center;
+  position: fixed;
+  right: 22px;
+  width: 48px;
+  z-index: 180;
+}
+
+.back-to-top-button:hover,
+.back-to-top-button:focus-visible {
+  background: var(--teal);
+  transform: translateY(-2px);
 }
 
 @media (max-width: 720px) {
@@ -3521,8 +3564,37 @@ body {
     scroll-margin-top: 116px;
   }
 
+  .yutaka-header {
+    min-height: 78px;
+    padding-bottom: 14px;
+    padding-top: 14px;
+  }
+
   .yutaka-header.is-compact {
-    min-height: 66px;
+    box-shadow: 0 6px 14px rgba(16, 36, 58, 0.08);
+  }
+
+  .hero-section {
+    gap: 18px;
+    min-height: auto;
+    padding: 28px 4vw 36px;
+  }
+
+  .hero-copy--narrow {
+    max-width: 100%;
+  }
+
+  .hero-visual,
+  .gallery-placeholder {
+    min-height: 320px;
+  }
+
+  .page-hero {
+    padding: 72px 4vw;
+  }
+
+  .page-hero h1 {
+    font-size: clamp(30px, 9.5vw, 46px);
   }
 
   .program-section .program-list {
@@ -3538,5 +3610,12 @@ body {
   .program-section .program-list article {
     min-height: 220px;
     padding: 22px 18px 24px;
+  }
+
+  .back-to-top-button {
+    bottom: 18px;
+    height: 44px;
+    right: 18px;
+    width: 44px;
   }
 }

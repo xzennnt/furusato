@@ -11,13 +11,15 @@ function JobPartnerSection() {
   const isExternalJobLink = /^https?:\/\//i.test(jobLink);
   const jobBannerContent = (
     <>
-      {jobBanner.imageUrl ? (
-        <img src={resolveMediaUrl(jobBanner.imageUrl)} alt={jobInfo.title || jobBanner.title} />
-      ) : (
-        <div className="job-banner-placeholder">
-          <span>UPLOAD BANNER INFORMASI</span>
-        </div>
-      )}
+      <div className="job-banner-media">
+        {jobBanner.imageUrl ? (
+          <img src={resolveMediaUrl(jobBanner.imageUrl)} alt={jobInfo.title || jobBanner.title} />
+        ) : (
+          <div className="job-banner-placeholder">
+            <span>UPLOAD BANNER INFORMASI</span>
+          </div>
+        )}
+      </div>
       <div className="job-banner-caption">
         <p className="eyebrow">{jobInfo.label || 'Info Job'}</p>
         <h2>{jobInfo.title || jobBanner.title}</h2>

@@ -13,39 +13,15 @@ const menuItems = [
 
 function NavigationBar() {
   const [site, setSite] = useState(fallbackSite);
-  const [isCompact, setIsCompact] = useState(false);
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
   }, []);
 
-  useEffect(() => {
-    const sentinel = document.getElementById('scroll-sentinel');
-
-    if (!sentinel || typeof IntersectionObserver === 'undefined') {
-      setIsCompact(window.scrollY > 24);
-      return undefined;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsCompact(!entry.isIntersecting);
-      },
-      {
-        root: null,
-        threshold: 0,
-      },
-    );
-
-    observer.observe(sentinel);
-
-    return () => observer.disconnect();
-  }, []);
-
   const logoSrc = resolveMediaUrl(site.logoUrl);
 
   return (
-    <header className={`site-header yutaka-header ${isCompact ? 'is-compact' : ''}`}>
+    <header className="site-header yutaka-header">
       <NavLink className="brand yutaka-brand" to="/" aria-label="Furusato home">
         {logoSrc ? (
           <img src={logoSrc} alt={site.brandName} />
