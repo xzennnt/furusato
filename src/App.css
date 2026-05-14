@@ -541,8 +541,8 @@ p {
 .about-story-panel > div:first-child {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: 8px 12px 8px 0;
+  justify-content: flex-start;
+  padding: 18px 12px 8px 0;
   text-align: center;
 }
 
