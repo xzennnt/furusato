@@ -13,7 +13,7 @@ export async function fetchJson(path, fallback) {
       throw new Error(`Request failed: ${response.status}`);
     }
 
-    return response.json();
+    return await response.json();
   } catch (_error) {
     return fallback;
   }
