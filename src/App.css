@@ -3116,19 +3116,20 @@ h1,
   }
 }
 
-/* MoMoney-inspired polish: cream paper, yellow headline stickers, and punchy CTA buttons. */
+/* Furusato red-white-orange polish with restrained sticker contrast. */
 :root {
-  --momoney-cream: #fff3dc;
-  --momoney-yellow: #f8ff23;
-  --momoney-pink: #c51aa4;
-  --momoney-green: #7bb94f;
+  --furusato-paper: #ffffff;
+  --furusato-paper-warm: #fff7f2;
+  --furusato-red: #d63d2e;
+  --furusato-orange: #f27a24;
+  --furusato-soft-red: #fff0ec;
 }
 
 body {
   background:
-    radial-gradient(rgba(17, 17, 17, 0.12) 1px, transparent 1px),
-    var(--momoney-cream);
-  background-size: 11px 11px;
+    radial-gradient(rgba(214, 61, 46, 0.1) 1px, transparent 1px),
+    var(--furusato-paper);
+  background-size: 14px 14px;
 }
 
 .furusato-site,
@@ -3140,42 +3141,42 @@ body {
 .contact-info-grid,
 .site-header,
 .museum-header {
-  background-color: var(--momoney-cream);
+  background-color: var(--furusato-paper);
 }
 
 .site-header,
 .museum-header {
-  border-bottom: 3px solid var(--sticker-ink);
+  border-bottom: 3px solid var(--furusato-red);
   box-shadow: none;
 }
 
 .brand,
 .raised-brand,
 .footer-logo {
-  background: var(--momoney-yellow);
+  background: var(--furusato-paper);
   border: 3px solid var(--sticker-ink);
   border-radius: 0;
-  box-shadow: 6px 6px 0 var(--sticker-ink);
-  color: var(--sticker-ink);
+  box-shadow: 6px 6px 0 var(--furusato-red);
+  color: var(--furusato-red);
   padding: 10px 18px;
-  transform: rotate(-1.5deg);
+  transform: none;
 }
 
 .brand-kanji,
 .brand-romaji {
-  color: var(--sticker-ink);
+  color: var(--furusato-red);
 }
 
 .money-hero {
-  border-bottom: 3px solid var(--sticker-ink);
+  border-bottom: 3px solid var(--furusato-red);
 }
 
 .money-hero .hero-copy h1,
 .page-hero h1 {
-  background: var(--momoney-yellow);
+  background: var(--furusato-paper);
   border: 4px solid var(--sticker-ink);
-  box-shadow: 8px 8px 0 var(--sticker-ink);
-  color: var(--sticker-ink);
+  box-shadow: 8px 8px 0 var(--furusato-red);
+  color: var(--furusato-red);
   display: inline-block;
   max-width: min(980px, 100%);
   padding: clamp(14px, 2.4vw, 28px);
@@ -3184,7 +3185,7 @@ body {
 
 .money-hero.has-hero-bg .hero-copy h1,
 .page-hero.has-page-hero-bg h1 {
-  color: var(--sticker-ink);
+  color: var(--furusato-red);
 }
 
 .money-hero .hero-copy p:not(.eyebrow),
@@ -3212,10 +3213,10 @@ body {
 .admin-tabs button,
 .money-hero .primary-action,
 .money-hero .secondary-action {
-  background: var(--momoney-yellow);
+  background: var(--furusato-red);
   border: 3px solid var(--sticker-ink);
   box-shadow: 5px 5px 0 var(--sticker-ink);
-  color: var(--sticker-ink);
+  color: var(--white);
   transform: rotate(-0.7deg);
 }
 
@@ -3229,7 +3230,7 @@ body {
 .admin-tabs button:hover,
 .money-hero .primary-action:hover,
 .money-hero .secondary-action:hover {
-  background: var(--momoney-pink);
+  background: var(--furusato-orange);
   border-color: var(--sticker-ink);
   box-shadow: 8px 8px 0 var(--sticker-ink);
   color: var(--white);
@@ -3241,7 +3242,7 @@ body {
 .admin-tabs button.active,
 .museum-header .nav-cta,
 .museum-header .yutaka-menu .yutaka-cta {
-  background: var(--momoney-pink);
+  background: var(--furusato-orange);
   color: var(--white);
 }
 
@@ -3249,15 +3250,15 @@ body {
 .eyebrow,
 .news-list time,
 .news-page-list time {
-  color: var(--sticker-ink);
+  color: var(--furusato-red);
 }
 
 .hero-badge,
 .news-list time,
 .news-page-list time {
-  background: var(--momoney-yellow);
+  background: var(--furusato-paper);
   border: 2px solid var(--sticker-ink);
-  box-shadow: 3px 3px 0 var(--sticker-ink);
+  box-shadow: 3px 3px 0 var(--furusato-orange);
 }
 
 .editable-note,
@@ -3271,7 +3272,72 @@ body {
 .admin-panel {
   border: 3px solid var(--sticker-ink);
   border-radius: 0;
-  box-shadow: 7px 7px 0 var(--sticker-ink);
+  box-shadow: 7px 7px 0 var(--furusato-red);
+}
+
+.editable-note,
+.about-chairman-panel,
+.about-vision-grid article,
+.contact-card,
+.contact-info-grid article,
+.admin-panel {
+  background: var(--furusato-paper);
+}
+
+.job-news-column,
+.partner-panel {
+  background: var(--furusato-soft-red);
+}
+
+.job-partner-section .is-straight-card,
+.job-banner-card.is-straight-card,
+.news-list .news-home-card.sticker-card {
+  --sticker-tilt: 0deg;
+  transform: none;
+}
+
+.job-partner-section .is-straight-card:hover,
+.job-partner-section .is-straight-card:focus-visible,
+.job-banner-card.is-straight-card:hover,
+.job-banner-card.is-straight-card:focus-visible,
+.news-list .news-home-card.sticker-card:hover,
+.news-list .news-home-card.sticker-card:focus-visible {
+  transform: translate(-2px, -2px);
+}
+
+.news-section.has-section-bg .news-list .news-home-card.sticker-card {
+  background: var(--furusato-paper);
+  border-color: var(--sticker-ink);
+}
+
+.news-section.has-section-bg .news-list .news-home-card time,
+.news-section.has-section-bg .news-list .news-home-card h3,
+.news-section.has-section-bg .news-list .news-home-card p {
+  color: var(--sticker-ink);
+  text-shadow: none;
+}
+
+.news-section.has-section-bg .news-list .news-home-card time {
+  background: var(--furusato-paper);
+  border: 2px solid var(--sticker-ink);
+  box-shadow: 3px 3px 0 var(--furusato-orange);
+  color: var(--furusato-red);
+}
+
+.news-section.has-section-bg .text-action,
+.news-section .text-action {
+  background: var(--furusato-orange);
+  border: 3px solid var(--sticker-ink);
+  box-shadow: 5px 5px 0 var(--sticker-ink);
+  color: var(--white);
+  opacity: 1;
+  text-shadow: none;
+}
+
+.news-section.has-section-bg .text-action:hover,
+.news-section .text-action:hover {
+  background: var(--furusato-red);
+  color: var(--white);
 }
 
 .section-heading-row::after,
@@ -3294,7 +3360,7 @@ body {
   .brand,
   .raised-brand,
   .footer-logo {
-    box-shadow: 4px 4px 0 var(--sticker-ink);
+    box-shadow: 4px 4px 0 var(--furusato-red);
     padding: 8px 12px;
   }
 }

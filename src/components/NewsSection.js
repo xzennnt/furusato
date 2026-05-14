@@ -36,7 +36,7 @@ function NewsSection() {
         </div>
         <div className="news-list">
           {newsItems.map((item) => (
-            <article className={`sticker-card ${item.imageUrl ? 'has-news-thumb' : ''}`} key={item.id}>
+            <article className={`news-home-card sticker-card ${item.imageUrl ? 'has-news-thumb' : ''}`} key={item.id}>
               {item.imageUrl && (
                 <img
                   className="news-home-thumb"
