@@ -158,6 +158,15 @@ Secara default backend masih memakai file JSON lokal agar development tetap muda
 ```bash
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
+FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
+FIRESTORE_AUTO_SEED=true
+```
+
+Jika tidak ingin menaruh file JSON credential di server, gunakan format base64:
+
+```bash
+DATA_DRIVER=firestore
+FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
 FIRESTORE_AUTO_SEED=true
 ```

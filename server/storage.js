@@ -30,6 +30,7 @@ function getFirestore() {
   if (!admin.apps.length) {
     const serviceAccountBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
     const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
     let credential;
 
     if (serviceAccountBase64) {
@@ -37,6 +38,10 @@ function getFirestore() {
       credential = admin.credential.cert(serviceAccount);
     } else if (serviceAccountJson) {
       credential = admin.credential.cert(JSON.parse(serviceAccountJson));
+    } else if (serviceAccountPath) {
+      const resolvedPath = path.resolve(process.cwd(), serviceAccountPath);
+      const serviceAccount = JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
+      credential = admin.credential.cert(serviceAccount);
     } else {
       credential = admin.credential.applicationDefault();
     }
