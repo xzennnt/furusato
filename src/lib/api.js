@@ -1,5 +1,8 @@
+const isBrowserOnLocalhost = typeof window !== 'undefined'
+  && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
 const API_BASE_URL = process.env.REACT_APP_API_URL || (
-  process.env.NODE_ENV === 'production' ? '' : 'http://localhost:4000'
+  isBrowserOnLocalhost ? 'http://localhost:4000' : ''
 );
 
 export async function fetchJson(path, fallback) {
