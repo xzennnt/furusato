@@ -160,6 +160,7 @@ DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
 FIRESTORE_DATABASE_ID=
+FIRESTORE_LOCATION_ID=asia-southeast2
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -170,6 +171,7 @@ DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
 FIRESTORE_DATABASE_ID=
+FIRESTORE_LOCATION_ID=asia-southeast2
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -197,6 +199,7 @@ pm2 save
 Untuk menyalin data JSON lokal ke Firestore secara manual:
 
 ```bash
+npm run firebase:create-db
 npm run firebase:seed
 ```
 
