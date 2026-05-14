@@ -981,7 +981,7 @@ function AdminDashboardPage() {
         <div className="admin-grid background-home-admin-grid">
           <form className="admin-panel" onSubmit={handleSiteSubmit}>
             <h2>Background Home</h2>
-            <p>Kelola semua background yang tampil di halaman beranda dari satu tempat. Rekomendasi upload: 1600 x 1200 (rasio 4:3).</p>
+            <p>Kelola semua background yang tampil di halaman beranda dari satu tempat. Rekomendasi upload untuk foto dokumentasi: 1600 x 1200 (rasio 4:3).</p>
 
             <div className="admin-field-group">
               <h3>Hero Home</h3>
@@ -1061,7 +1061,7 @@ function AdminDashboardPage() {
             <div className="section-heading-row">
               <div>
                 <h2>Program Home</h2>
-                <p>Kelola card program di halaman beranda, termasuk judul, deskripsi, dan background. Rekomendasi upload: 1600 x 1200 (rasio 4:3).</p>
+                <p>Kelola card program di halaman beranda, termasuk judul, deskripsi, dan background. Rekomendasi upload untuk gambar program: 1600 x 1200 (rasio 4:3).</p>
               </div>
               <button type="button" className="ghost-button add-button" onClick={addAboutProgram}>Tambah Program</button>
             </div>
@@ -1119,7 +1119,7 @@ function AdminDashboardPage() {
         <form className="admin-grid site-admin-grid" onSubmit={handleSiteSubmit}>
           <div className="admin-panel">
             <h2>Logo & Media Website</h2>
-            <p>Untuk background halaman dan gambar dokumentasi, format aman yang kami sarankan adalah 1600 x 1200 (rasio 4:3).</p>
+            <p>Untuk background halaman dan gambar dokumentasi, format aman yang kami sarankan adalah 1600 x 1200 (rasio 4:3) agar pas di frame.</p>
             <div className="admin-field-group">
               <h3>Logo Navbar</h3>
               <label>
