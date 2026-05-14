@@ -7,10 +7,13 @@ const path = require('path');
 
 const app = express();
 const port = process.env.PORT || 4000;
+const host = process.env.HOST || '0.0.0.0';
 const dataPath = path.join(__dirname, 'data', 'content.json');
 const accountsPath = path.join(__dirname, 'data', 'accounts.json');
 const sitePath = path.join(__dirname, 'data', 'site.json');
 const uploadDir = path.join(__dirname, 'uploads');
+const buildPath = path.join(__dirname, '..', 'build');
+const buildIndexPath = path.join(buildPath, 'index.html');
 const activeAdminTokens = new Set();
 
 fs.mkdirSync(uploadDir, { recursive: true });
@@ -34,13 +37,16 @@ app.use('/api', (_req, res, next) => {
   next();
 });
 
-app.get('/', (_req, res) => {
-  res.json({
-    message: 'Furusato backend berjalan.',
-    frontend: 'Buka http://localhost:3000 untuk melihat website.',
-    endpoints: ['/api/health', '/api/news', '/api/gallery'],
+if (!fs.existsSync(buildIndexPath)) {
+  app.get('/', (_req, res) => {
+    res.json({
+      message: 'Furusato backend berjalan.',
+      frontend: 'Buka http://localhost:3000 untuk melihat website.',
+      production: 'Jalankan npm run build agar backend bisa menyajikan website React.',
+      endpoints: ['/api/health', '/api/news', '/api/gallery'],
+    });
   });
-});
+}
 
 function readContent() {
   return JSON.parse(fs.readFileSync(dataPath, 'utf8'));
@@ -330,6 +336,28 @@ app.post('/api/admin/upload', requireAdmin, upload.single('image'), (req, res) =
   });
 });
 
-app.listen(port, () => {
-  console.log(`Furusato API berjalan di http://localhost:${port}`);
+if (fs.existsSync(buildIndexPath)) {
+  app.use(express.static(buildPath));
+
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+      return next();
+    }
+
+    return res.sendFile(buildIndexPath);
+  });
+}
+
+const server = app.listen(port, host, () => {
+  console.log(`Furusato berjalan di http://${host}:${port}`);
 });
+
+function shutdown(signal) {
+  console.log(`${signal} diterima, server dimatikan...`);
+  server.close(() => {
+    process.exit(0);
+  });
+}
+
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
