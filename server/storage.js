@@ -52,7 +52,9 @@ function getFirestore() {
     });
   }
 
-  firestore = admin.firestore();
+  firestore = process.env.FIRESTORE_DATABASE_ID
+    ? admin.firestore(process.env.FIRESTORE_DATABASE_ID)
+    : admin.firestore();
   return firestore;
 }
 

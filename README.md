@@ -159,6 +159,7 @@ Secara default backend masih memakai file JSON lokal agar development tetap muda
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_PATH=furusato-homepage-firebase-adminsdk-fbsvc-ddea11d9ff.json
+FIRESTORE_DATABASE_ID=
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -168,6 +169,7 @@ Jika tidak ingin menaruh file JSON credential di server, gunakan format base64:
 DATA_DRIVER=firestore
 FIREBASE_PROJECT_ID=project-id-firebase-kamu
 FIREBASE_SERVICE_ACCOUNT_BASE64=isi-service-account-base64
+FIRESTORE_DATABASE_ID=
 FIRESTORE_AUTO_SEED=true
 ```
 
@@ -190,6 +192,12 @@ Setelah `.env` diubah, restart PM2:
 ```bash
 pm2 restart furusato-web
 pm2 save
+```
+
+Untuk menyalin data JSON lokal ke Firestore secara manual:
+
+```bash
+npm run firebase:seed
 ```
 
 Catatan: upload gambar masih disimpan di folder lokal `server/uploads`. Ini aman untuk VPS biasa, tetapi untuk deploy serverless seperti Vercel sebaiknya dipindah ke Firebase Storage atau Cloudinary.
