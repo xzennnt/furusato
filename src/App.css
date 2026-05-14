@@ -387,7 +387,7 @@ p {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.78), rgba(36, 36, 36, 0.38)),
     var(--page-hero-bg);
-  background-position: center;
+  background-position: center 42%;
   background-size: cover;
   color: var(--white);
   min-height: 420px;
@@ -638,7 +638,7 @@ p {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.82), rgba(36, 36, 36, 0.48)),
     var(--page-hero-bg, linear-gradient(135deg, var(--red), var(--orange)));
-  background-position: center;
+  background-position: center 42%;
   background-size: cover;
   border-radius: 8px;
   color: var(--white);
@@ -1439,7 +1439,7 @@ body {
   background:
     linear-gradient(90deg, rgba(16, 36, 58, 0.56), rgba(16, 36, 58, 0.18)),
     var(--hero-bg);
-  background-position: center;
+  background-position: center 42%;
   background-size: cover;
   background-attachment: fixed;
   color: var(--white);
@@ -1534,7 +1534,7 @@ body {
   background:
     linear-gradient(90deg, rgba(36, 36, 36, 0.82), rgba(36, 36, 36, 0.46)),
     var(--section-bg);
-  background-position: center;
+  background-position: center 42%;
   background-size: cover;
   color: var(--white);
 }
@@ -2638,7 +2638,7 @@ a.gallery-run-card:hover {
 
 @media (max-width: 960px) {
   .page-hero.has-page-hero-bg {
-    background-position: center;
+    background-position: center 46%;
     min-height: clamp(340px, 62vw, 520px);
   }
 
@@ -2649,7 +2649,7 @@ a.gallery-run-card:hover {
   .money-hero.has-hero-bg,
   .about-section.has-section-bg,
   .news-section.has-section-bg {
-    background-position: center;
+    background-position: center 46%;
     background-attachment: scroll;
   }
 }
@@ -2662,7 +2662,7 @@ a.gallery-run-card:hover {
   }
 
   .page-hero.has-page-hero-bg {
-    background-position: center top;
+    background-position: center 48%;
     margin-left: -20px;
     margin-right: -20px;
     min-height: 360px;
@@ -2674,14 +2674,14 @@ a.gallery-run-card:hover {
   }
 
   .money-hero.has-hero-bg {
-    background-position: center;
+    background-position: center 48%;
     background-attachment: scroll;
     min-height: 300px;
   }
 
   .about-section.has-section-bg,
   .news-section.has-section-bg {
-    background-position: center;
+    background-position: center 48%;
     background-attachment: scroll;
     min-height: 420px;
   }
