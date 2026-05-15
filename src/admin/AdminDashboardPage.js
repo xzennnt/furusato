@@ -935,61 +935,69 @@ function AdminDashboardPage() {
             </div>
           </form>
 
-          <form className="admin-panel" onSubmit={handleLulusJobSubmit}>
-            <div className="section-heading-row">
-              <div>
-                <h2>Data Siswa Lulus Job</h2>
-                <p>Tambahkan kartu siswa berisi foto, nama, asal, dan kata-kata singkat setelah lulus.</p>
+          <div className="lulus-job-editor-stack">
+            <form className="admin-panel" onSubmit={handleLulusJobSubmit}>
+              <div className="section-heading-row">
+                <div>
+                  <h2>Data Siswa Lulus Job</h2>
+                  <p>Tambahkan kartu siswa berisi foto, nama, asal, dan kata-kata singkat setelah lulus.</p>
+                </div>
               </div>
-            </div>
 
-            <label>
-              Nama siswa
-              <input
-                value={lulusJobForm.name}
-                onChange={(event) => setLulusJobForm({ ...lulusJobForm, name: event.target.value })}
-                required
-                placeholder="Nama siswa"
-              />
-            </label>
-            <label>
-              Asal
-              <input
-                value={lulusJobForm.origin}
-                onChange={(event) => setLulusJobForm({ ...lulusJobForm, origin: event.target.value })}
-                placeholder="Temanggung"
-              />
-            </label>
-            <label>
-              Kata-kata siswa
-              <textarea
-                value={lulusJobForm.quote}
-                onChange={(event) => setLulusJobForm({ ...lulusJobForm, quote: event.target.value })}
-                rows="4"
-                placeholder="Pesan singkat dari siswa lulus job"
-              />
-            </label>
-            <label>
-              Upload foto siswa
-              <input type="file" accept="image/*" onChange={handleLulusJobImageUpload} />
-            </label>
-            <label>
-              URL foto siswa
-              <input
-                value={lulusJobForm.imageUrl || ''}
-                onChange={(event) => setLulusJobForm({ ...lulusJobForm, imageUrl: event.target.value })}
-                placeholder="/uploads/siswa-lulus.jpg"
-              />
-            </label>
-            {lulusJobForm.imageUrl && (
-              <img className="admin-image-preview" src={resolveMediaUrl(lulusJobForm.imageUrl)} alt="Preview siswa lulus job" />
-            )}
-            <div className="admin-form-actions">
-              <button type="submit">{lulusJobForm.id ? 'Update Siswa' : 'Tambah Siswa'}</button>
-              {lulusJobForm.id && <button type="button" className="ghost-button" onClick={() => setLulusJobForm(emptyLulusJob)}>Batal</button>}
-            </div>
+              <label>
+                Nama siswa
+                <input
+                  value={lulusJobForm.name}
+                  onChange={(event) => setLulusJobForm({ ...lulusJobForm, name: event.target.value })}
+                  required
+                  placeholder="Nama siswa"
+                />
+              </label>
+              <label>
+                Asal
+                <input
+                  value={lulusJobForm.origin}
+                  onChange={(event) => setLulusJobForm({ ...lulusJobForm, origin: event.target.value })}
+                  placeholder="Temanggung"
+                />
+              </label>
+              <label>
+                Kata-kata siswa
+                <textarea
+                  value={lulusJobForm.quote}
+                  onChange={(event) => setLulusJobForm({ ...lulusJobForm, quote: event.target.value })}
+                  rows="4"
+                  placeholder="Pesan singkat dari siswa lulus job"
+                />
+              </label>
+              <label>
+                Upload foto siswa
+                <input type="file" accept="image/*" onChange={handleLulusJobImageUpload} />
+              </label>
+              <label>
+                URL foto siswa
+                <input
+                  value={lulusJobForm.imageUrl || ''}
+                  onChange={(event) => setLulusJobForm({ ...lulusJobForm, imageUrl: event.target.value })}
+                  placeholder="/uploads/siswa-lulus.jpg"
+                />
+              </label>
+              {lulusJobForm.imageUrl && (
+                <img className="admin-image-preview" src={resolveMediaUrl(lulusJobForm.imageUrl)} alt="Preview siswa lulus job" />
+              )}
+              <div className="admin-form-actions">
+                <button type="submit">{lulusJobForm.id ? 'Update Siswa' : 'Tambah Siswa'}</button>
+                {lulusJobForm.id && <button type="button" className="ghost-button" onClick={() => setLulusJobForm(emptyLulusJob)}>Batal</button>}
+              </div>
+            </form>
 
-            <div className="admin-list admin-lulus-job-list">
+            <div className="admin-panel admin-list admin-lulus-job-list">
+              <div className="section-heading-row">
+                <div>
+                  <h2>History Siswa Lulus Job</h2>
+                  <p>Daftar siswa yang sudah lulus dan siap tampil di halaman publik.</p>
+                </div>
+              </div>
               {lulusJobItems.map((item) => (
                 <article data-admin-row="lulus-job" data-row-id={item.id} key={item.id}>
                   {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.name} />}
@@ -1003,7 +1011,7 @@ function AdminDashboardPage() {
                 </article>
               ))}
             </div>
-          </form>
+          </div>
         </div>
       ) : activeTab === 'about' ? (
         <div className="admin-grid about-admin-grid">
