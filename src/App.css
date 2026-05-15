@@ -939,6 +939,18 @@ p {
   color: #9b1c1c;
 }
 
+.admin-login-error {
+  align-self: stretch;
+  background: #fde8e8;
+  border-radius: 8px;
+  color: #9b1c1c;
+  font-weight: 800;
+  line-height: 1.45;
+  margin-top: 4px;
+  padding: 12px 14px;
+  text-align: center;
+}
+
 .admin-list article {
   align-items: start;
   border-top: 1px solid var(--line);
@@ -1166,6 +1178,10 @@ p {
   .admin-login-card,
   .admin-panel {
     padding: 18px;
+  }
+
+  .admin-login-error {
+    padding: 11px 12px;
   }
 
   .admin-dashboard h1,

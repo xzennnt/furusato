@@ -58,11 +58,11 @@ function AdminLoginPage() {
           />
         </label>
 
-        {error && <div className="admin-error">{error}</div>}
-
         <button type="submit" disabled={isSubmitting}>
           {isSubmitting ? 'Memproses...' : 'Masuk'}
         </button>
+
+        {error && <div className="admin-login-error">{error}</div>}
       </form>
     </section>
   );
