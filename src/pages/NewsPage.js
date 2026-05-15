@@ -4,6 +4,10 @@ import { fallbackNews, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 import { scrollToHashTarget } from '../lib/scroll';
 
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 function NewsPage() {
   const location = useLocation();
   const [newsItems, setNewsItems] = useState(fallbackNews);
@@ -15,10 +19,31 @@ function NewsPage() {
     : undefined;
 
   useEffect(() => {
-    fetchJson('/api/news', fallbackNews).then((items) => {
-      setNewsItems(items);
-      setExpandedNewsId(location.hash.replace('#', '') || '');
-    });
+    let cancelled = false;
+
+    const refreshNews = async () => {
+      const delays = [0, 2500, 5000, 10000];
+
+      for (let index = 0; index < delays.length; index += 1) {
+        if (index > 0) {
+          await sleep(delays[index]);
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const items = await fetchJson('/api/news', fallbackNews);
+
+        if (cancelled) {
+          return;
+        }
+
+        setNewsItems(items);
+        setExpandedNewsId(location.hash.replace('#', '') || '');
+      }
+    };
+
     fetchSite(fallbackSite).then((data) => {
       setSite({
         ...fallbackSite,
@@ -26,6 +51,12 @@ function NewsPage() {
         backgrounds: { ...fallbackSite.backgrounds, ...(data.backgrounds || {}) },
       });
     });
+
+    refreshNews();
+
+    return () => {
+      cancelled = true;
+    };
   }, [location.hash]);
 
   useEffect(() => {

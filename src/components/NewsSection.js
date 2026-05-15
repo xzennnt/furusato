@@ -3,6 +3,10 @@ import { Link } from 'react-router-dom';
 import { fallbackNews, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
 function NewsSection() {
   const [site, setSite] = useState(fallbackSite);
   const [newsItems, setNewsItems] = useState(fallbackNews.slice(0, 2));
@@ -10,6 +14,30 @@ function NewsSection() {
   const backgroundUrl = resolveMediaUrl(newsBackgroundUrl);
 
   useEffect(() => {
+    let cancelled = false;
+
+    const refreshNews = async () => {
+      const delays = [0, 2500, 5000, 10000];
+
+      for (let index = 0; index < delays.length; index += 1) {
+        if (index > 0) {
+          await sleep(delays[index]);
+        }
+
+        if (cancelled) {
+          return;
+        }
+
+        const items = await fetchJson('/api/news', fallbackNews);
+
+        if (cancelled) {
+          return;
+        }
+
+        setNewsItems(items.slice(0, 2));
+      }
+    };
+
     fetchSite(fallbackSite).then((data) => {
       setSite({
         ...fallbackSite,
@@ -17,9 +45,12 @@ function NewsSection() {
         backgrounds: { ...fallbackSite.backgrounds, ...(data.backgrounds || {}) },
       });
     });
-    fetchJson('/api/news', fallbackNews).then((items) => {
-      setNewsItems(items.slice(0, 2));
-    });
+
+    refreshNews();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   return (
