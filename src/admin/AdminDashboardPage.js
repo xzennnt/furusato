@@ -509,7 +509,7 @@ function AdminDashboardPage() {
     }
   }
 
-  async function handleAboutProgramImageUpload(index, file) {
+  async function handleAboutProgramImageUpload(programId, file) {
     if (!file) {
       return;
     }
@@ -519,7 +519,7 @@ function AdminDashboardPage() {
     try {
       const result = await uploadImage(file);
       const programs = aboutContentForm.programs.map((program, programIndex) => (
-        programIndex === index ? { ...program, imageUrl: result.imageUrl } : program
+        program.id === programId ? { ...program, imageUrl: result.imageUrl } : program
       ));
       setAboutContentForm({ ...aboutContentForm, programs });
       setMessage('Gambar program berhasil diupload. Klik tombol simpan pada panel terkait untuk menyimpan.');
@@ -528,9 +528,9 @@ function AdminDashboardPage() {
     }
   }
 
-  function updateAboutProgram(index, patch) {
+  function updateAboutProgram(programId, patch) {
     const programs = aboutContentForm.programs.map((program, programIndex) => (
-      programIndex === index ? { ...program, ...patch } : program
+      program.id === programId ? { ...program, ...patch } : program
     ));
     setAboutContentForm({ ...aboutContentForm, programs });
   }
@@ -549,9 +549,10 @@ function AdminDashboardPage() {
     scrollToProgramRow(newProgram.id);
   }
 
-  function removeAboutProgram(index) {
-    const nextPrograms = aboutContentForm.programs.filter((_program, programIndex) => programIndex !== index);
-    const nextProgram = nextPrograms[Math.min(index, nextPrograms.length - 1)];
+  function removeAboutProgram(programId) {
+    const currentIndex = aboutContentForm.programs.findIndex((program) => program.id === programId);
+    const nextPrograms = aboutContentForm.programs.filter((program) => program.id !== programId);
+    const nextProgram = nextPrograms[Math.min(currentIndex, nextPrograms.length - 1)];
 
     setAboutContentForm({
       ...aboutContentForm,
@@ -571,7 +572,7 @@ function AdminDashboardPage() {
     });
   }
 
-  async function handlePartnerIconUpload(index, file) {
+  async function handlePartnerIconUpload(partnerId, file) {
     if (!file) {
       return;
     }
@@ -582,7 +583,7 @@ function AdminDashboardPage() {
       try {
         const result = await uploadImage(file);
         const partners = homeContentForm.partners.map((partner, partnerIndex) => (
-          partnerIndex === index ? { ...partner, iconUrl: result.imageUrl } : partner
+          partner.id === partnerId ? { ...partner, iconUrl: result.imageUrl } : partner
         ));
         setHomeContentForm({ ...homeContentForm, partners });
         setMessage('Icon mitra berhasil diupload. Klik Simpan Mitra untuk menyimpan.');
@@ -625,9 +626,9 @@ function AdminDashboardPage() {
     });
   }
 
-  function updatePartner(index, patch) {
+  function updatePartner(partnerId, patch) {
     const partners = homeContentForm.partners.map((partner, partnerIndex) => (
-      partnerIndex === index ? { ...partner, ...patch } : partner
+      partner.id === partnerId ? { ...partner, ...patch } : partner
     ));
     setHomeContentForm({ ...homeContentForm, partners });
   }
@@ -646,9 +647,10 @@ function AdminDashboardPage() {
     scrollToPartnerRow(newPartner.id);
   }
 
-  function removePartner(index) {
-    const nextPartners = homeContentForm.partners.filter((_partner, partnerIndex) => partnerIndex !== index);
-    const nextPartner = nextPartners[Math.min(index, nextPartners.length - 1)];
+  function removePartner(partnerId) {
+    const currentIndex = homeContentForm.partners.findIndex((partner) => partner.id === partnerId);
+    const nextPartners = homeContentForm.partners.filter((partner) => partner.id !== partnerId);
+    const nextPartner = nextPartners[Math.min(currentIndex, nextPartners.length - 1)];
 
     setHomeContentForm({
       ...homeContentForm,
@@ -842,6 +844,7 @@ function AdminDashboardPage() {
             <h2>Daftar Berita</h2>
             {newsItems.map((item) => (
               <article data-admin-row="news" data-row-id={item.id} key={item.id}>
+                <p className="admin-card-meta">ID: {item.id}</p>
                 {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />}
                 <time>{item.date}</time>
                 <h3>{item.title}</h3>
@@ -887,6 +890,7 @@ function AdminDashboardPage() {
             <h2>Daftar Galeri</h2>
             {galleryItems.map((item) => (
               <article data-admin-row="gallery" data-row-id={item.id} key={item.id}>
+                <p className="admin-card-meta">ID: {item.id}</p>
                 {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />}
                 <h3>{item.title}</h3>
                 <p>{item.description}</p>
@@ -1000,6 +1004,7 @@ function AdminDashboardPage() {
               </div>
               {lulusJobItems.map((item) => (
                 <article data-admin-row="lulus-job" data-row-id={item.id} key={item.id}>
+                  <p className="admin-card-meta">ID: {item.id}</p>
                   {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.name} />}
                   <h3>{item.name}</h3>
                   <p className="admin-card-meta">{item.origin}</p>
@@ -1117,26 +1122,27 @@ function AdminDashboardPage() {
                 data-row-id={program.id}
                 key={program.id}
               >
+                <p className="admin-card-meta">ID: {program.id}</p>
                 <label>
                   Judul program
-                  <input value={program.title} onChange={(event) => updateAboutProgram(index, { title: event.target.value })} />
+                  <input value={program.title} onChange={(event) => updateAboutProgram(program.id, { title: event.target.value })} />
                 </label>
                 <label>
                   Deskripsi program
-                  <textarea value={program.description} onChange={(event) => updateAboutProgram(index, { description: event.target.value })} rows="3" />
+                  <textarea value={program.description} onChange={(event) => updateAboutProgram(program.id, { description: event.target.value })} rows="3" />
                 </label>
                 <label>
                   Upload gambar program
-                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(index, event.target.files?.[0])} />
+                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(program.id, event.target.files?.[0])} />
                 </label>
                 <label>
                   URL gambar program
-                  <input value={program.imageUrl || ''} onChange={(event) => updateAboutProgram(index, { imageUrl: event.target.value })} placeholder="/uploads/program.jpg" />
+                  <input value={program.imageUrl || ''} onChange={(event) => updateAboutProgram(program.id, { imageUrl: event.target.value })} placeholder="/uploads/program.jpg" />
                 </label>
                 {program.imageUrl && (
                   <img className="admin-image-preview" src={resolveMediaUrl(program.imageUrl)} alt={program.title} />
                 )}
-                <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
+                <button type="button" className="danger-button" onClick={() => removeAboutProgram(program.id)}>Hapus Program</button>
               </div>
             ))}
             <div className="admin-form-actions">
@@ -1268,12 +1274,13 @@ function AdminDashboardPage() {
               data-row-id={program.id}
               key={program.id || program.title}
               >
+                <p className="admin-card-meta">ID: {program.id}</p>
                 <h3>{program.title || `Program ${index + 1}`}</h3>
                 <label>
                   Judul program
                   <input
                     value={program.title}
-                    onChange={(event) => updateAboutProgram(index, { title: event.target.value })}
+                    onChange={(event) => updateAboutProgram(program.id, { title: event.target.value })}
                     placeholder="Judul program"
                   />
                 </label>
@@ -1281,27 +1288,27 @@ function AdminDashboardPage() {
                   Deskripsi program
                   <textarea
                     value={program.description}
-                    onChange={(event) => updateAboutProgram(index, { description: event.target.value })}
+                    onChange={(event) => updateAboutProgram(program.id, { description: event.target.value })}
                     rows="3"
                     placeholder="Deskripsi singkat program"
                   />
                 </label>
                 <label>
                   Upload background program
-                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(index, event.target.files?.[0])} />
+                  <input type="file" accept="image/*" onChange={(event) => handleAboutProgramImageUpload(program.id, event.target.files?.[0])} />
                 </label>
                 <label>
                   URL background program
                   <input
                     value={program.imageUrl || ''}
-                    onChange={(event) => updateAboutProgram(index, { imageUrl: event.target.value })}
+                    onChange={(event) => updateAboutProgram(program.id, { imageUrl: event.target.value })}
                     placeholder="/uploads/program.jpg"
                   />
                 </label>
                 {program.imageUrl && (
                 <img className="admin-image-preview" src={resolveMediaUrl(program.imageUrl)} alt={program.title} />
                 )}
-                <button type="button" className="danger-button" onClick={() => removeAboutProgram(index)}>Hapus Program</button>
+                <button type="button" className="danger-button" onClick={() => removeAboutProgram(program.id)}>Hapus Program</button>
               </div>
             ))}
 
@@ -1517,20 +1524,21 @@ function AdminDashboardPage() {
               </div>
               {homeContentForm.partners.map((partner, index) => (
                 <div className="admin-partner-row" data-admin-row="partner" data-row-id={partner.id} key={partner.id}>
+                  <p className="admin-card-meta">ID: {partner.id}</p>
                   <label>
                     Nama mitra
-                    <input value={partner.name} onChange={(event) => updatePartner(index, { name: event.target.value })} />
+                    <input value={partner.name} onChange={(event) => updatePartner(partner.id, { name: event.target.value })} />
                   </label>
                   <label>
                     Upload icon
-                    <input type="file" accept="image/*" onChange={(event) => handlePartnerIconUpload(index, event.target.files?.[0])} />
+                    <input type="file" accept="image/*" onChange={(event) => handlePartnerIconUpload(partner.id, event.target.files?.[0])} />
                   </label>
                   <label>
                     URL icon
-                    <input value={partner.iconUrl} onChange={(event) => updatePartner(index, { iconUrl: event.target.value })} />
+                    <input value={partner.iconUrl} onChange={(event) => updatePartner(partner.id, { iconUrl: event.target.value })} />
                   </label>
                   {partner.iconUrl && <img className="admin-logo-preview" src={resolveMediaUrl(partner.iconUrl)} alt={partner.name} />}
-                  <button type="button" className="danger-button" onClick={() => removePartner(index)}>Hapus Mitra</button>
+                  <button type="button" className="danger-button" onClick={() => removePartner(partner.id)}>Hapus Mitra</button>
                 </div>
               ))}
               <div className="admin-form-actions">
