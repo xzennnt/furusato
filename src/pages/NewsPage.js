@@ -4,6 +4,14 @@ import { fallbackNews, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
 import { scrollToHashTarget } from '../lib/scroll';
 
+function stripLinkInformation(content = '') {
+  return String(content)
+    .split('\n')
+    .filter((line) => !/^Link informasi:\s*/i.test(line.trim()))
+    .join('\n')
+    .trim();
+}
+
 function NewsPage() {
   const location = useLocation();
   const [newsItems, setNewsItems] = useState(fallbackNews);
@@ -64,7 +72,7 @@ function NewsPage() {
               <h2>{item.title}</h2>
               <p>{item.description}</p>
               {expandedNewsId === item.id && (
-                <div className="news-content">{item.content}</div>
+                <div className="news-content">{stripLinkInformation(item.content)}</div>
               )}
               <button
                 className="news-expand-button"

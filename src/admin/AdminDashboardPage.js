@@ -656,10 +656,7 @@ function AdminDashboardPage() {
           date: today.toISOString().slice(0, 10),
           title: homeContentForm.jobInfo.title || 'Info Job Baru',
           description: homeContentForm.jobInfo.description || '',
-          content: [
-            homeContentForm.jobInfo.description || '',
-            homeContentForm.jobInfo.linkUrl ? `Link informasi: ${homeContentForm.jobInfo.linkUrl}` : '',
-          ].filter(Boolean).join('\n\n'),
+          content: homeContentForm.jobInfo.description || '',
           imageUrl: homeContentForm.jobBanner.imageUrl || '',
           source: 'job-banner',
           jobInfo: homeContentForm.jobInfo,
