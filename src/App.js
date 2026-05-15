@@ -12,6 +12,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import HomePage from './pages/HomePage';
+import LulusJobPage from './pages/LulusJobPage';
 import NewsPage from './pages/NewsPage';
 
 function AppShell() {
@@ -138,6 +139,7 @@ function AppShell() {
         <Route path="/" element={<HomePage />} />
         <Route path="/tentang" element={<AboutPage />} />
         <Route path="/galeri" element={<GalleryPage />} />
+        <Route path="/lulus-job" element={<LulusJobPage />} />
         <Route path="/berita" element={<NewsPage />} />
         <Route path="/kontak" element={<ContactPage />} />
         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
@@ -167,7 +169,7 @@ function NotFoundPage() {
         <p className="eyebrow">Halaman tidak tersedia</p>
         <h1>URL ini tidak dipublikasikan untuk pengunjung.</h1>
         <p>
-          Gunakan halaman yang tersedia: Home, Tentang Furusato, Map, Galeri, Berita, dan Kontak.
+          Gunakan halaman yang tersedia: Home, Tentang Furusato, Map, Galeri, Lulus Job, Berita, dan Kontak.
         </p>
         <Link className="primary-action" to="/">Kembali ke Home</Link>
       </div>
@@ -190,6 +192,10 @@ function getPageTitle(pathname, hash) {
 
   if (pathname === '/galeri') {
     return 'Galeri Furusato Temanggung';
+  }
+
+  if (pathname === '/lulus-job') {
+    return 'Lulus Job Furusato Temanggung';
   }
 
   if (pathname === '/berita') {

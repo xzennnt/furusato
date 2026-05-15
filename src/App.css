@@ -407,6 +407,33 @@ p {
   align-items: stretch;
 }
 
+.page-lulus-job-grid {
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0 auto;
+  width: min(100%, 1180px);
+}
+
+.lulus-job-card {
+  align-self: stretch;
+}
+
+.lulus-job-card > div:last-child {
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px 26px;
+}
+
+.lulus-job-origin {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
 .gallery-card {
   background: var(--white);
   border: 1px solid var(--line);
@@ -770,6 +797,11 @@ p {
   grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.05fr);
 }
 
+.lulus-job-admin-grid {
+  align-items: start;
+  grid-template-columns: minmax(320px, 0.9fr) minmax(380px, 1.1fr);
+}
+
 .background-home-admin-grid .admin-panel {
   gap: 14px;
 }
@@ -829,6 +861,13 @@ p {
   gap: 14px;
   padding-top: 18px;
   scroll-margin-top: 120px;
+}
+
+.admin-help-text {
+  color: #6b7280;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .admin-field-group h3 {
@@ -924,6 +963,15 @@ p {
   margin: 0;
 }
 
+.admin-card-meta {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
 .admin-list article p {
   font-size: 14px;
   line-height: 1.55;
@@ -933,6 +981,14 @@ p {
 .admin-list article > img {
   grid-column: 1;
   grid-row: 1 / span 4;
+}
+
+.admin-lulus-job-list {
+  gap: 16px;
+}
+
+.admin-lulus-job-list article {
+  grid-template-columns: 112px minmax(0, 1fr);
 }
 
 .admin-list img,
@@ -984,6 +1040,10 @@ p {
 
   .menu-bar {
     justify-content: flex-start;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    width: 100%;
   }
 
   .hero-section,
@@ -1029,6 +1089,11 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .lulus-job-admin-grid,
+  .background-home-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
   .admin-panel {
     padding: 22px;
   }
@@ -1050,6 +1115,10 @@ p {
   .admin-dashboard-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .page-lulus-job-grid {
+    grid-template-columns: 1fr;
   }
 
   .site-admin-grid .admin-image-preview,
@@ -1076,7 +1145,9 @@ p {
   }
 
   .menu-bar a {
+    flex: 0 0 auto;
     padding: 8px 10px;
+    white-space: nowrap;
   }
 
   .admin-dashboard {
@@ -1114,6 +1185,7 @@ p {
   .admin-grid,
   .single-admin-grid,
   .job-mitra-admin-grid,
+  .lulus-job-admin-grid,
   .background-home-admin-grid,
   .about-admin-grid,
   .site-admin-grid {
@@ -1188,6 +1260,10 @@ p {
   }
 
   .news-page-list {
+    gap: 20px;
+  }
+
+  .page-lulus-job-grid {
     gap: 20px;
   }
 
@@ -1911,6 +1987,7 @@ a.gallery-run-card:hover {
 
 .program-list article:nth-child(2n),
 .gallery-grid .sticker-card:nth-child(2n),
+.lulus-job-grid .sticker-card:nth-child(2n),
 .about-program-card:nth-child(2n),
 .news-list .sticker-card:nth-child(2n),
 .partner-item:nth-child(2n) {
@@ -1919,6 +1996,7 @@ a.gallery-run-card:hover {
 
 .program-list article:nth-child(3n),
 .gallery-grid .sticker-card:nth-child(3n),
+.lulus-job-grid .sticker-card:nth-child(3n),
 .about-program-card:nth-child(3n),
 .news-list .sticker-card:nth-child(3n),
 .partner-item:nth-child(3n) {

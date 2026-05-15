@@ -30,6 +30,29 @@ const uploadDriver = requestedUploadDriver === 'local'
   ? 'local'
   : (process.env.VERCEL ? 'blob' : 'local');
 const blobAccess = process.env.BLOB_ACCESS || 'public';
+const fallbackLulusJobs = [
+  {
+    id: 'lulus-job-001',
+    name: 'Siswa Lulus 1',
+    origin: 'Temanggung',
+    quote: 'Terima kasih Furusato, saya jadi lebih siap bekerja dan lebih percaya diri.',
+    imageUrl: '',
+  },
+  {
+    id: 'lulus-job-002',
+    name: 'Siswa Lulus 2',
+    origin: 'Wonosobo',
+    quote: 'Pembinaan dan latihan di Furusato membantu saya sampai ke tahap kerja.',
+    imageUrl: '',
+  },
+  {
+    id: 'lulus-job-003',
+    name: 'Siswa Lulus 3',
+    origin: 'Magelang',
+    quote: 'Ilmu bahasa dan budaya kerja sangat berguna saat memasuki dunia kerja Jepang.',
+    imageUrl: '',
+  },
+];
 
 if (uploadDriver === 'local') {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -157,7 +180,7 @@ if (!fs.existsSync(buildIndexPath)) {
       message: 'Furusato backend berjalan.',
       frontend: 'Buka http://localhost:3000 untuk melihat website.',
       production: 'Jalankan npm run build agar backend bisa menyajikan website React.',
-      endpoints: ['/api/health', '/api/news', '/api/gallery'],
+      endpoints: ['/api/health', '/api/news', '/api/gallery', '/api/lulus-job'],
     });
   });
 }
@@ -194,6 +217,15 @@ app.get('/api/news', asyncHandler(async (_req, res) => {
 app.get('/api/gallery', asyncHandler(async (_req, res) => {
   const content = await readContent();
   res.json(content.gallery);
+}));
+
+app.get('/api/lulus-job', asyncHandler(async (_req, res) => {
+  const content = await readContent();
+  if (Object.prototype.hasOwnProperty.call(content, 'lulusJobs')) {
+    return res.json(content.lulusJobs || []);
+  }
+
+  return res.json(fallbackLulusJobs);
 }));
 
 app.get('/api/home-content', asyncHandler(async (_req, res) => {
@@ -510,6 +542,60 @@ app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res)
   }
 
   content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
+app.post('/api/admin/lulus-job', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const item = {
+    id: `lulus-job-${Date.now()}`,
+    name: req.body.name || 'Siswa lulus job',
+    origin: req.body.origin || '',
+    quote: req.body.quote || '',
+    imageUrl: req.body.imageUrl || '',
+  };
+
+  content.lulusJobs = [item, ...(content.lulusJobs || [])];
+  await writeContent(content);
+  res.status(201).json(item);
+}));
+
+app.put('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const index = (content.lulusJobs || []).findIndex((item) => item.id === req.params.id);
+
+  if (index === -1) {
+    return res.status(404).json({ message: 'Data siswa lulus job tidak ditemukan.' });
+  }
+
+  const currentItem = content.lulusJobs[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+  content.lulusJobs[index] = {
+    ...currentItem,
+    ...req.body,
+    imageUrl: nextImageUrl,
+    id: req.params.id,
+  };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  await writeContent(content);
+  return res.json(content.lulusJobs[index]);
+}));
+
+app.delete('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = (content.lulusJobs || []).find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.lulusJobs = (content.lulusJobs || []).filter((item) => item.id !== req.params.id);
   await writeContent(content);
   res.status(204).send();
 }));

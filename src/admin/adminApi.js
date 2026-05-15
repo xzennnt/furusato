@@ -133,6 +133,10 @@ export async function getGallery() {
   return request('/api/gallery');
 }
 
+export async function getLulusJobs() {
+  return request('/api/lulus-job');
+}
+
 export async function createGallery(payload) {
   return request('/api/admin/gallery', {
     method: 'POST',
@@ -149,6 +153,24 @@ export async function updateGallery(id, payload) {
 
 export async function deleteGallery(id) {
   return request(`/api/admin/gallery/${id}`, { method: 'DELETE' });
+}
+
+export async function createLulusJob(payload) {
+  return request('/api/admin/lulus-job', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateLulusJob(id, payload) {
+  return request(`/api/admin/lulus-job/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteLulusJob(id) {
+  return request(`/api/admin/lulus-job/${id}`, { method: 'DELETE' });
 }
 
 export async function uploadImage(file) {

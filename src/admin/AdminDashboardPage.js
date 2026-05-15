@@ -3,13 +3,16 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import {
   clearAdminToken,
   createGallery,
+  createLulusJob,
   createNews,
   deleteGallery,
+  deleteLulusJob,
   deleteNews,
   getAboutContent,
   getAdminAccount,
   getGallery,
   getHomeContent,
+  getLulusJobs,
   getNews,
   getSiteSettings,
   isAdminLoggedIn,
@@ -17,6 +20,7 @@ import {
   updateAdminAccount,
   updateAboutContent,
   updateGallery,
+  updateLulusJob,
   updateHomeContent,
   updateJobBanner,
   updateNews,
@@ -24,7 +28,7 @@ import {
   uploadImage,
 } from './adminApi';
 import { resolveMediaUrl } from '../lib/api';
-import { fallbackAboutContent } from '../data/fallbackContent';
+import { fallbackAboutContent, fallbackLulusJobs } from '../data/fallbackContent';
 
 function getTodayDate() {
   return new Date().toISOString().slice(0, 10);
@@ -32,6 +36,7 @@ function getTodayDate() {
 
 const emptyNews = { id: '', date: getTodayDate(), title: '', description: '', content: '', imageUrl: '' };
 const emptyGallery = { id: '', title: '', description: '', imageUrl: '' };
+const emptyLulusJob = { id: '', name: '', origin: '', quote: '', imageUrl: '' };
 const emptyAccount = { username: '', password: '' };
 const emptySite = {
   brandName: '',
@@ -43,6 +48,7 @@ const emptySite = {
     homeNewsUrl: '',
     aboutPageUrl: '',
     galleryPageUrl: '',
+    lulusJobPageUrl: '',
   },
   address: '',
   phone: '',
@@ -71,8 +77,10 @@ function AdminDashboardPage() {
   const [activeTab, setActiveTab] = useState('news');
   const [newsItems, setNewsItems] = useState([]);
   const [galleryItems, setGalleryItems] = useState([]);
+  const [lulusJobItems, setLulusJobItems] = useState(fallbackLulusJobs);
   const [newsForm, setNewsForm] = useState(emptyNews);
   const [galleryForm, setGalleryForm] = useState(emptyGallery);
+  const [lulusJobForm, setLulusJobForm] = useState(emptyLulusJob);
   const [accountForm, setAccountForm] = useState(emptyAccount);
   const [siteForm, setSiteForm] = useState(emptySite);
   const [homeContentForm, setHomeContentForm] = useState(emptyHomeContent);
@@ -84,9 +92,10 @@ function AdminDashboardPage() {
 
   const refreshContent = useCallback(async () => {
     try {
-      const [news, gallery, account, site, homeContent, aboutContent] = await Promise.all([
+      const [news, gallery, lulusJobs, account, site, homeContent, aboutContent] = await Promise.all([
         getNews(),
         getGallery(),
+        getLulusJobs(),
         getAdminAccount(),
         getSiteSettings(),
         getHomeContent(),
@@ -94,6 +103,8 @@ function AdminDashboardPage() {
       ]);
       setNewsItems(news);
       setGalleryItems(gallery);
+      setLulusJobItems(Array.isArray(lulusJobs) ? lulusJobs : fallbackLulusJobs);
+      setLulusJobForm(emptyLulusJob);
       setAccountForm({ username: account.username, password: '' });
       setSiteForm({
         ...emptySite,
@@ -325,6 +336,31 @@ function AdminDashboardPage() {
     });
   }
 
+  async function handleLulusJobSubmit(event) {
+    event.preventDefault();
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+
+      try {
+        if (lulusJobForm.id) {
+          const updatedLulusJob = await updateLulusJob(lulusJobForm.id, lulusJobForm);
+          setLulusJobItems((currentItems) => (
+            currentItems.map((item) => (item.id === updatedLulusJob.id ? updatedLulusJob : item))
+          ));
+          setMessage('Data siswa lulus job berhasil diperbarui.');
+        } else {
+          const createdLulusJob = await createLulusJob(lulusJobForm);
+          setLulusJobItems((currentItems) => [createdLulusJob, ...currentItems]);
+          setMessage('Data siswa lulus job berhasil ditambahkan.');
+        }
+
+        setLulusJobForm(emptyLulusJob);
+      } catch (requestError) {
+        setError(requestError.message);
+      }
+    });
+  }
+
   async function handleAccountSubmit(event) {
     event.preventDefault();
     resetFeedback();
@@ -375,6 +411,24 @@ function AdminDashboardPage() {
     }
   }
 
+  async function handleLulusJobImageUpload(event) {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    resetFeedback();
+
+    try {
+      const result = await uploadImage(file);
+      setLulusJobForm((currentForm) => ({ ...currentForm, imageUrl: result.imageUrl }));
+      setMessage('Gambar siswa lulus job berhasil diupload. Klik simpan untuk memakai gambar ini.');
+    } catch (requestError) {
+      setError(requestError.message);
+    }
+  }
+
   async function handleJobBannerUpload(event) {
     const file = event.target.files?.[0];
 
@@ -419,7 +473,16 @@ function AdminDashboardPage() {
           [key]: result.imageUrl,
         },
       }));
-      setMessage('Background berhasil diupload. Klik Simpan Site untuk memakai gambar ini.');
+      const uploadMessage = {
+        homeHeroUrl: 'Background hero home berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        homeAboutUrl: 'Background tentang kami home berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        homeNewsUrl: 'Background berita home berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        aboutPageUrl: 'Background halaman tentang Furusato berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        galleryPageUrl: 'Background halaman galeri berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        lulusJobPageUrl: 'Background halaman lulus job berhasil diupload. Klik simpan untuk memakai gambar ini.',
+      }[key] || 'Background berhasil diupload. Klik simpan untuk memakai gambar ini.';
+
+      setMessage(uploadMessage);
     } catch (requestError) {
       setError(requestError.message);
     }
@@ -608,7 +671,9 @@ function AdminDashboardPage() {
           backgrounds: { ...emptySite.backgrounds, ...(updatedSite.backgrounds || {}) },
           socials: { ...emptySite.socials, ...(updatedSite.socials || {}) },
         });
-        setMessage('Logo dan informasi website berhasil diperbarui.');
+        setMessage(activeTab === 'lulusJob'
+          ? 'Background halaman siswa lulus job berhasil diperbarui.'
+          : 'Logo dan informasi website berhasil diperbarui.');
       } catch (requestError) {
         setError(requestError.message);
       }
@@ -679,6 +744,18 @@ function AdminDashboardPage() {
     });
   }
 
+  async function handleDeleteLulusJob(id) {
+    await keepDashboardPosition(async () => {
+      resetFeedback();
+      await deleteLulusJob(id);
+      setLulusJobItems((currentItems) => currentItems.filter((item) => item.id !== id));
+      if (lulusJobForm.id === id) {
+        setLulusJobForm(emptyLulusJob);
+      }
+      showToast('Data siswa lulus job berhasil dihapus.', 'delete');
+    });
+  }
+
   function logout() {
     clearAdminToken();
     navigate('/admin/login', { replace: true });
@@ -700,6 +777,9 @@ function AdminDashboardPage() {
         </button>
         <button className={activeTab === 'gallery' ? 'active' : ''} type="button" onClick={() => setActiveTab('gallery')}>
           Galeri
+        </button>
+        <button className={activeTab === 'lulusJob' ? 'active' : ''} type="button" onClick={() => setActiveTab('lulusJob')}>
+          Lulus Job
         </button>
         <button className={activeTab === 'about' ? 'active' : ''} type="button" onClick={() => setActiveTab('about')}>
           Tentang Furusato
@@ -817,6 +897,113 @@ function AdminDashboardPage() {
               </article>
             ))}
           </div>
+        </div>
+      ) : activeTab === 'lulusJob' ? (
+        <div className="admin-grid lulus-job-admin-grid">
+          <form className="admin-panel" onSubmit={handleSiteSubmit}>
+            <h2>Siswa Lulus Job</h2>
+            <p>Kelola background halaman dan data siswa yang sudah lulus job dari satu panel.</p>
+
+            <div className="admin-field-group">
+              <h3>Background Page</h3>
+              <label>
+                Upload background halaman
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('lulusJobPageUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background halaman
+                <input
+                  value={siteForm.backgrounds.lulusJobPageUrl || ''}
+                  onChange={(event) => updateSiteBackground('lulusJobPageUrl', event.target.value)}
+                  placeholder="/uploads/background-lulus-job.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.lulusJobPageUrl && (
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.lulusJobPageUrl)} alt="Preview background page lulus job" />
+              )}
+              <p className="admin-help-text">
+                Background ini dipakai di halaman <strong>Lulus Job</strong> pada bagian hero.
+              </p>
+            </div>
+
+            <div className="admin-form-actions">
+              <button type="submit">Simpan Background Lulus Job</button>
+            </div>
+          </form>
+
+          <form className="admin-panel" onSubmit={handleLulusJobSubmit}>
+            <div className="section-heading-row">
+              <div>
+                <h2>Data Siswa Lulus Job</h2>
+                <p>Tambahkan kartu siswa berisi foto, nama, asal, dan kata-kata singkat setelah lulus.</p>
+              </div>
+            </div>
+
+            <label>
+              Nama siswa
+              <input
+                value={lulusJobForm.name}
+                onChange={(event) => setLulusJobForm({ ...lulusJobForm, name: event.target.value })}
+                required
+                placeholder="Nama siswa"
+              />
+            </label>
+            <label>
+              Asal
+              <input
+                value={lulusJobForm.origin}
+                onChange={(event) => setLulusJobForm({ ...lulusJobForm, origin: event.target.value })}
+                placeholder="Temanggung"
+              />
+            </label>
+            <label>
+              Kata-kata siswa
+              <textarea
+                value={lulusJobForm.quote}
+                onChange={(event) => setLulusJobForm({ ...lulusJobForm, quote: event.target.value })}
+                rows="4"
+                placeholder="Pesan singkat dari siswa lulus job"
+              />
+            </label>
+            <label>
+              Upload foto siswa
+              <input type="file" accept="image/*" onChange={handleLulusJobImageUpload} />
+            </label>
+            <label>
+              URL foto siswa
+              <input
+                value={lulusJobForm.imageUrl || ''}
+                onChange={(event) => setLulusJobForm({ ...lulusJobForm, imageUrl: event.target.value })}
+                placeholder="/uploads/siswa-lulus.jpg"
+              />
+            </label>
+            {lulusJobForm.imageUrl && (
+              <img className="admin-image-preview" src={resolveMediaUrl(lulusJobForm.imageUrl)} alt="Preview siswa lulus job" />
+            )}
+            <div className="admin-form-actions">
+              <button type="submit">{lulusJobForm.id ? 'Update Siswa' : 'Tambah Siswa'}</button>
+              {lulusJobForm.id && <button type="button" className="ghost-button" onClick={() => setLulusJobForm(emptyLulusJob)}>Batal</button>}
+            </div>
+
+            <div className="admin-list admin-lulus-job-list">
+              {lulusJobItems.map((item) => (
+                <article data-admin-row="lulus-job" data-row-id={item.id} key={item.id}>
+                  {item.imageUrl && <img src={resolveMediaUrl(item.imageUrl)} alt={item.name} />}
+                  <h3>{item.name}</h3>
+                  <p className="admin-card-meta">{item.origin}</p>
+                  <p>{item.quote}</p>
+                  <div className="admin-item-actions">
+                    <button type="button" onClick={() => setLulusJobForm({ ...item })}>Edit</button>
+                    <button type="button" className="danger-button" onClick={() => handleDeleteLulusJob(item.id)}>Hapus</button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </form>
         </div>
       ) : activeTab === 'about' ? (
         <div className="admin-grid about-admin-grid">

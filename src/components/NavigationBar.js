@@ -9,6 +9,7 @@ const menuItems = [
   { label: 'Tentang Furusato', href: '/tentang' },
   { label: 'Map', href: '/#map' },
   { label: 'Galeri', href: '/galeri' },
+  { label: 'Lulus Job', href: '/lulus-job' },
   { label: 'Berita', href: '/berita' },
 ];
 

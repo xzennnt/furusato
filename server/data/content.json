@@ -42,6 +42,29 @@
       "imageUrl": "/uploads/1778657268776--2022.09.22--Roselia---Sonnenschein.mkv-snapshot-01.35.56.739.jpg"
     }
   ],
+  "lulusJobs": [
+    {
+      "id": "lulus-job-001",
+      "name": "Siswa Lulus 1",
+      "origin": "Temanggung",
+      "quote": "Terima kasih Furusato, saya jadi lebih siap bekerja dan lebih percaya diri.",
+      "imageUrl": ""
+    },
+    {
+      "id": "lulus-job-002",
+      "name": "Siswa Lulus 2",
+      "origin": "Wonosobo",
+      "quote": "Pembinaan dan latihan di Furusato membantu saya sampai ke tahap kerja.",
+      "imageUrl": ""
+    },
+    {
+      "id": "lulus-job-003",
+      "name": "Siswa Lulus 3",
+      "origin": "Magelang",
+      "quote": "Ilmu bahasa dan budaya kerja sangat berguna saat memasuki dunia kerja Jepang.",
+      "imageUrl": ""
+    }
+  ],
   "heroBackgroundUrl": "/uploads/1778673395165-furusato-training-map.png",
   "jobBanner": {
     "label": "kaigo aichiken",

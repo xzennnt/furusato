@@ -38,6 +38,30 @@ export const fallbackGallery = [
   },
 ];
 
+export const fallbackLulusJobs = [
+  {
+    id: 'lulus-job-001',
+    name: 'Siswa Lulus 1',
+    origin: 'Temanggung',
+    quote: 'Terima kasih Furusato, saya jadi lebih siap bekerja dan lebih percaya diri.',
+    imageUrl: '',
+  },
+  {
+    id: 'lulus-job-002',
+    name: 'Siswa Lulus 2',
+    origin: 'Wonosobo',
+    quote: 'Pembinaan dan latihan di Furusato membantu saya sampai ke tahap kerja.',
+    imageUrl: '',
+  },
+  {
+    id: 'lulus-job-003',
+    name: 'Siswa Lulus 3',
+    origin: 'Magelang',
+    quote: 'Ilmu bahasa dan budaya kerja sangat berguna saat memasuki dunia kerja Jepang.',
+    imageUrl: '',
+  },
+];
+
 export const fallbackSite = {
   brandName: 'LPK FURUSATO TEMANGGUNG',
   brandSubtitle: 'Lembaga Pelatihan Kerja',
@@ -48,6 +72,7 @@ export const fallbackSite = {
     homeNewsUrl: '',
     aboutPageUrl: '',
     galleryPageUrl: '',
+    lulusJobPageUrl: '',
   },
   address: 'Temanggung, Jawa Tengah, Indonesia',
   phone: '+62 000 0000 0000',

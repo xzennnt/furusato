@@ -16,6 +16,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://furusato-seven.vercel.app/lulus-job</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://furusato-seven.vercel.app/berita</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
