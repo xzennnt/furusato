@@ -7,7 +7,7 @@ import NewsTicker from './NewsTicker';
 function JobPartnerSection() {
   const [content, setContent] = useState(fallbackHomeContent);
   const { jobInfo, jobBanner, partners } = content;
-  const jobLink = jobInfo.linkUrl || jobBanner.linkUrl || '/berita';
+  const jobLink = jobBanner.linkUrl || jobInfo.linkUrl || '/berita';
   const isExternalJobLink = /^https?:\/\//i.test(jobLink);
   const jobBannerContent = (
     <>

@@ -308,7 +308,7 @@ function AdminDashboardPage() {
             label: homeContentForm.jobInfo.label,
             title: homeContentForm.jobInfo.title,
             description: homeContentForm.jobInfo.description,
-            linkUrl: homeContentForm.jobInfo.linkUrl,
+            linkUrl: homeContentForm.jobInfo.linkUrl || homeContentForm.jobBanner.linkUrl,
           },
         });
         setHomeContentForm(normalizeHomeContent(updatedHomeContent));
@@ -493,15 +493,15 @@ function AdminDashboardPage() {
       const result = await uploadImage(file);
       setHomeContentForm((currentForm) => ({
         ...currentForm,
-        jobBanner: {
-          ...currentForm.jobBanner,
-          imageUrl: result.imageUrl,
-          label: currentForm.jobInfo.label,
-          title: currentForm.jobInfo.title,
-          description: currentForm.jobInfo.description,
-          linkUrl: currentForm.jobInfo.linkUrl,
-        },
-      }));
+          jobBanner: {
+            ...currentForm.jobBanner,
+            imageUrl: result.imageUrl,
+            label: currentForm.jobInfo.label,
+            title: currentForm.jobInfo.title,
+            description: currentForm.jobInfo.description,
+            linkUrl: currentForm.jobInfo.linkUrl || currentForm.jobBanner.linkUrl,
+          },
+        }));
       setMessage('Banner job berhasil diupload. Klik Simpan Banner untuk memakai gambar ini.');
     } catch (requestError) {
       setError(requestError.message);
@@ -665,6 +665,10 @@ function AdminDashboardPage() {
           ...homeContentForm,
           jobInfo: {
             ...homeContentForm.jobInfo,
+            linkUrl: `/berita#${publishedNews.id}`,
+          },
+          jobBanner: {
+            ...homeContentForm.jobBanner,
             linkUrl: `/berita#${publishedNews.id}`,
           },
         };
