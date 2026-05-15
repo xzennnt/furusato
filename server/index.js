@@ -226,6 +226,60 @@ app.get('/api/share-image', asyncHandler(async (_req, res) => {
   return res.redirect(302, shareImageUrl.startsWith('/') ? shareImageUrl : `/${shareImageUrl}`);
 }));
 
+app.get('/api/share-preview', asyncHandler(async (_req, res) => {
+  const site = await readSite();
+  const logoUrl = site.logoUrl || '';
+
+  res.set('Cache-Control', 'no-store, max-age=0');
+
+  const fallbackSvg = `<?xml version="1.0" encoding="UTF-8"?>
+  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="LPK FURUSATO TEMANGGUNG">
+    <rect width="1200" height="630" fill="#111827"/>
+    <rect x="64" y="64" width="1072" height="502" rx="32" fill="#1f2937" stroke="#374151" stroke-width="2"/>
+    <text x="116" y="170" fill="#f3f4f6" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700">LPK FURUSATO TEMANGGUNG</text>
+    <text x="116" y="236" fill="#60a5fa" font-family="Arial, Helvetica, sans-serif" font-size="52" font-weight="700">LPK FURUSATO TEMANGGUNG</text>
+    <text x="116" y="288" fill="#93c5fd" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Lembaga Pelatihan Kerja Bahasa Jepang</text>
+    <text x="116" y="354" fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif" font-size="28">Furusato Temanggung adalah lembaga pelatihan kerja bahasa Jepang</text>
+    <text x="116" y="398" fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif" font-size="28">yang membekali peserta dengan kemampuan bahasa, disiplin, dan kesiapan</text>
+    <text x="116" y="442" fill="#e5e7eb" font-family="Arial, Helvetica, sans-serif" font-size="28">kerja untuk Jepang.</text>
+  </svg>`;
+
+  if (!logoUrl) {
+    res.type('image/svg+xml');
+    return res.send(fallbackSvg);
+  }
+
+  const isAbsoluteUrl = /^https?:\/\//i.test(logoUrl);
+  const logoPath = logoUrl.startsWith('/') ? path.join(uploadDir, path.basename(logoUrl)) : null;
+
+  try {
+    if (logoPath && fs.existsSync(logoPath)) {
+      const fileBuffer = await fs.promises.readFile(logoPath);
+      const ext = path.extname(logoPath).toLowerCase();
+      res.type(ext === '.svg' ? 'image/svg+xml' : 'image/png');
+      return res.send(fileBuffer);
+    }
+
+    if (isAbsoluteUrl) {
+      const response = await fetch(logoUrl);
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch logo: ${response.status}`);
+      }
+
+      const contentType = response.headers.get('content-type') || 'image/png';
+      const buffer = Buffer.from(await response.arrayBuffer());
+      res.type(contentType);
+      return res.send(buffer);
+    }
+  } catch (error) {
+    console.warn('Gagal menyiapkan social preview image:', error.message || error);
+  }
+
+  res.type('image/svg+xml');
+  return res.send(fallbackSvg);
+}));
+
 app.post('/api/admin/login', asyncHandler(async (req, res) => {
   const accounts = await readAccounts();
   const username = process.env.ADMIN_USERNAME || accounts.admin.username;
