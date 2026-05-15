@@ -89,6 +89,7 @@ function AdminDashboardPage() {
   const [messageTone, setMessageTone] = useState('success');
   const [error, setError] = useState('');
   const siteFormRef = useRef(emptySite);
+  const lastSessionTouchRef = useRef(0);
 
   const refreshContent = useCallback(async () => {
     try {
@@ -149,15 +150,65 @@ function AdminDashboardPage() {
       try {
         await getAdminAccount();
         refreshAdminSession();
+        lastSessionTouchRef.current = Date.now();
       } catch (_requestError) {
         clearAdminToken();
         navigate('/admin/login', { replace: true });
       }
     };
 
-    const timer = window.setInterval(verifyAdminSession, 5000);
+    const touchAdminSession = () => {
+      const now = Date.now();
 
-    return () => window.clearInterval(timer);
+      if (now - lastSessionTouchRef.current < 15000) {
+        return;
+      }
+
+      refreshAdminSession();
+      lastSessionTouchRef.current = now;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        touchAdminSession();
+        verifyAdminSession();
+      }
+    };
+
+    const handleFocus = () => {
+      touchAdminSession();
+      verifyAdminSession();
+    };
+
+    const handleActivity = () => {
+      touchAdminSession();
+    };
+
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        verifyAdminSession();
+      } else {
+        touchAdminSession();
+      }
+    }, 60000);
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('click', handleActivity, true);
+    window.addEventListener('keydown', handleActivity, true);
+    window.addEventListener('mousemove', handleActivity, true);
+    window.addEventListener('touchstart', handleActivity, true);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    verifyAdminSession();
+
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('click', handleActivity, true);
+      window.removeEventListener('keydown', handleActivity, true);
+      window.removeEventListener('mousemove', handleActivity, true);
+      window.removeEventListener('touchstart', handleActivity, true);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [navigate]);
 
   useEffect(() => {
