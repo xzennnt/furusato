@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
+import { Analytics } from '@vercel/analytics/react';
 import './App.css';
 import AdminDashboardPage from './admin/AdminDashboardPage';
 import AdminLoginPage from './admin/AdminLoginPage';
@@ -221,6 +222,7 @@ function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AppShell />
+      <Analytics />
     </BrowserRouter>
   );
 }
