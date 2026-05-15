@@ -917,8 +917,10 @@ p {
   max-width: min(420px, calc(100vw - 40px));
   padding: 14px 16px;
   position: fixed;
-  right: 24px;
+  left: 50%;
   top: 96px;
+  text-align: center;
+  transform: translateX(-50%);
   z-index: 80;
 }
 
@@ -1252,9 +1254,10 @@ p {
 
   .admin-success,
   .admin-error {
-    left: 20px;
-    right: 20px;
+    left: 50%;
+    right: auto;
     top: 82px;
+    transform: translateX(-50%);
   }
 
   .news-page-list {
