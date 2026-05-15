@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackGallery, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
+import { scrollToHashTarget } from '../lib/scroll';
 
 const getGalleryItemId = (id) => `galeri-${id}`;
 
@@ -28,16 +29,12 @@ function GalleryPage() {
   useEffect(() => {
     if (location.hash) {
       window.requestAnimationFrame(() => {
-        const target = document.querySelector(location.hash);
-
-        if (!target) {
-          return;
-        }
-
-        const headerHeight = document.querySelector('.site-header')?.offsetHeight || 0;
-        const targetTop = target.getBoundingClientRect().top + window.scrollY - (headerHeight + 24);
-
-        window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+        scrollToHashTarget(location.hash, {
+          headerSelector: '.site-header',
+          extraOffset: 24,
+          maxAttempts: 16,
+          delayMs: 60,
+        });
       });
     }
   }, [galleryItems, location.hash]);
