@@ -427,13 +427,13 @@ app.post('/api/admin/home-content/publish-job-news', requireAdmin, asyncHandler(
   content.jobInfo = {
     ...(content.jobInfo || {}),
     ...(req.body?.jobInfo || {}),
-    linkUrl: `/berita#${newsItem.id}`,
+    linkUrl: '/berita',
     newsId: newsItem.id,
   };
   content.jobBanner = {
     ...(content.jobBanner || {}),
     ...(req.body?.jobBanner || {}),
-    linkUrl: `/berita#${newsItem.id}`,
+    linkUrl: '/berita',
     newsId: newsItem.id,
   };
 

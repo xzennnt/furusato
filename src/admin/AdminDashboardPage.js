@@ -73,53 +73,6 @@ function normalizeHomeContent(homeContent) {
   };
 }
 
-const NEWS_SYNC_DELAYS_MS = [0, 600, 1200, 1800, 2400, 3600, 4800];
-
-function sleep(ms) {
-  return new Promise((resolve) => window.setTimeout(resolve, ms));
-}
-
-async function reconcileNewsItemsAfterWrite({
-  targetId = '',
-  removedId = '',
-  fallbackItem = null,
-} = {}) {
-  let latestItems = [];
-
-  for (let index = 0; index < NEWS_SYNC_DELAYS_MS.length; index += 1) {
-    if (index > 0) {
-      await sleep(NEWS_SYNC_DELAYS_MS[index]);
-    }
-
-    try {
-      const items = await getNews();
-      latestItems = Array.isArray(items) ? items : [];
-    } catch (_error) {
-      continue;
-    }
-
-    const targetVisible = targetId ? latestItems.some((item) => item.id === targetId) : true;
-    const removedGone = removedId ? !latestItems.some((item) => item.id === removedId) : true;
-
-    if (targetVisible && removedGone) {
-      break;
-    }
-  }
-
-  if (targetId && fallbackItem && !latestItems.some((item) => item.id === targetId)) {
-    latestItems = [
-      fallbackItem,
-      ...latestItems.filter((item) => item.id !== fallbackItem.id),
-    ];
-  }
-
-  if (removedId) {
-    latestItems = latestItems.filter((item) => item.id !== removedId);
-  }
-
-  return latestItems;
-}
-
 function AdminDashboardPage() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('news');
@@ -378,18 +331,10 @@ function AdminDashboardPage() {
           setNewsItems((currentItems) => (
             currentItems.map((item) => (item.id === updatedNews.id ? updatedNews : item))
           ));
-          void reconcileNewsItemsAfterWrite({
-            targetId: updatedNews.id,
-            fallbackItem: updatedNews,
-          }).then(setNewsItems);
           setMessage('Berita berhasil diperbarui.');
         } else {
           const createdNews = await createNews(newsForm);
           setNewsItems((currentItems) => [createdNews, ...currentItems]);
-          void reconcileNewsItemsAfterWrite({
-            targetId: createdNews.id,
-            fallbackItem: createdNews,
-          }).then(setNewsItems);
           setMessage('Berita baru berhasil ditambahkan.');
         }
 
@@ -724,10 +669,6 @@ function AdminDashboardPage() {
           publishedNews,
           ...currentItems.filter((item) => item.id !== publishedNews.id),
         ]);
-        void reconcileNewsItemsAfterWrite({
-          targetId: publishedNews.id,
-          fallbackItem: publishedNews,
-        }).then(setNewsItems);
         setActiveTab('news');
         setHomeContentForm(normalizeHomeContent(updatedHomeContent));
         setMessage('Info job berhasil diposting ke Berita dan link banner sudah diarahkan ke artikel tersebut.');
@@ -844,7 +785,6 @@ function AdminDashboardPage() {
       resetFeedback();
       await deleteNews(id);
       setNewsItems((currentItems) => currentItems.filter((item) => item.id !== id));
-      void reconcileNewsItemsAfterWrite({ removedId: id }).then(setNewsItems);
       showToast('Berita berhasil dihapus.', 'delete');
     });
   }
