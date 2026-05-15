@@ -82,7 +82,17 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ message: 'Request gagal.' }));
+    const responseText = await response.text();
+    let error = { message: 'Request gagal.' };
+
+    if (responseText) {
+      try {
+        error = JSON.parse(responseText);
+      } catch (_parseError) {
+        error = { message: responseText };
+      }
+    }
+
     if (response.status === 401) {
       clearAdminToken();
     }
@@ -120,13 +130,13 @@ export async function createNews(payload) {
 
 export async function updateNews(id, payload) {
   return request(`/api/admin/news/${id}`, {
-    method: 'PUT',
+    method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
 export async function deleteNews(id) {
-  return request(`/api/admin/news/${id}`, { method: 'DELETE' });
+  return request(`/api/admin/news/${id}/delete`, { method: 'POST' });
 }
 
 export async function getGallery() {
@@ -146,13 +156,13 @@ export async function createGallery(payload) {
 
 export async function updateGallery(id, payload) {
   return request(`/api/admin/gallery/${id}`, {
-    method: 'PUT',
+    method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
 export async function deleteGallery(id) {
-  return request(`/api/admin/gallery/${id}`, { method: 'DELETE' });
+  return request(`/api/admin/gallery/${id}/delete`, { method: 'POST' });
 }
 
 export async function createLulusJob(payload) {
@@ -164,13 +174,13 @@ export async function createLulusJob(payload) {
 
 export async function updateLulusJob(id, payload) {
   return request(`/api/admin/lulus-job/${id}`, {
-    method: 'PUT',
+    method: 'POST',
     body: JSON.stringify(payload),
   });
 }
 
 export async function deleteLulusJob(id) {
-  return request(`/api/admin/lulus-job/${id}`, { method: 'DELETE' });
+  return request(`/api/admin/lulus-job/${id}/delete`, { method: 'POST' });
 }
 
 export async function uploadImage(file) {

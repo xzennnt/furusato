@@ -485,7 +485,48 @@ app.put('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
   return res.json(content.news[index]);
 }));
 
+app.post('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const index = content.news.findIndex((item) => item.id === req.params.id);
+
+  if (index === -1) {
+    return res.status(404).json({ message: 'Berita tidak ditemukan.' });
+  }
+
+  const currentItem = content.news[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+  content.news[index] = {
+    imageUrl: '',
+    source: '',
+    ...currentItem,
+    ...req.body,
+    imageUrl: nextImageUrl,
+    id: req.params.id,
+  };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  await writeContent(content);
+  return res.json(content.news[index]);
+}));
+
 app.delete('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = content.news.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.news = content.news.filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
+app.post('/api/admin/news/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = content.news.find((item) => item.id === req.params.id);
 
@@ -533,7 +574,41 @@ app.put('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) =>
   return res.json(content.gallery[index]);
 }));
 
+app.post('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const index = content.gallery.findIndex((item) => item.id === req.params.id);
+
+  if (index === -1) {
+    return res.status(404).json({ message: 'Galeri tidak ditemukan.' });
+  }
+
+  const currentItem = content.gallery[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+  content.gallery[index] = { ...currentItem, ...req.body, imageUrl: nextImageUrl, id: req.params.id };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  await writeContent(content);
+  return res.json(content.gallery[index]);
+}));
+
 app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = content.gallery.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
+app.post('/api/admin/gallery/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = content.gallery.find((item) => item.id === req.params.id);
 
@@ -587,7 +662,46 @@ app.put('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) 
   return res.json(content.lulusJobs[index]);
 }));
 
+app.post('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const index = (content.lulusJobs || []).findIndex((item) => item.id === req.params.id);
+
+  if (index === -1) {
+    return res.status(404).json({ message: 'Data siswa lulus job tidak ditemukan.' });
+  }
+
+  const currentItem = content.lulusJobs[index];
+  const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+  content.lulusJobs[index] = {
+    ...currentItem,
+    ...req.body,
+    imageUrl: nextImageUrl,
+    id: req.params.id,
+  };
+
+  if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  await writeContent(content);
+  return res.json(content.lulusJobs[index]);
+}));
+
 app.delete('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = (content.lulusJobs || []).find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.lulusJobs = (content.lulusJobs || []).filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
+app.post('/api/admin/lulus-job/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = (content.lulusJobs || []).find((item) => item.id === req.params.id);
 
