@@ -981,11 +981,10 @@ function AdminDashboardPage() {
         <div className="admin-grid background-home-admin-grid">
           <form className="admin-panel" onSubmit={handleSiteSubmit}>
             <h2>Background Home</h2>
-            <p>Kelola semua background yang tampil di halaman beranda dari satu tempat. Hero Home: 1920 x 1080 (16:9). Tentang/Berita Home: 1600 x 1200 (4:3).</p>
+            <p>Kelola semua background yang tampil di halaman beranda dari satu tempat. Sesuaikan gambar dengan layout masing-masing komponen.</p>
 
             <div className="admin-field-group">
               <h3>Hero Home</h3>
-              <p className="admin-field-hint">Rekomendasi: 1920 x 1080, rasio 16:9. Cocok untuk foto lebar.</p>
               <label>
                 Upload background hero
                 <input
@@ -1009,7 +1008,6 @@ function AdminDashboardPage() {
 
             <div className="admin-field-group">
               <h3>Tentang Kami Home</h3>
-              <p className="admin-field-hint">Rekomendasi: 1600 x 1200, rasio 4:3. Aman untuk foto dokumentasi dan wajah.</p>
               <label>
                 Upload background tentang kami
                 <input
@@ -1033,7 +1031,6 @@ function AdminDashboardPage() {
 
             <div className="admin-field-group">
               <h3>Berita Home</h3>
-              <p className="admin-field-hint">Rekomendasi: 1600 x 1200, rasio 4:3. Cocok untuk background section yang lebih padat.</p>
               <label>
                 Upload background informasi terbaru
                 <input
@@ -1064,7 +1061,7 @@ function AdminDashboardPage() {
             <div className="section-heading-row">
               <div>
                 <h2>Program Home</h2>
-                <p>Kelola card program di halaman beranda, termasuk judul, deskripsi, dan background. Rekomendasi upload: 1600 x 1200 (4:3) agar isi card mudah terlihat banyak.</p>
+                <p>Kelola card program di halaman beranda, termasuk judul, deskripsi, dan background. Sesuaikan gambar dengan frame program agar isi card mudah terlihat banyak.</p>
               </div>
               <button type="button" className="ghost-button add-button" onClick={addAboutProgram}>Tambah Program</button>
             </div>
@@ -1073,11 +1070,10 @@ function AdminDashboardPage() {
               <div
                 className="admin-field-group"
                 data-admin-row="program"
-                data-row-id={program.id}
-                key={program.id || program.title}
+              data-row-id={program.id}
+              key={program.id || program.title}
               >
                 <h3>{program.title || `Program ${index + 1}`}</h3>
-                <p className="admin-field-hint">Rekomendasi: 1600 x 1200, rasio 4:3.</p>
                 <label>
                   Judul program
                   <input
@@ -1123,10 +1119,9 @@ function AdminDashboardPage() {
         <form className="admin-grid site-admin-grid" onSubmit={handleSiteSubmit}>
           <div className="admin-panel">
             <h2>Logo & Media Website</h2>
-            <p>Untuk setiap komponen, ikuti layout masing-masing: Page Hero 1920 x 1080, section dokumentasi 1600 x 1200, logo menyesuaikan bentuk asli.</p>
+            <p>Untuk setiap komponen, ikuti layout masing-masing. Page Hero cenderung lebar, sedangkan section dokumentasi mengikuti frame yang lebih padat.</p>
             <div className="admin-field-group">
               <h3>Logo Navbar</h3>
-              <p className="admin-field-hint">Logo bebas rasio. Disarankan PNG transparan atau SVG.</p>
               <label>
                 Upload logo navbar
                 <input type="file" accept="image/*" onChange={handleLogoUpload} />
@@ -1141,7 +1136,6 @@ function AdminDashboardPage() {
             </div>
             <div className="admin-field-group">
               <h3>Header Page Tentang Furusato</h3>
-              <p className="admin-field-hint">Rekomendasi: 1920 x 1080, rasio 16:9.</p>
               <label>
                 Upload background header tentang furusato
                 <input
@@ -1164,7 +1158,6 @@ function AdminDashboardPage() {
             </div>
             <div className="admin-field-group">
               <h3>Header Page Galeri</h3>
-              <p className="admin-field-hint">Rekomendasi: 1920 x 1080, rasio 16:9.</p>
               <label>
                 Upload background header galeri
                 <input

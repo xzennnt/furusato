@@ -777,25 +777,14 @@ p {
 
 .background-home-admin-grid .admin-image-preview {
   aspect-ratio: 4 / 3;
-  height: clamp(190px, 26vw, 300px);
-  max-height: 300px;
+  height: clamp(220px, 30vw, 360px);
+  max-height: 360px;
   object-fit: cover;
 }
 
 .background-home-admin-grid .admin-field-group[data-admin-row="program"] .admin-image-preview {
   height: clamp(110px, 14vw, 160px);
   max-height: 160px;
-}
-
-.background-home-admin-grid .admin-panel p {
-  max-width: 60ch;
-}
-
-.background-home-admin-grid .admin-field-group h3::after {
-  color: var(--muted);
-  content: " 1600 x 1200";
-  font-size: 12px;
-  font-weight: 700;
 }
 
 .about-admin-grid {
@@ -808,17 +797,10 @@ p {
   grid-template-columns: minmax(320px, 0.95fr) minmax(380px, 1.05fr);
 }
 
-.site-admin-grid .admin-field-group h3::after {
-  color: var(--muted);
-  content: " 1600 x 1200";
-  font-size: 12px;
-  font-weight: 700;
-}
-
 .site-admin-grid .admin-image-preview {
   aspect-ratio: 4 / 3;
-  height: clamp(190px, 26vw, 300px);
-  max-height: 300px;
+  height: clamp(200px, 28vw, 340px);
+  max-height: 340px;
   object-fit: cover;
 }
 
@@ -844,13 +826,6 @@ p {
 .admin-field-group h3 {
   font-size: 18px;
   margin: 0;
-}
-
-.admin-field-hint {
-  color: var(--muted);
-  font-size: 13px;
-  line-height: 1.45;
-  margin: -8px 0 0;
 }
 
 .admin-form-actions,
