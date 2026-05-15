@@ -39,7 +39,7 @@ export const fallbackGallery = [
 ];
 
 export const fallbackSite = {
-  brandName: 'Furusato',
+  brandName: 'LPK FURUSATO TEMANGGUNG',
   brandSubtitle: 'Lembaga Pelatihan Kerja',
   logoUrl: '',
   backgrounds: {
@@ -85,13 +85,13 @@ export const fallbackHomeContent = {
 
 export const fallbackAboutContent = {
   profile: {
-    eyebrow: 'Tentang Furusato',
-    title: 'LPK Furusato',
+    eyebrow: 'Tentang LPK Furusato Temanggung',
+    title: 'LPK FURUSATO TEMANGGUNG',
     body: 'Furusato adalah lembaga pelatihan kerja yang ikut berperan mengembangkan potensi sumber daya manusia Indonesia agar siap memasuki dunia kerja profesional, khususnya peluang kerja ke Jepang.',
   },
   chairman: {
     eyebrow: 'Sambutan Ketua',
-    name: 'Ketua Furusato',
+    name: 'Ketua LPK Furusato Temanggung',
     body: 'Kami berkomitmen memberikan pelatihan, pendampingan, dan pembinaan terbaik agar peserta tidak hanya siap bekerja, tetapi juga mampu membawa sikap disiplin, tangguh, dan bertanggung jawab.',
     imageUrl: '',
   },

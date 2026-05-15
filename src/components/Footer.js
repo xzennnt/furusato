@@ -121,7 +121,7 @@ function Footer() {
       </div>
 
       <div className="footer-copyright">
-        <p>&copy; {new Date().getFullYear()} {site.brandName || 'Furusato'}. All Rights Reserved.</p>
+        <p>&copy; {new Date().getFullYear()} {site.brandName || 'LPK FURUSATO TEMANGGUNG'}. All Rights Reserved.</p>
       </div>
     </footer>
   );
