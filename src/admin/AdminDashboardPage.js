@@ -662,6 +662,11 @@ function AdminDashboardPage() {
           imageUrl: homeContentForm.jobBanner.imageUrl || '',
           source: 'job-banner',
         });
+        setNewsItems((currentItems) => [
+          publishedNews,
+          ...currentItems.filter((item) => item.id !== publishedNews.id),
+        ]);
+        setActiveTab('news');
         const nextHomeContent = {
           ...homeContentForm,
           jobInfo: {
