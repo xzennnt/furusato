@@ -246,6 +246,13 @@ export async function updateJobBanner(payload) {
   });
 }
 
+export async function publishJobNews(payload) {
+  return request('/api/admin/home-content/publish-job-news', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function updateAboutContent(payload) {
   return request('/api/admin/about-content', {
     method: 'PUT',

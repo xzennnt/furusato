@@ -410,6 +410,46 @@ app.put('/api/admin/home-content/job-banner', requireAdmin, asyncHandler(async (
   });
 }));
 
+app.post('/api/admin/home-content/publish-job-news', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const date = req.body?.date || new Date().toISOString().slice(0, 10);
+  const newsItem = {
+    id: `news-${Date.now()}`,
+    date,
+    title: req.body?.title || 'Info Job Baru',
+    description: req.body?.description || '',
+    content: req.body?.content || '',
+    imageUrl: req.body?.imageUrl || content.jobBanner?.imageUrl || '',
+    source: 'job-banner',
+  };
+
+  content.news = [newsItem, ...(content.news || [])];
+  content.jobInfo = {
+    ...(content.jobInfo || {}),
+    ...(req.body?.jobInfo || {}),
+    linkUrl: `/berita#${newsItem.id}`,
+    newsId: newsItem.id,
+  };
+  content.jobBanner = {
+    ...(content.jobBanner || {}),
+    ...(req.body?.jobBanner || {}),
+    linkUrl: `/berita#${newsItem.id}`,
+    newsId: newsItem.id,
+  };
+
+  await writeContent(content);
+
+  return res.status(201).json({
+    newsItem,
+    homeContent: {
+      heroBackgroundUrl: content.heroBackgroundUrl || '',
+      jobInfo: content.jobInfo || {},
+      jobBanner: content.jobBanner || {},
+      partners: content.partners || [],
+    },
+  });
+}));
+
 app.put('/api/admin/about-content', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   content.aboutContent = {

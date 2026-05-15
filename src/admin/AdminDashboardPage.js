@@ -17,6 +17,7 @@ import {
   getSiteSettings,
   isAdminLoggedIn,
   refreshAdminSession,
+  publishJobNews,
   updateAdminAccount,
   updateAboutContent,
   updateGallery,
@@ -706,7 +707,7 @@ function AdminDashboardPage() {
 
       try {
         const today = new Date();
-        const publishedNews = await createNews({
+        const { newsItem: publishedNews, homeContent: updatedHomeContent } = await publishJobNews({
           date: today.toISOString().slice(0, 10),
           title: homeContentForm.jobInfo.title || 'Info Job Baru',
           description: homeContentForm.jobInfo.description || '',
@@ -716,6 +717,8 @@ function AdminDashboardPage() {
           ].filter(Boolean).join('\n\n'),
           imageUrl: homeContentForm.jobBanner.imageUrl || '',
           source: 'job-banner',
+          jobInfo: homeContentForm.jobInfo,
+          jobBanner: homeContentForm.jobBanner,
         });
         setNewsItems((currentItems) => [
           publishedNews,
@@ -726,20 +729,6 @@ function AdminDashboardPage() {
           fallbackItem: publishedNews,
         }).then(setNewsItems);
         setActiveTab('news');
-        const nextHomeContent = {
-          ...homeContentForm,
-          jobInfo: {
-            ...homeContentForm.jobInfo,
-            linkUrl: `/berita#${publishedNews.id}`,
-            newsId: publishedNews.id,
-          },
-          jobBanner: {
-            ...homeContentForm.jobBanner,
-            linkUrl: `/berita#${publishedNews.id}`,
-            newsId: publishedNews.id,
-          },
-        };
-        const updatedHomeContent = await updateHomeContent(nextHomeContent);
         setHomeContentForm(normalizeHomeContent(updatedHomeContent));
         setMessage('Info job berhasil diposting ke Berita dan link banner sudah diarahkan ke artikel tersebut.');
       } catch (requestError) {
