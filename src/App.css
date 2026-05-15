@@ -918,7 +918,7 @@ p {
   padding: 14px 16px;
   position: fixed;
   left: 50%;
-  top: 146px;
+  bottom: 24px;
   text-align: center;
   transform: translateX(-50%);
   z-index: 80;
@@ -1272,7 +1272,7 @@ p {
   .admin-error {
     left: 50%;
     right: auto;
-    top: 132px;
+    bottom: 16px;
     transform: translateX(-50%);
   }
 
