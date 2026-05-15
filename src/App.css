@@ -729,11 +729,19 @@ p {
   display: flex;
   gap: 10px;
   margin-bottom: 22px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
 }
 
 .admin-tabs button {
   background: var(--white);
   color: var(--ink);
+  flex: 0 0 auto;
+  white-space: nowrap;
+  scroll-snap-align: start;
 }
 
 .admin-tabs button.active {
@@ -1021,6 +1029,20 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .admin-panel {
+    padding: 22px;
+  }
+
+  .admin-tabs {
+    gap: 8px;
+  }
+
+  .admin-tabs button {
+    font-size: 14px;
+    min-height: 40px;
+    padding: 8px 14px;
+  }
+
   .background-home-admin-grid {
     grid-template-columns: 1fr;
   }
@@ -1028,6 +1050,12 @@ p {
   .admin-dashboard-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .site-admin-grid .admin-image-preview,
+  .background-home-admin-grid .admin-image-preview {
+    height: clamp(180px, 42vw, 260px);
+    max-height: 260px;
   }
 }
 
@@ -1049,6 +1077,95 @@ p {
 
   .menu-bar a {
     padding: 8px 10px;
+  }
+
+  .admin-dashboard {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .admin-login-card,
+  .admin-panel {
+    padding: 18px;
+  }
+
+  .admin-dashboard h1,
+  .admin-dashboard-header h1 {
+    font-size: clamp(28px, 11vw, 40px);
+  }
+
+  .admin-dashboard-header {
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .admin-tabs {
+    gap: 8px;
+    margin-bottom: 18px;
+    padding-bottom: 8px;
+  }
+
+  .admin-tabs button {
+    font-size: 13px;
+    min-height: 38px;
+    padding: 8px 12px;
+  }
+
+  .admin-grid,
+  .single-admin-grid,
+  .job-mitra-admin-grid,
+  .background-home-admin-grid,
+  .about-admin-grid,
+  .site-admin-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-field-group {
+    gap: 12px;
+    padding-top: 14px;
+  }
+
+  .admin-panel h2 {
+    font-size: 22px;
+  }
+
+  .admin-field-group h3 {
+    font-size: 16px;
+  }
+
+  .admin-form-actions,
+  .admin-item-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin-form-actions button,
+  .admin-item-actions button {
+    width: 100%;
+  }
+
+  .admin-list article {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .admin-list article > img {
+    grid-column: auto;
+    grid-row: auto;
+    max-width: none;
+    width: 100%;
+  }
+
+  .admin-list article h3,
+  .admin-list article p,
+  .admin-list article time,
+  .admin-list article .admin-item-actions {
+    grid-column: auto;
+  }
+
+  .admin-list img {
+    aspect-ratio: 4 / 3;
+    max-width: none;
   }
 
   .hero-visual {
@@ -1085,6 +1202,16 @@ p {
   .news-home-thumb {
     height: 72px;
     width: 72px;
+  }
+
+  .site-admin-grid .admin-image-preview,
+  .background-home-admin-grid .admin-image-preview {
+    height: 190px;
+    max-height: 190px;
+  }
+
+  .admin-logo-preview {
+    max-height: 120px;
   }
 }
 
