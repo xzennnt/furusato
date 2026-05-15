@@ -215,6 +215,17 @@ app.get('/api/site', asyncHandler(async (_req, res) => {
   res.json(await readSite());
 }));
 
+app.get('/api/share-image', asyncHandler(async (_req, res) => {
+  const site = await readSite();
+  const shareImageUrl = site.logoUrl || '/favicon.svg';
+
+  if (/^https?:\/\//i.test(shareImageUrl)) {
+    return res.redirect(302, shareImageUrl);
+  }
+
+  return res.redirect(302, shareImageUrl.startsWith('/') ? shareImageUrl : `/${shareImageUrl}`);
+}));
+
 app.post('/api/admin/login', asyncHandler(async (req, res) => {
   const accounts = await readAccounts();
   const username = process.env.ADMIN_USERNAME || accounts.admin.username;
