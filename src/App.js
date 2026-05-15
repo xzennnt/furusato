@@ -6,6 +6,8 @@ import AdminDashboardPage from './admin/AdminDashboardPage';
 import AdminLoginPage from './admin/AdminLoginPage';
 import Footer from './components/Footer';
 import NavigationBar from './components/NavigationBar';
+import { fetchSite, resolveMediaUrl } from './lib/api';
+import { fallbackSite } from './data/fallbackContent';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
@@ -21,6 +23,59 @@ function AppShell() {
     const pageTitle = getPageTitle(location.pathname, location.hash);
     document.title = pageTitle;
   }, [location.hash, location.pathname]);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const applyIconType = (element, href) => {
+      if (href && href.toLowerCase().endsWith('.svg')) {
+        element.setAttribute('type', 'image/svg+xml');
+        return;
+      }
+
+      element.removeAttribute('type');
+    };
+
+    const setFavicon = (href) => {
+      if (!href) {
+        return;
+      }
+
+      const selectors = ['link[rel="icon"]', 'link[rel="shortcut icon"]'];
+
+      selectors.forEach((selector) => {
+        const existing = document.querySelector(selector);
+
+        if (existing) {
+          existing.setAttribute('href', href);
+          applyIconType(existing, href);
+          return;
+        }
+
+        const link = document.createElement('link');
+        link.rel = 'icon';
+        link.href = href;
+        applyIconType(link, href);
+        document.head.appendChild(link);
+      });
+    };
+
+    const loadFavicon = async () => {
+      const site = await fetchSite(fallbackSite);
+
+      if (!isActive) {
+        return;
+      }
+
+      setFavicon(resolveMediaUrl(site.logoUrl) || '/favicon.svg');
+    };
+
+    loadFavicon();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   useEffect(() => {
     const ctx = gsap.context(() => {

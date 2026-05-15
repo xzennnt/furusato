@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="LPK Furusato Temanggung">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e53935" />
+      <stop offset="100%" stop-color="#ff6f61" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#g)" />
+  <circle cx="32" cy="32" r="22" fill="rgba(255,255,255,0.12)" />
+  <path d="M21 18h10.8c6 0 10.2 4 10.2 9.6s-4.2 9.6-10.2 9.6H28V46h-7V18zm7 6v7.2h3.1c2.6 0 4.2-1.4 4.2-3.6S33.7 24 31.1 24H28z" fill="#fff"/>
+</svg>
