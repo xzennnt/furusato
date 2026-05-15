@@ -129,14 +129,17 @@ export async function createNews(payload) {
 }
 
 export async function updateNews(id, payload) {
-  return request(`/api/admin/news/${id}`, {
+  return request('/api/admin/news', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, id, action: 'update' }),
   });
 }
 
 export async function deleteNews(id) {
-  return request(`/api/admin/news/${id}/delete`, { method: 'POST' });
+  return request('/api/admin/news', {
+    method: 'POST',
+    body: JSON.stringify({ id, action: 'delete' }),
+  });
 }
 
 export async function getGallery() {
@@ -155,14 +158,17 @@ export async function createGallery(payload) {
 }
 
 export async function updateGallery(id, payload) {
-  return request(`/api/admin/gallery/${id}`, {
+  return request('/api/admin/gallery', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, id, action: 'update' }),
   });
 }
 
 export async function deleteGallery(id) {
-  return request(`/api/admin/gallery/${id}/delete`, { method: 'POST' });
+  return request('/api/admin/gallery', {
+    method: 'POST',
+    body: JSON.stringify({ id, action: 'delete' }),
+  });
 }
 
 export async function createLulusJob(payload) {
@@ -173,14 +179,17 @@ export async function createLulusJob(payload) {
 }
 
 export async function updateLulusJob(id, payload) {
-  return request(`/api/admin/lulus-job/${id}`, {
+  return request('/api/admin/lulus-job', {
     method: 'POST',
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, id, action: 'update' }),
   });
 }
 
 export async function deleteLulusJob(id) {
-  return request(`/api/admin/lulus-job/${id}/delete`, { method: 'POST' });
+  return request('/api/admin/lulus-job', {
+    method: 'POST',
+    body: JSON.stringify({ id, action: 'delete' }),
+  });
 }
 
 export async function uploadImage(file) {

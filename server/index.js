@@ -438,6 +438,47 @@ app.put('/api/admin/about-content', requireAdmin, asyncHandler(async (req, res) 
 }));
 
 app.post('/api/admin/news', requireAdmin, asyncHandler(async (req, res) => {
+  if (req.body?.action === 'update' && req.body.id) {
+    const content = await readContent();
+    const index = content.news.findIndex((item) => item.id === req.body.id);
+
+    if (index === -1) {
+      return res.status(404).json({ message: 'Berita tidak ditemukan.' });
+    }
+
+    const currentItem = content.news[index];
+    const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+    content.news[index] = {
+      imageUrl: '',
+      source: '',
+      ...currentItem,
+      ...req.body,
+      imageUrl: nextImageUrl,
+      id: req.body.id,
+    };
+
+    if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    await writeContent(content);
+    return res.json(content.news[index]);
+  }
+
+  if (req.body?.action === 'delete' && req.body.id) {
+    const content = await readContent();
+    const currentItem = content.news.find((item) => item.id === req.body.id);
+
+    if (currentItem?.imageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    content.news = content.news.filter((item) => item.id !== req.body.id);
+    await writeContent(content);
+    return res.status(204).send();
+  }
+
   const content = await readContent();
   const imageUrl = req.body.imageUrl || (
     req.body.source === 'job-banner' ? content.jobBanner?.imageUrl || '' : ''
@@ -513,19 +554,6 @@ app.post('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
   return res.json(content.news[index]);
 }));
 
-app.delete('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
-  const content = await readContent();
-  const currentItem = content.news.find((item) => item.id === req.params.id);
-
-  if (currentItem?.imageUrl) {
-    await deleteStoredImage(currentItem.imageUrl);
-  }
-
-  content.news = content.news.filter((item) => item.id !== req.params.id);
-  await writeContent(content);
-  res.status(204).send();
-}));
-
 app.post('/api/admin/news/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = content.news.find((item) => item.id === req.params.id);
@@ -539,7 +567,54 @@ app.post('/api/admin/news/:id/delete', requireAdmin, asyncHandler(async (req, re
   res.status(204).send();
 }));
 
+app.delete('/api/admin/news/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = content.news.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.news = content.news.filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
 app.post('/api/admin/gallery', requireAdmin, asyncHandler(async (req, res) => {
+  if (req.body?.action === 'update' && req.body.id) {
+    const content = await readContent();
+    const index = content.gallery.findIndex((item) => item.id === req.body.id);
+
+    if (index === -1) {
+      return res.status(404).json({ message: 'Galeri tidak ditemukan.' });
+    }
+
+    const currentItem = content.gallery[index];
+    const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+    content.gallery[index] = { ...currentItem, ...req.body, imageUrl: nextImageUrl, id: req.body.id };
+
+    if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    await writeContent(content);
+    return res.json(content.gallery[index]);
+  }
+
+  if (req.body?.action === 'delete' && req.body.id) {
+    const content = await readContent();
+    const currentItem = content.gallery.find((item) => item.id === req.body.id);
+
+    if (currentItem?.imageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    content.gallery = content.gallery.filter((item) => item.id !== req.body.id);
+    await writeContent(content);
+    return res.status(204).send();
+  }
+
   const content = await readContent();
   const item = {
     id: `gallery-${Date.now()}`,
@@ -595,19 +670,6 @@ app.post('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) =
   return res.json(content.gallery[index]);
 }));
 
-app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
-  const content = await readContent();
-  const currentItem = content.gallery.find((item) => item.id === req.params.id);
-
-  if (currentItem?.imageUrl) {
-    await deleteStoredImage(currentItem.imageUrl);
-  }
-
-  content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
-  await writeContent(content);
-  res.status(204).send();
-}));
-
 app.post('/api/admin/gallery/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = content.gallery.find((item) => item.id === req.params.id);
@@ -621,7 +683,59 @@ app.post('/api/admin/gallery/:id/delete', requireAdmin, asyncHandler(async (req,
   res.status(204).send();
 }));
 
+app.delete('/api/admin/gallery/:id', requireAdmin, asyncHandler(async (req, res) => {
+  const content = await readContent();
+  const currentItem = content.gallery.find((item) => item.id === req.params.id);
+
+  if (currentItem?.imageUrl) {
+    await deleteStoredImage(currentItem.imageUrl);
+  }
+
+  content.gallery = content.gallery.filter((item) => item.id !== req.params.id);
+  await writeContent(content);
+  res.status(204).send();
+}));
+
 app.post('/api/admin/lulus-job', requireAdmin, asyncHandler(async (req, res) => {
+  if (req.body?.action === 'update' && req.body.id) {
+    const content = await readContent();
+    const index = (content.lulusJobs || []).findIndex((item) => item.id === req.body.id);
+
+    if (index === -1) {
+      return res.status(404).json({ message: 'Data siswa lulus job tidak ditemukan.' });
+    }
+
+    const currentItem = content.lulusJobs[index];
+    const nextImageUrl = req.body.imageUrl ?? currentItem.imageUrl ?? '';
+
+    content.lulusJobs[index] = {
+      ...currentItem,
+      ...req.body,
+      imageUrl: nextImageUrl,
+      id: req.body.id,
+    };
+
+    if (currentItem.imageUrl && currentItem.imageUrl !== nextImageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    await writeContent(content);
+    return res.json(content.lulusJobs[index]);
+  }
+
+  if (req.body?.action === 'delete' && req.body.id) {
+    const content = await readContent();
+    const currentItem = (content.lulusJobs || []).find((item) => item.id === req.body.id);
+
+    if (currentItem?.imageUrl) {
+      await deleteStoredImage(currentItem.imageUrl);
+    }
+
+    content.lulusJobs = (content.lulusJobs || []).filter((item) => item.id !== req.body.id);
+    await writeContent(content);
+    return res.status(204).send();
+  }
+
   const content = await readContent();
   const item = {
     id: `lulus-job-${Date.now()}`,
@@ -688,7 +802,7 @@ app.post('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res)
   return res.json(content.lulusJobs[index]);
 }));
 
-app.delete('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
+app.post('/api/admin/lulus-job/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = (content.lulusJobs || []).find((item) => item.id === req.params.id);
 
@@ -701,7 +815,7 @@ app.delete('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, re
   res.status(204).send();
 }));
 
-app.post('/api/admin/lulus-job/:id/delete', requireAdmin, asyncHandler(async (req, res) => {
+app.delete('/api/admin/lulus-job/:id', requireAdmin, asyncHandler(async (req, res) => {
   const content = await readContent();
   const currentItem = (content.lulusJobs || []).find((item) => item.id === req.params.id);
 
