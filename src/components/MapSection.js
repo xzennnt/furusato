@@ -8,8 +8,8 @@ function MapSection() {
         <p className="eyebrow">Map</p>
         <h2>Lokasi pelatihan yang mudah ditemukan.</h2>
         <p>
-          Peta Google Maps ini memakai titik lokasi LPK Furusato. //Jika nanti ada lokasi resmi baru, cukup ganti
-          nilai `mapsUrl` dan `mapsEmbedUrl` di file ini.//
+          Peta Google Maps ini memakai titik lokasi LPK Furusato. 
+          {/* Jika nanti ada lokasi resmi baru, cukup ganti nilai `mapsUrl` dan `mapsEmbedUrl` di file ini. */}
         </p>
         <a href={mapsUrl} target="_blank" rel="noreferrer">
           Buka lokasi
