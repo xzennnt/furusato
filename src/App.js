@@ -68,7 +68,7 @@ function AppShell() {
         return;
       }
 
-      setFavicon(resolveMediaUrl(site.logoUrl) || '/favicon.svg');
+      setFavicon(resolveMediaUrl(site.logoUrl) || '/uploads/1778684122156-createMyojiImage.png');
     };
 
     loadFavicon();

@@ -249,7 +249,7 @@ app.get('/api/site', asyncHandler(async (_req, res) => {
 
 app.get('/api/share-image', asyncHandler(async (_req, res) => {
   const site = await readSite();
-  const shareImageUrl = site.logoUrl || '/favicon.svg';
+  const shareImageUrl = site.logoUrl || '/uploads/1778684122156-createMyojiImage.png';
 
   if (/^https?:\/\//i.test(shareImageUrl)) {
     return res.redirect(302, shareImageUrl);
