@@ -79,16 +79,25 @@ async function readStreamText(stream) {
 
 async function readBlobDocument(documentKey, fallbackPath) {
   const blobPath = getDocumentBlobPath(documentKey);
-  const result = await getBlob(blobPath, {
-    access: process.env.BLOB_ACCESS || 'public',
-    token: getBlobToken(),
-  });
+  try {
+    const result = await getBlob(blobPath, {
+      access: process.env.BLOB_ACCESS || 'public',
+      token: getBlobToken(),
+    });
 
-  if (result?.stream) {
-    const text = await readStreamText(result.stream);
-    if (text) {
-      return JSON.parse(text);
+    if (result?.stream) {
+      const text = await readStreamText(result.stream);
+      if (text) {
+        return JSON.parse(text);
+      }
     }
+  } catch (error) {
+    console.warn(
+      `Gagal membaca blob ${blobPath}, memakai fallback JSON lokal:`,
+      error.message || error,
+    );
+
+    return readJson(fallbackPath);
   }
 
   const fallback = readJson(fallbackPath);
