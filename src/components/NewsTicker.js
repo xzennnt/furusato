@@ -7,12 +7,17 @@ import { useTranslatedItems } from '../i18n/useTranslatedItems';
 function NewsTicker() {
   const [newsItems, setNewsItems] = useState(fallbackNews);
   const { language, copy } = useLanguage();
-  const translatedNewsItems = useTranslatedItems(newsItems, ['title'], language);
+  const visibleNewsItems = newsItems.filter((item) => item?.title);
+  const translatedNewsItems = useTranslatedItems(visibleNewsItems, ['title'], language);
   const tickerItems = [...translatedNewsItems, ...translatedNewsItems];
 
   useEffect(() => {
     fetchJson('/api/news', fallbackNews).then(setNewsItems);
   }, []);
+
+  if (!translatedNewsItems.length) {
+    return null;
+  }
 
   return (
     <div className="news-ticker" aria-label={copy.news.title}>
