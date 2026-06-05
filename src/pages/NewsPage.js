@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackNews, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedItems } from '../i18n/useTranslatedItems';
 import { scrollToHashTarget } from '../lib/scroll';
 
 function stripLinkInformation(content = '') {
@@ -17,6 +19,8 @@ function NewsPage() {
   const [newsItems, setNewsItems] = useState(fallbackNews);
   const [site, setSite] = useState(fallbackSite);
   const [expandedNewsId, setExpandedNewsId] = useState('');
+  const { copy, language } = useLanguage();
+  const translatedNewsItems = useTranslatedItems(newsItems, ['title', 'description', 'content'], language);
   const newsHeroBackground = site.backgrounds?.homeNewsUrl || '';
   const newsHeroStyle = newsHeroBackground
     ? { '--page-hero-bg': `url(${resolveMediaUrl(newsHeroBackground)})` }
@@ -54,13 +58,13 @@ function NewsPage() {
   return (
     <section className="page-section">
       <div className={`page-hero news-page-hero ${newsHeroBackground ? 'has-page-hero-bg' : ''}`} style={newsHeroStyle}>
-        <p className="eyebrow">Berita</p>
-        <h1>Berita Furusato</h1>
-        <p>Beranda / Berita</p>
+        <p className="eyebrow">{copy.newsPage.eyebrow}</p>
+        <h1>{copy.newsPage.title}</h1>
+        <p>{copy.newsPage.breadcrumb}</p>
       </div>
 
       <div className="news-page-list">
-        {newsItems.map((item) => (
+        {translatedNewsItems.map((item) => (
           <article className={`sticker-card ${expandedNewsId === item.id ? 'is-expanded' : ''}`} id={item.id} key={item.id}>
             {item.imageUrl && (
               <div className="news-card-media">
@@ -71,15 +75,15 @@ function NewsPage() {
               <time>{item.date}</time>
               <h2>{item.title}</h2>
               <p>{item.description}</p>
-              {expandedNewsId === item.id && (
-                <div className="news-content">{stripLinkInformation(item.content)}</div>
-              )}
+                {expandedNewsId === item.id && (
+                  <div className="news-content">{stripLinkInformation(item.content)}</div>
+                )}
               <button
                 className="news-expand-button"
                 type="button"
                 onClick={() => setExpandedNewsId(expandedNewsId === item.id ? '' : item.id)}
               >
-                {expandedNewsId === item.id ? 'Tutup berita' : 'Baca selengkapnya'}
+                {expandedNewsId === item.id ? copy.newsPage.closeAction : copy.newsPage.readAction}
               </button>
             </div>
           </article>

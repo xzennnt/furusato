@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackLulusJobs, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedItems } from '../i18n/useTranslatedItems';
 
 const getLulusJobItemId = (id) => `lulus-job-${id}`;
 
@@ -9,6 +11,8 @@ function LulusJobPage() {
   const [lulusJobItems, setLulusJobItems] = useState(fallbackLulusJobs);
   const [site, setSite] = useState(fallbackSite);
   const location = useLocation();
+  const { copy, language } = useLanguage();
+  const translatedLulusJobItems = useTranslatedItems(lulusJobItems, ['origin', 'quote'], language);
   const lulusJobHeroBackground = site.backgrounds?.lulusJobPageUrl || site.backgrounds?.galleryPageUrl || '';
   const lulusJobHeroStyle = lulusJobHeroBackground
     ? { '--page-hero-bg': `url(${resolveMediaUrl(lulusJobHeroBackground)})` }
@@ -45,22 +49,19 @@ function LulusJobPage() {
   return (
     <section className="page-section lulus-job-page">
       <div className={`page-hero ${lulusJobHeroBackground ? 'has-page-hero-bg' : ''}`} style={lulusJobHeroStyle}>
-        <p className="eyebrow">Lulus Job</p>
-        <h1>Jejak siswa Furusato yang sudah siap melangkah ke dunia kerja.</h1>
-        <p>
-          Halaman ini menampilkan kartu siswa lulus job berisi foto, nama, asal, dan pesan singkat mereka
-          setelah melalui pembinaan di Furusato Temanggung.
-        </p>
+        <p className="eyebrow">{copy.lulusJobPage.eyebrow}</p>
+        <h1>{copy.lulusJobPage.title}</h1>
+        <p>{copy.lulusJobPage.description}</p>
       </div>
 
       <div className="lulus-job-grid page-lulus-job-grid">
-        {lulusJobItems.map((item) => (
+        {translatedLulusJobItems.map((item) => (
           <article className="gallery-card sticker-card lulus-job-card" id={getLulusJobItemId(item.id)} key={item.id}>
             {item.imageUrl ? (
               <img src={resolveMediaUrl(item.imageUrl)} alt={item.name} />
             ) : (
               <div className="gallery-placeholder image-marker">
-                <span>UPLOAD FOTO</span>
+                <span>{copy.lulusJobPage.placeholder}</span>
               </div>
             )}
             <div>

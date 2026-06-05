@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { fallbackGallery, fallbackSite } from '../data/fallbackContent';
 import { fetchJson, fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedItems } from '../i18n/useTranslatedItems';
 import { scrollToHashTarget } from '../lib/scroll';
 
 const getGalleryItemId = (id) => `galeri-${id}`;
@@ -10,6 +12,8 @@ function GalleryPage() {
   const [galleryItems, setGalleryItems] = useState(fallbackGallery);
   const [site, setSite] = useState(fallbackSite);
   const location = useLocation();
+  const { copy, language } = useLanguage();
+  const translatedGalleryItems = useTranslatedItems(galleryItems, ['title', 'description'], language);
   const galleryHeroBackground = site.backgrounds?.galleryPageUrl || '';
   const galleryHeroStyle = galleryHeroBackground
     ? { '--page-hero-bg': `url(${resolveMediaUrl(galleryHeroBackground)})` }
@@ -42,22 +46,19 @@ function GalleryPage() {
   return (
     <section className="page-section">
       <div className={`page-hero ${galleryHeroBackground ? 'has-page-hero-bg' : ''}`} style={galleryHeroStyle}>
-        <p className="eyebrow">Galeri</p>
-        <h1>Dokumentasi ruang belajar dan aktivitas peserta.</h1>
-        <p>
-          Halaman ini disiapkan untuk menampung foto kegiatan, fasilitas, kelas,
-          dan dokumentasi terbaru Furusato dari dashboard admin.
-        </p>
+        <p className="eyebrow">{copy.galleryPage.eyebrow}</p>
+        <h1>{copy.galleryPage.title}</h1>
+        <p>{copy.galleryPage.description}</p>
       </div>
 
       <div className="gallery-grid page-gallery-grid">
-        {galleryItems.map((item) => (
+        {translatedGalleryItems.map((item) => (
           <article className="gallery-card sticker-card" id={getGalleryItemId(item.id)} key={item.id}>
             {item.imageUrl ? (
               <img src={resolveMediaUrl(item.imageUrl)} alt={item.title} />
             ) : (
               <div className="gallery-placeholder image-marker">
-                <span>UPLOAD GAMBAR</span>
+                <span>{copy.galleryPage.placeholder}</span>
               </div>
             )}
             <div>

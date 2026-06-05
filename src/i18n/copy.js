@@ -25,6 +25,14 @@ const localizedCopy = {
       title: 'Pelatihan kerja di Temanggung yang dekat dengan kebutuhan peserta dan mitra.',
       body: 'Furusato Temanggung adalah lembaga pelatihan kerja yang berfokus pada persiapan peserta agar siap memasuki lingkungan kerja profesional. Materi pelatihan mencakup kedisiplinan, komunikasi, dasar bahasa, etika kerja, dan praktik keterampilan yang disesuaikan dengan kebutuhan mitra kerja tujuan.',
     },
+    aboutPage: {
+      heroEyebrow: 'Tentang Kami',
+      heroTitle: 'Tentang Furusato',
+      breadcrumb: 'Beranda / Tentang Furusato',
+      programEyebrow: 'Program Kerja Furusato',
+      programTitle: 'Program yang disiapkan untuk peserta.',
+      programPlaceholder: 'PROGRAM',
+    },
     program: {
       eyebrow: 'Program',
       title: 'Mulai karirmu dengan persiapan yang jelas.',
@@ -45,10 +53,39 @@ const localizedCopy = {
       action: 'Lihat semua galeri',
       placeholder: 'UPLOAD GAMBAR',
     },
+    galleryPage: {
+      eyebrow: 'Galeri',
+      title: 'Dokumentasi ruang belajar dan aktivitas peserta.',
+      description: 'Halaman ini disiapkan untuk menampung foto kegiatan, fasilitas, kelas, dan dokumentasi terbaru Furusato dari dashboard admin.',
+      placeholder: 'UPLOAD GAMBAR',
+    },
     news: {
       eyebrow: 'Berita',
       title: 'Informasi terbaru',
       action: 'Lihat semua berita',
+    },
+    newsPage: {
+      eyebrow: 'Berita',
+      title: 'Berita Furusato',
+      breadcrumb: 'Beranda / Berita',
+      closeAction: 'Tutup berita',
+      readAction: 'Baca selengkapnya',
+    },
+    lulusJobPage: {
+      eyebrow: 'Lulus Job',
+      title: 'Jejak siswa Furusato yang sudah siap melangkah ke dunia kerja.',
+      description: 'Halaman ini menampilkan kartu siswa lulus job berisi foto, nama, asal, dan pesan singkat mereka setelah melalui pembinaan di Furusato Temanggung.',
+      placeholder: 'UPLOAD FOTO',
+    },
+    contactPage: {
+      heroEyebrow: 'Kontak Furusato',
+      heroTitle: 'Mari bicara tentang kelas, pendaftaran, dan rencana kerja ke Jepang dari Temanggung.',
+      contactLabel: 'Hubungi Kami',
+      addressTitle: 'Alamat',
+      addressDescription: 'Furusato Temanggung melayani peserta dari Temanggung, Jawa Tengah, dan sekitarnya.',
+      serviceTitle: 'Jam Layanan',
+      serviceDescription: 'Senin - Sabtu, 09.00 - 17.00. Jadwal dapat disesuaikan melalui admin.',
+      socialTitle: 'Media Sosial',
     },
     map: {
       eyebrow: 'Map',
@@ -113,6 +150,14 @@ const localizedCopy = {
       title: '参加者と提携先のニーズに寄り添う、Temanggungの職業訓練。',
       body: 'Furusato Temanggungは、参加者が専門的な職場へ自信を持って進めるように支援する職業訓練機関です。訓練内容には、規律、コミュニケーション、基礎言語、職場でのマナー、提携先のニーズに合わせた実践的なスキルが含まれます。',
     },
+    aboutPage: {
+      heroEyebrow: '私たちについて',
+      heroTitle: 'Furusatoについて',
+      breadcrumb: 'ホーム / Furusatoについて',
+      programEyebrow: 'Furusatoの研修プログラム',
+      programTitle: '参加者のために準備されたプログラム。',
+      programPlaceholder: 'プログラム',
+    },
     program: {
       eyebrow: 'プログラム',
       title: '明確な準備からキャリアを始めよう。',
@@ -133,10 +178,39 @@ const localizedCopy = {
       action: 'すべてのギャラリーを見る',
       placeholder: '画像をアップロード',
     },
+    galleryPage: {
+      eyebrow: 'ギャラリー',
+      title: '学習環境と参加者の活動記録。',
+      description: 'このページでは、Furusatoの活動、施設、クラス、最新の記録写真を管理画面から掲載できます。',
+      placeholder: '画像をアップロード',
+    },
     news: {
       eyebrow: 'ニュース',
       title: '最新情報',
       action: 'すべてのニュースを見る',
+    },
+    newsPage: {
+      eyebrow: 'ニュース',
+      title: 'Furusatoニュース',
+      breadcrumb: 'ホーム / ニュース',
+      closeAction: '閉じる',
+      readAction: '詳しく読む',
+    },
+    lulusJobPage: {
+      eyebrow: '就職者の声',
+      title: 'Furusatoで準備を重ね、仕事の世界へ進む参加者の歩み。',
+      description: 'このページでは、Furusato Temanggungでの指導を終えた参加者の写真、名前、出身地、短いメッセージを紹介します。',
+      placeholder: '写真をアップロード',
+    },
+    contactPage: {
+      heroEyebrow: 'お問い合わせ',
+      heroTitle: 'クラス、入学相談、Temanggungから日本で働く準備についてご相談ください。',
+      contactLabel: 'お問い合わせ',
+      addressTitle: '住所',
+      addressDescription: 'Furusato Temanggungは、Temanggung、中央ジャワ、周辺地域の参加者をサポートしています。',
+      serviceTitle: '受付時間',
+      serviceDescription: '月曜日 - 土曜日、09.00 - 17.00。詳しいスケジュールは管理者にご確認ください。',
+      socialTitle: 'ソーシャルメディア',
     },
     map: {
       eyebrow: 'アクセス',
@@ -224,4 +298,3 @@ export function getPageTitle(pathname, hash, language = 'id') {
 
   return pageTitles.notFound;
 }
-
