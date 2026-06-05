@@ -11,6 +11,7 @@ const localizedCopy = {
         gallery: 'Galeri',
         job: 'Lulus Job',
         news: 'Berita',
+        contact: 'Kontak',
       },
     },
     hero: {
@@ -149,6 +150,7 @@ const localizedCopy = {
         gallery: 'ギャラリー',
         job: '就職者の声',
         news: 'ニュース',
+        contact: 'お問い合わせ',
       },
     },
     hero: {

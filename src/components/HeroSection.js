@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
 import { useLanguage } from '../i18n/LanguageProvider';
@@ -31,7 +32,7 @@ function HeroSection() {
         <p>{copy.hero.description}</p>
         <div className="hero-actions">
           <a className="primary-action" href="#tentang">{copy.hero.primaryAction}</a>
-          <a className="secondary-action" href="/kontak">{copy.hero.secondaryAction}</a>
+          <Link className="secondary-action" to="/kontak">{copy.hero.secondaryAction}</Link>
         </div>
       </div>
 

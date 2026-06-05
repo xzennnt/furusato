@@ -12,6 +12,7 @@ const menuItems = [
   { key: 'gallery', href: '/galeri' },
   { key: 'job', href: '/lulus-job' },
   { key: 'news', href: '/berita' },
+  { key: 'contact', href: '/kontak' },
 ];
 
 function NavigationBar() {

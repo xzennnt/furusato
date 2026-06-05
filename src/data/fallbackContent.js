@@ -73,6 +73,7 @@ export const fallbackSite = {
     aboutPageUrl: '',
     galleryPageUrl: '',
     lulusJobPageUrl: '',
+    contactPageUrl: '',
   },
   address: 'Temanggung, Jawa Tengah, Indonesia',
   phone: '+62 000 0000 0000',

@@ -50,6 +50,7 @@ const emptySite = {
     aboutPageUrl: '',
     galleryPageUrl: '',
     lulusJobPageUrl: '',
+    contactPageUrl: '',
   },
   address: '',
   phone: '',
@@ -533,6 +534,7 @@ function AdminDashboardPage() {
         aboutPageUrl: 'Background halaman tentang Furusato berhasil diupload. Klik simpan untuk memakai gambar ini.',
         galleryPageUrl: 'Background halaman galeri berhasil diupload. Klik simpan untuk memakai gambar ini.',
         lulusJobPageUrl: 'Background halaman lulus job berhasil diupload. Klik simpan untuk memakai gambar ini.',
+        contactPageUrl: 'Background halaman kontak berhasil diupload. Klik simpan untuk memakai gambar ini.',
       }[key] || 'Background berhasil diupload. Klik simpan untuk memakai gambar ini.';
 
       setMessage(uploadMessage);
@@ -1300,6 +1302,32 @@ function AdminDashboardPage() {
               {siteForm.backgrounds.homeNewsUrl && (
                 <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.homeNewsUrl)} alt="Preview background berita home" />
               )}
+            </div>
+
+            <div className="admin-field-group">
+              <h3>Header Page Kontak</h3>
+              <label>
+                Upload background halaman kontak
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => handleSiteBackgroundUpload('contactPageUrl', event.target.files?.[0])}
+                />
+              </label>
+              <label>
+                URL background halaman kontak
+                <input
+                  value={siteForm.backgrounds.contactPageUrl || ''}
+                  onChange={(event) => updateSiteBackground('contactPageUrl', event.target.value)}
+                  placeholder="/uploads/background-page-kontak.jpg"
+                />
+              </label>
+              {siteForm.backgrounds.contactPageUrl && (
+                <img className="admin-image-preview" src={resolveMediaUrl(siteForm.backgrounds.contactPageUrl)} alt="Preview background page kontak" />
+              )}
+              <p className="admin-help-text">
+                Background ini dipakai di halaman <strong>Kontak</strong> pada bagian hero.
+              </p>
             </div>
 
             <div className="admin-form-actions">

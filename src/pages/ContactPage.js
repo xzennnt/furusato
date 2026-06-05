@@ -8,7 +8,7 @@ import { useLanguage } from '../i18n/LanguageProvider';
 function ContactPage() {
   const [site, setSite] = useState(fallbackSite);
   const { copy } = useLanguage();
-  const contactHeroBackground = site.backgrounds?.aboutPageUrl || site.backgrounds?.homeAboutUrl || '';
+  const contactHeroBackground = site.backgrounds?.contactPageUrl || '';
   const contactHeroStyle = contactHeroBackground
     ? { '--page-hero-bg': `url(${resolveMediaUrl(contactHeroBackground)})` }
     : undefined;
