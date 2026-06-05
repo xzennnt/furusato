@@ -40,7 +40,7 @@ const localizedCopy = {
     seoSection: {
       eyebrow: 'LPK Jepang Temanggung',
       title: 'Persiapan kerja ke Jepang dari Temanggung, Jawa Tengah.',
-      body: 'Furusato membantu calon peserta di Temanggung dan sekitarnya memahami proses belajar bahasa Jepang, budaya kerja, disiplin, seleksi, serta jalur kerja Jepang seperti magang, Tokutei Ginou, dan bidang kaigo secara bertahap.',
+      body: 'Furusato membantu calon peserta di Temanggung dan sekitarnya memahami proses belajar bahasa Jepang, budaya kerja, disiplin, seleksi, serta jalur kerja Jepang seperti magang, dan Tokutei Ginou secara bertahap.',
       listLabel: 'Fokus pencarian Furusato',
       points: [
         'LPK Jepang di Temanggung',
