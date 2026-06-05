@@ -34,12 +34,6 @@ function ContactPage() {
           <p className="eyebrow">{copy.contactPage.heroEyebrow}</p>
           <h1>{copy.contactPage.heroTitle}</h1>
         </div>
-        <div className="contact-card">
-          <span>{copy.contactPage.contactLabel}</span>
-          <a href={site.whatsapp} target="_blank" rel="noreferrer">WhatsApp</a>
-          <a href={`mailto:${site.email}`}>{site.email}</a>
-          <a href={`tel:${site.phone}`}>{site.phone}</a>
-        </div>
       </div>
 
       <section className="contact-info-grid">

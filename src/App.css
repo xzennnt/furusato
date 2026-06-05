@@ -3925,8 +3925,7 @@ body {
 .contact-page-hero {
   align-items: center;
   display: grid;
-  gap: clamp(28px, 5vw, 72px);
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .contact-page-hero.has-page-hero-bg {
