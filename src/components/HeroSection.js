@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 function HeroSection() {
   const [site, setSite] = useState(fallbackSite);
+  const { copy } = useLanguage();
   const heroBackgroundUrl = site.backgrounds?.homeHeroUrl || '';
   const backgroundUrl = resolveMediaUrl(heroBackgroundUrl);
 
@@ -24,15 +26,12 @@ function HeroSection() {
       style={backgroundUrl ? { '--hero-bg': `url(${backgroundUrl})` } : undefined}
     >
       <div className="hero-copy hero-copy--narrow">
-        <p className="eyebrow">LPK Furusato</p>
-        <h1>Raih mimpi kerja ke Jepang bersama Furusato.</h1>
-        <p>
-          Kelas bahasa Jepang, pembinaan karakter, budaya kerja, dan persiapan
-          seleksi dibuat terarah agar peserta siap memasuki dunia kerja.
-        </p>
+        <p className="eyebrow">{copy.hero.eyebrow}</p>
+        <h1>{copy.hero.title}</h1>
+        <p>{copy.hero.description}</p>
         <div className="hero-actions">
-          <a className="primary-action" href="#tentang">Tentang Furusato</a>
-          <a className="secondary-action" href="/kontak">Hubungi Kami</a>
+          <a className="primary-action" href="#tentang">{copy.hero.primaryAction}</a>
+          <a className="secondary-action" href="/kontak">{copy.hero.secondaryAction}</a>
         </div>
       </div>
 

@@ -2,28 +2,33 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackHomeContent } from '../data/fallbackContent';
 import { fetchJson, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedObject } from '../i18n/useTranslatedItems';
 import NewsTicker from './NewsTicker';
 
 function JobPartnerSection() {
   const [content, setContent] = useState(fallbackHomeContent);
-  const { jobInfo, jobBanner, partners } = content;
-  const jobLink = jobBanner.linkUrl || jobInfo.linkUrl || '/berita';
+  const { copy, language } = useLanguage();
+  const translatedJobInfo = useTranslatedObject(content.jobInfo, ['label', 'title', 'description'], language);
+  const translatedJobBanner = useTranslatedObject(content.jobBanner, ['label', 'title', 'description'], language);
+  const { partners } = content;
+  const jobLink = translatedJobBanner?.linkUrl || translatedJobInfo?.linkUrl || '/berita';
   const isExternalJobLink = /^https?:\/\//i.test(jobLink);
   const jobBannerContent = (
     <>
       <div className="job-banner-media">
-        {jobBanner.imageUrl ? (
-          <img src={resolveMediaUrl(jobBanner.imageUrl)} alt={jobInfo.title || jobBanner.title} />
+        {translatedJobBanner?.imageUrl ? (
+          <img src={resolveMediaUrl(translatedJobBanner.imageUrl)} alt={translatedJobInfo?.title || translatedJobBanner.title} />
         ) : (
           <div className="job-banner-placeholder">
-            <span>UPLOAD BANNER INFORMASI</span>
+            <span>{copy.job.bannerPlaceholder}</span>
           </div>
         )}
       </div>
       <div className="job-banner-caption">
-        <p className="eyebrow">{jobInfo.label || 'Info Job'}</p>
-        <h2>{jobInfo.title || jobBanner.title}</h2>
-        <p>{jobInfo.description || jobBanner.description}</p>
+        <p className="eyebrow">{translatedJobInfo?.label || copy.job.defaultJobLabel}</p>
+        <h2>{translatedJobInfo?.title || translatedJobBanner?.title || copy.job.defaultJobTitle}</h2>
+        <p>{translatedJobInfo?.description || translatedJobBanner?.description || copy.job.defaultJobDescription}</p>
       </div>
     </>
   );
@@ -56,8 +61,8 @@ function JobPartnerSection() {
       <div className="job-partner-layout">
         <div className="job-news-column is-straight-card">
           <div>
-            <span className="hero-badge">Berita Terkini</span>
-            <h2>Informasi kelas, seleksi, dan kegiatan peserta.</h2>
+            <span className="hero-badge">{copy.job.newsEyebrow}</span>
+            <h2>{copy.job.newsTitle}</h2>
           </div>
           <NewsTicker />
         </div>
@@ -74,10 +79,10 @@ function JobPartnerSection() {
 
         <aside
           className={`partner-panel is-straight-card partner-count-${partners.length} ${partners.length > 4 ? 'has-many-partners' : ''}`}
-          aria-label="Mitra kerja sama"
+          aria-label={copy.job.partnerEyebrow}
         >
-          <p className="eyebrow">Mitra Kerja Sama</p>
-          <h2>Perusahaan dan LPK rekanan</h2>
+          <p className="eyebrow">{copy.job.partnerEyebrow}</p>
+          <h2>{copy.job.partnerTitle}</h2>
           <div className="partner-list">
             {partners.map((partner) => (
               <div className="partner-item is-straight-card" key={partner.id}>

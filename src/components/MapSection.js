@@ -1,18 +1,19 @@
+import { useLanguage } from '../i18n/LanguageProvider';
+
 const mapsUrl = 'https://maps.app.goo.gl/Z63VmpDGFfvVYGxW7';
 const mapsEmbedUrl = 'https://www.google.com/maps?q=-7.298989,110.177072&z=16&output=embed';
 
 function MapSection() {
+  const { copy } = useLanguage();
+
   return (
     <section id="map" className="map-section">
       <div className="map-copy">
-        <p className="eyebrow">Map</p>
-        <h2>Lokasi pelatihan yang mudah ditemukan.</h2>
-        <p>
-          Peta Google Maps ini memakai titik lokasi LPK Furusato. 
-          {/* Jika nanti ada lokasi resmi baru, cukup ganti nilai `mapsUrl` dan `mapsEmbedUrl` di file ini. */}
-        </p>
+        <p className="eyebrow">{copy.map.eyebrow}</p>
+        <h2>{copy.map.title}</h2>
+        <p>{copy.map.body}</p>
         <a href={mapsUrl} target="_blank" rel="noreferrer">
-          Buka lokasi
+          {copy.map.action}
         </a>
       </div>
       <iframe

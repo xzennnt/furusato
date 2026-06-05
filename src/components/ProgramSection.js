@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { fallbackAboutContent } from '../data/fallbackContent';
 import { fetchJson, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedItems } from '../i18n/useTranslatedItems';
 
 function ProgramSection() {
   const [programs, setPrograms] = useState(fallbackAboutContent.programs);
+  const { copy, language } = useLanguage();
+  const translatedPrograms = useTranslatedItems(programs, ['title', 'description'], language);
 
   useEffect(() => {
     fetchJson('/api/about-content', fallbackAboutContent).then((data) => {
@@ -13,12 +17,12 @@ function ProgramSection() {
 
   return (
     <section className="program-section">
-      <p className="eyebrow">Program</p>
+      <p className="eyebrow">{copy.program.eyebrow}</p>
       <div className="section-heading-row">
-        <h2>Mulai karirmu dengan persiapan yang jelas.</h2>
+        <h2>{copy.program.title}</h2>
       </div>
       <div className="program-list">
-        {programs.map((program) => (
+        {translatedPrograms.map((program) => (
           <article
             className={`sticker-card ${program.imageUrl ? 'has-program-bg' : ''}`}
             key={program.id || program.title}

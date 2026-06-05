@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
 
 function SocialIcon({ name }) {
   const iconName = name.toLowerCase();
@@ -59,6 +60,7 @@ function SocialIcon({ name }) {
 
 function Footer() {
   const [site, setSite] = useState(fallbackSite);
+  const { copy } = useLanguage();
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
@@ -73,33 +75,33 @@ function Footer() {
           <Link className="footer-logo" to="/">
             {logoSrc ? (
               <img src={logoSrc} alt={site.brandName} />
-            ) : (
-              <>
-                <span className="brand-kanji">古里</span>
-                <span className="brand-romaji">furusato</span>
-              </>
-            )}
+          ) : (
+            <>
+              <span className="brand-kanji">古里</span>
+              <span className="brand-romaji">furusato</span>
+            </>
+          )}
           </Link>
-          <p className="footer-brand-note">Lembaga pelatihan kerja bahasa Jepang di Temanggung.</p>
+          <p className="footer-brand-note">{copy.footer.brandNote}</p>
           <p className="footer-address">{site.address}</p>
         </div>
 
         <div className="footer-column">
-          <h2>Perusahaan</h2>
-          <Link to="/#tentang">Tentang Furusato</Link>
-          <Link to="/#map">Map</Link>
-          <Link to="/galeri">Galeri</Link>
-          <Link to="/berita">Berita</Link>
+          <h2>{copy.footer.companyHeading}</h2>
+          <Link to="/#tentang">{copy.footer.links.about}</Link>
+          <Link to="/#map">{copy.footer.links.map}</Link>
+          <Link to="/galeri">{copy.footer.links.gallery}</Link>
+          <Link to="/berita">{copy.footer.links.news}</Link>
         </div>
 
         <div className="footer-column footer-news-column">
-          <h2>Berita</h2>
-          <p>Dapatkan informasi terbaru terkait pelatihan, seleksi, dan kegiatan Furusato.</p>
+          <h2>{copy.footer.newsHeading}</h2>
+          <p>{copy.footer.newsDescription}</p>
         </div>
 
         <div className="footer-column footer-social-column">
-          <h2>Sosial Media</h2>
-          <div className="footer-socials" aria-label="Sosial media">
+          <h2>{copy.footer.socialHeading}</h2>
+          <div className="footer-socials" aria-label={copy.footer.socialHeading}>
             {Object.entries(site.socials || {}).filter(([, url]) => url).map(([label, url]) => (
               <a className="footer-icon-link" key={label} href={url} target="_blank" rel="noreferrer" aria-label={label} title={label}>
                 <SocialIcon name={label} />
@@ -110,7 +112,7 @@ function Footer() {
         </div>
 
         <div className="footer-column footer-contact-column">
-          <h2>Kontak</h2>
+          <h2>{copy.footer.contactHeading}</h2>
           <a href={`mailto:${site.email}`}>{site.email}</a>
           <a href={`tel:${site.phone}`}>{site.phone}</a>
           <a className="footer-contact-icon-link" href={site.whatsapp} target="_blank" rel="noreferrer">

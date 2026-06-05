@@ -8,6 +8,8 @@ import Footer from './components/Footer';
 import NavigationBar from './components/NavigationBar';
 import { fetchSite, resolveMediaUrl } from './lib/api';
 import { fallbackSite } from './data/fallbackContent';
+import { LanguageProvider, useLanguage } from './i18n/LanguageProvider';
+import { getPageTitle } from './i18n/copy';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
@@ -19,11 +21,12 @@ function AppShell() {
   const rootRef = useRef(null);
   const location = useLocation();
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const { language } = useLanguage();
 
   useEffect(() => {
-    const pageTitle = getPageTitle(location.pathname, location.hash);
+    const pageTitle = getPageTitle(location.pathname, location.hash, language);
     document.title = pageTitle;
-  }, [location.hash, location.pathname]);
+  }, [language, location.hash, location.pathname]);
 
   useEffect(() => {
     let isActive = true;
@@ -163,64 +166,26 @@ function AppShell() {
 }
 
 function NotFoundPage() {
+  const { copy } = useLanguage();
+
   return (
     <section className="page-section not-found-page">
       <div className="page-hero">
-        <p className="eyebrow">Halaman tidak tersedia</p>
-        <h1>URL ini tidak dipublikasikan untuk pengunjung.</h1>
-        <p>
-          Gunakan halaman yang tersedia: Home, Tentang Furusato, Map, Galeri, Lulus Job, Berita, dan Kontak.
-        </p>
-        <Link className="primary-action" to="/">Kembali ke Home</Link>
+        <p className="eyebrow">{copy.notFound.eyebrow}</p>
+        <h1>{copy.notFound.title}</h1>
+        <p>{copy.notFound.body}</p>
+        <Link className="primary-action" to="/">{copy.notFound.action}</Link>
       </div>
     </section>
   );
 }
 
-function getPageTitle(pathname, hash) {
-  if (pathname === '/' && hash === '#map') {
-    return 'Furusato | Map';
-  }
-
-  if (pathname === '/') {
-    return 'Furusato Temanggung | LPK Jepang';
-  }
-
-  if (pathname === '/tentang') {
-    return 'Tentang Furusato Temanggung';
-  }
-
-  if (pathname === '/galeri') {
-    return 'Galeri Furusato Temanggung';
-  }
-
-  if (pathname === '/lulus-job') {
-    return 'Lulus Job Furusato Temanggung';
-  }
-
-  if (pathname === '/berita') {
-    return 'Berita Furusato Temanggung';
-  }
-
-  if (pathname === '/kontak') {
-    return 'Kontak Furusato Temanggung';
-  }
-
-  if (pathname === '/admin/login') {
-    return 'Furusato Admin | Login';
-  }
-
-  if (pathname === '/admin/dashboard') {
-    return 'Furusato Admin | Dashboard';
-  }
-
-  return 'Furusato Temanggung | Halaman Tidak Ditemukan';
-}
-
 function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
-      <AppShell />
+      <LanguageProvider>
+        <AppShell />
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

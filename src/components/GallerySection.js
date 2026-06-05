@@ -2,12 +2,15 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { fallbackGallery } from '../data/fallbackContent';
 import { fetchJson, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
+import { useTranslatedItems } from '../i18n/useTranslatedItems';
 
 const getGalleryItemId = (id) => `galeri-${id}`;
 
 function GallerySection() {
   const [galleryItems, setGalleryItems] = useState(fallbackGallery);
-  const marqueeItems = [...galleryItems, ...galleryItems];
+  const { copy, language } = useLanguage();
+  const translatedGalleryItems = useTranslatedItems(galleryItems, ['title'], language);
 
   useEffect(() => {
     fetchJson('/api/gallery', fallbackGallery).then(setGalleryItems);
@@ -15,14 +18,14 @@ function GallerySection() {
 
   return (
     <section id="galeri" className="gallery-section shida-gallery">
-      <p className="eyebrow">Galeri</p>
+      <p className="eyebrow">{copy.gallery.eyebrow}</p>
       <div className="section-heading-row">
-        <h2>Dokumentasi kegiatan Furusato</h2>
-        <Link className="text-action" to="/galeri">Lihat semua galeri</Link>
+        <h2>{copy.gallery.title}</h2>
+        <Link className="text-action" to="/galeri">{copy.gallery.action}</Link>
       </div>
       <div className="gallery-marquee" aria-label="Galeri berjalan">
         <div className="gallery-marquee-track">
-          {marqueeItems.map((item, index) => {
+          {[...translatedGalleryItems, ...translatedGalleryItems].map((item, index) => {
             const imageSrc = resolveMediaUrl(item.imageUrl);
             const cardContent = (
               <>
@@ -30,7 +33,7 @@ function GallerySection() {
                   <img src={imageSrc} alt={item.title} />
                 ) : (
                   <div className="gallery-placeholder image-marker">
-                    <span>UPLOAD GAMBAR</span>
+                    <span>{copy.gallery.placeholder}</span>
                   </div>
                 )}
                 <strong>{item.title}</strong>

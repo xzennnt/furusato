@@ -2,20 +2,22 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
+import { useLanguage } from '../i18n/LanguageProvider';
 import { scrollToMapSection } from '../lib/scroll';
 
 const menuItems = [
-  { label: 'Home', href: '/' },
-  { label: 'Tentang Furusato', href: '/tentang' },
-  { label: 'Map', href: '/#map' },
-  { label: 'Galeri', href: '/galeri' },
-  { label: 'Lulus Job', href: '/lulus-job' },
-  { label: 'Berita', href: '/berita' },
+  { key: 'home', href: '/' },
+  { key: 'about', href: '/tentang' },
+  { key: 'map', href: '/#map' },
+  { key: 'gallery', href: '/galeri' },
+  { key: 'job', href: '/lulus-job' },
+  { key: 'news', href: '/berita' },
 ];
 
 function NavigationBar() {
   const [site, setSite] = useState(fallbackSite);
   const location = useLocation();
+  const { copy, language, setLanguage } = useLanguage();
 
   useEffect(() => {
     fetchSite(fallbackSite).then(setSite);
@@ -43,7 +45,8 @@ function NavigationBar() {
         )}
       </NavLink>
 
-      <nav className="menu-bar yutaka-menu" aria-label="Navigasi utama">
+      <div className="header-actions">
+        <nav className="menu-bar yutaka-menu" aria-label={copy.nav.ariaLabel}>
         {menuItems.map((item) => {
           const LinkComponent = item.href.includes('#') ? Link : NavLink;
 
@@ -53,11 +56,31 @@ function NavigationBar() {
               to={item.href}
               onClick={item.href === '/#map' ? handleMapClick : undefined}
             >
-              {item.label}
+              {copy.nav.links[item.key]}
             </LinkComponent>
           );
         })}
-      </nav>
+        </nav>
+
+        <div className="language-switcher" aria-label="Language switcher">
+          <button
+            type="button"
+            className={language === 'id' ? 'active' : ''}
+            onClick={() => setLanguage('id')}
+            aria-pressed={language === 'id'}
+          >
+            ID
+          </button>
+          <button
+            type="button"
+            className={language === 'ja' ? 'active' : ''}
+            onClick={() => setLanguage('ja')}
+            aria-pressed={language === 'ja'}
+          >
+            日本語
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

@@ -81,6 +81,56 @@ const asyncHandler = (handler) => (req, res, next) => {
   Promise.resolve(handler(req, res, next)).catch(next);
 };
 
+const translationCache = new Map();
+
+function getTranslationCacheKey(source, target, text) {
+  return `${source}::${target}::${text}`;
+}
+
+function extractGoogleTranslation(payload) {
+  if (!Array.isArray(payload) || !Array.isArray(payload[0])) {
+    return '';
+  }
+
+  return payload[0]
+    .map((segment) => (Array.isArray(segment) ? segment[0] || '' : ''))
+    .join('');
+}
+
+async function translateText(text, source = 'id', target = 'ja') {
+  if (!text || source === target) {
+    return text;
+  }
+
+  const cacheKey = getTranslationCacheKey(source, target, text);
+  if (translationCache.has(cacheKey)) {
+    return translationCache.get(cacheKey);
+  }
+
+  const endpoint = new URL('https://translate.googleapis.com/translate_a/single');
+  endpoint.searchParams.set('client', 'gtx');
+  endpoint.searchParams.set('sl', source);
+  endpoint.searchParams.set('tl', target);
+  endpoint.searchParams.set('dt', 't');
+  endpoint.searchParams.set('q', text);
+
+  const response = await fetch(endpoint.toString(), {
+    headers: {
+      'User-Agent': 'Mozilla/5.0',
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to translate text: ${response.status}`);
+  }
+
+  const payload = await response.json();
+  const translatedText = extractGoogleTranslation(payload) || text;
+  translationCache.set(cacheKey, translatedText);
+
+  return translatedText;
+}
+
 function base64UrlEncode(data) {
   return Buffer.from(data).toString('base64url');
 }
@@ -204,6 +254,26 @@ app.get('/api/health', (_req, res) => {
     blobConfigured: Boolean(process.env.BLOB_READ_WRITE_TOKEN),
   });
 });
+
+app.post('/api/translate', asyncHandler(async (req, res) => {
+  const texts = Array.isArray(req.body.texts)
+    ? req.body.texts
+    : (typeof req.body.text === 'string' ? [req.body.text] : []);
+  const source = typeof req.body.source === 'string' ? req.body.source : 'id';
+  const target = typeof req.body.target === 'string' ? req.body.target : 'ja';
+
+  if (!texts.length) {
+    return res.json({ translations: [] });
+  }
+
+  if (texts.length > 50) {
+    return res.status(400).json({ message: 'Maksimal 50 teks per permintaan terjemahan.' });
+  }
+
+  const translations = await Promise.all(texts.map((text) => translateText(String(text), source, target)));
+
+  return res.json({ translations });
+}));
 
 app.get('/api/news', asyncHandler(async (_req, res) => {
   const content = await readContent();
