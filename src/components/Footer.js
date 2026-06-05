@@ -4,7 +4,7 @@ import { fallbackSite } from '../data/fallbackContent';
 import { fetchSite, resolveMediaUrl } from '../lib/api';
 import { useLanguage } from '../i18n/LanguageProvider';
 
-function SocialIcon({ name }) {
+export function SocialIcon({ name }) {
   const iconName = name.toLowerCase();
 
   if (iconName === 'instagram') {

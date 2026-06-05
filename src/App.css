@@ -3918,6 +3918,118 @@ body {
   transform: translateY(-2px);
 }
 
+.contact-page {
+  background-color: var(--furusato-paper);
+}
+
+.contact-page-hero {
+  align-items: center;
+  display: grid;
+  gap: clamp(28px, 5vw, 72px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+}
+
+.contact-page-hero.has-page-hero-bg {
+  background-position: center 56%;
+}
+
+.contact-hero-copy h1 {
+  max-width: 850px;
+}
+
+.contact-card {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+}
+
+.contact-page-hero.has-page-hero-bg .contact-card span {
+  color: var(--furusato-red);
+}
+
+.contact-card a {
+  color: var(--ink);
+}
+
+.contact-info-grid {
+  gap: clamp(18px, 2.8vw, 30px);
+  margin: 0 auto;
+  max-width: 1160px;
+  padding: clamp(42px, 6vw, 72px) 0 clamp(34px, 5vw, 58px);
+}
+
+.contact-page > .map-section {
+  margin-left: -5vw;
+  margin-right: -5vw;
+}
+
+.contact-info-grid article {
+  display: grid;
+  gap: 14px;
+  padding: clamp(24px, 3vw, 34px);
+}
+
+.contact-info-grid h2 {
+  color: var(--ink);
+  font-size: clamp(24px, 2.5vw, 34px);
+  margin: 0 0 4px;
+}
+
+.contact-info-grid p {
+  margin: 0;
+}
+
+.contact-info-note {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.contact-link-list,
+.contact-socials {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-link-list a,
+.contact-socials a,
+.contact-icon-link {
+  align-items: center;
+  color: var(--muted);
+  display: inline-flex;
+  font-weight: 700;
+  gap: 10px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+  text-decoration: none;
+  text-transform: none;
+  word-break: break-word;
+}
+
+.contact-socials {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+.contact-icon-link svg {
+  display: block;
+  fill: none;
+  flex: 0 0 auto;
+  height: 20px;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+  width: 20px;
+}
+
+.contact-link-list a:hover,
+.contact-link-list a:focus-visible,
+.contact-socials a:hover,
+.contact-socials a:focus-visible {
+  color: var(--furusato-red);
+}
+
 .seo-local-section {
   background:
     radial-gradient(circle at 12% 18%, rgba(215, 168, 66, 0.2), transparent 32%),
@@ -4036,6 +4148,16 @@ body {
     height: 44px;
     right: 18px;
     width: 44px;
+  }
+
+  .contact-page-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+    padding-left: 0;
+    padding-right: 0;
   }
 
   .seo-local-section {
