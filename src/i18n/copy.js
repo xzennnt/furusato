@@ -44,9 +44,9 @@ const localizedCopy = {
       listLabel: 'Fokus pencarian Furusato',
       points: [
         'LPK Jepang di Temanggung',
-        'Pelatihan bahasa Jepang untuk kerja',
+        'Pelatihan Bahasa Jepang untuk kerja',
         'Persiapan magang dan Tokutei Ginou',
-        'Informasi kaigo dan seleksi kerja Jepang',
+        'Informasi Kerja Ke Jepang dan seleksi kerja Jepang',
         'Pendampingan peserta dari Jawa Tengah',
       ],
     },
