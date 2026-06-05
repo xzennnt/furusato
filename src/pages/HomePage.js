@@ -7,6 +7,7 @@ import JobPartnerSection from '../components/JobPartnerSection';
 import MapSection from '../components/MapSection';
 import NewsSection from '../components/NewsSection';
 import ProgramSection from '../components/ProgramSection';
+import SeoKeywordSection from '../components/SeoKeywordSection';
 import { scrollToMapSection } from '../lib/scroll';
 
 function HomePage() {
@@ -48,6 +49,7 @@ function HomePage() {
       <HeroSection />
       <AboutSection />
       <ProgramSection />
+      <SeoKeywordSection />
       <JobPartnerSection />
       <GallerySection />
       <NewsSection />

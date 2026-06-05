@@ -9,13 +9,61 @@ import NavigationBar from './components/NavigationBar';
 import { fetchSite, resolveMediaUrl } from './lib/api';
 import { fallbackSite } from './data/fallbackContent';
 import { LanguageProvider, useLanguage } from './i18n/LanguageProvider';
-import { getPageTitle } from './i18n/copy';
+import { getSeoMeta } from './i18n/copy';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import HomePage from './pages/HomePage';
 import LulusJobPage from './pages/LulusJobPage';
 import NewsPage from './pages/NewsPage';
+
+function upsertMeta(attribute, value, content) {
+  if (!content) {
+    return;
+  }
+
+  let element = document.head.querySelector(`meta[${attribute}="${value}"]`);
+
+  if (!element) {
+    element = document.createElement('meta');
+    element.setAttribute(attribute, value);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute('content', content);
+}
+
+function upsertCanonical(href) {
+  let element = document.head.querySelector('link[rel="canonical"]');
+
+  if (!element) {
+    element = document.createElement('link');
+    element.rel = 'canonical';
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute('href', href);
+}
+
+function applySeoMeta(meta) {
+  document.title = meta.title;
+  upsertCanonical(meta.canonical);
+
+  upsertMeta('name', 'description', meta.description);
+  upsertMeta('name', 'keywords', meta.keywords);
+  upsertMeta('name', 'robots', meta.robots);
+  upsertMeta('property', 'og:type', 'website');
+  upsertMeta('property', 'og:url', meta.canonical);
+  upsertMeta('property', 'og:title', meta.title);
+  upsertMeta('property', 'og:description', meta.description);
+  upsertMeta('property', 'og:image', meta.image);
+  upsertMeta('property', 'og:image:secure_url', meta.image);
+  upsertMeta('property', 'og:locale', meta.locale);
+  upsertMeta('name', 'twitter:card', 'summary_large_image');
+  upsertMeta('name', 'twitter:title', meta.title);
+  upsertMeta('name', 'twitter:description', meta.description);
+  upsertMeta('name', 'twitter:image', meta.image);
+}
 
 function AppShell() {
   const rootRef = useRef(null);
@@ -24,8 +72,7 @@ function AppShell() {
   const { language } = useLanguage();
 
   useEffect(() => {
-    const pageTitle = getPageTitle(location.pathname, location.hash, language);
-    document.title = pageTitle;
+    applySeoMeta(getSeoMeta(location.pathname, location.hash, language));
   }, [language, location.hash, location.pathname]);
 
   useEffect(() => {

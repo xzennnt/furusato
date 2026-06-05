@@ -37,6 +37,19 @@ const localizedCopy = {
       eyebrow: 'Program',
       title: 'Mulai karirmu dengan persiapan yang jelas.',
     },
+    seoSection: {
+      eyebrow: 'LPK Jepang Temanggung',
+      title: 'Persiapan kerja ke Jepang dari Temanggung, Jawa Tengah.',
+      body: 'Furusato membantu calon peserta di Temanggung dan sekitarnya memahami proses belajar bahasa Jepang, budaya kerja, disiplin, seleksi, serta jalur kerja Jepang seperti magang, Tokutei Ginou, dan bidang kaigo secara bertahap.',
+      listLabel: 'Fokus pencarian Furusato',
+      points: [
+        'LPK Jepang di Temanggung',
+        'Pelatihan bahasa Jepang untuk kerja',
+        'Persiapan magang dan Tokutei Ginou',
+        'Informasi kaigo dan seleksi kerja Jepang',
+        'Pendampingan peserta dari Jawa Tengah',
+      ],
+    },
     job: {
       newsEyebrow: 'Berita Terkini',
       newsTitle: 'Informasi kelas, seleksi, dan kegiatan peserta.',
@@ -162,6 +175,19 @@ const localizedCopy = {
       eyebrow: 'プログラム',
       title: '明確な準備からキャリアを始めよう。',
     },
+    seoSection: {
+      eyebrow: 'Temanggungの日本向け職業訓練',
+      title: '中部ジャワ・Temanggungから日本就労を目指す準備を支援します。',
+      body: 'FurusatoはTemanggung周辺の参加者に、日本語、職場文化、規律、選考準備、技能実習、特定技能、介護分野など、日本で働くための情報と準備を段階的にサポートします。',
+      listLabel: 'Furusatoの重点分野',
+      points: [
+        'TemanggungのLPK日本語研修',
+        '就労に向けた日本語学習',
+        '技能実習と特定技能の準備',
+        '介護分野と選考情報',
+        '中部ジャワの参加者サポート',
+      ],
+    },
     job: {
       newsEyebrow: '最新ニュース',
       newsTitle: 'クラス、選考、受講生の活動情報。',
@@ -255,6 +281,190 @@ const localizedCopy = {
 
 export function getLocalizedCopy(language) {
   return localizedCopy[language] || localizedCopy.id;
+}
+
+export const SITE_URL = 'https://furusato-seven.vercel.app';
+
+const SHARE_IMAGE_URL = `${SITE_URL}/api/share-preview?v=2`;
+
+const commonKeywords = [
+  'lpk jepang temanggung',
+  'lpk di temanggung',
+  'kerja di jepang temanggung jawa tengah',
+  'lpk tokutei gino kaigo temanggung',
+  'lpk tokutei ginou kaigo temanggung',
+  'lpk magang temanggung',
+  'furusato temanggung',
+  'lembaga pelatihan kerja jepang temanggung',
+  'kursus bahasa jepang temanggung',
+  'pelatihan kerja ke jepang jawa tengah',
+];
+
+const seoDefaults = {
+  id: {
+    title: 'LPK Jepang Temanggung | Furusato - Kerja ke Jepang Jawa Tengah',
+    description: 'LPK Furusato Temanggung membantu persiapan kerja ke Jepang melalui bahasa Jepang, budaya kerja, seleksi, magang, Tokutei Ginou, dan kaigo di Jawa Tengah.',
+    keywords: commonKeywords.join(', '),
+  },
+  ja: {
+    title: 'Furusato Temanggung | 日本就労に向けた日本語研修',
+    description: 'Furusato Temanggungは、中部ジャワの参加者に日本語、職場文化、選考準備、技能実習、特定技能、介護分野の情報を段階的にサポートします。',
+    keywords: [
+      'Furusato Temanggung',
+      'Temanggung 日本語研修',
+      'インドネシア LPK 日本',
+      '特定技能 介護 インドネシア',
+      '技能実習 Temanggung',
+      ...commonKeywords,
+    ].join(', '),
+  },
+};
+
+const seoMetaByRoute = {
+  id: {
+    home: seoDefaults.id,
+    map: {
+      title: 'Lokasi LPK Furusato Temanggung | LPK Jepang Jawa Tengah',
+      description: 'Temukan lokasi LPK Furusato Temanggung untuk konsultasi kelas bahasa Jepang, persiapan kerja ke Jepang, Tokutei Ginou, kaigo, dan magang Jepang.',
+    },
+    about: {
+      title: 'Tentang LPK Furusato Temanggung | LPK Jepang Jawa Tengah',
+      description: 'Profil LPK Furusato Temanggung, lembaga pelatihan kerja bahasa Jepang di Jawa Tengah untuk persiapan kerja ke Jepang dan seleksi peserta.',
+    },
+    gallery: {
+      title: 'Galeri LPK Furusato Temanggung | Kegiatan Pelatihan Jepang',
+      description: 'Lihat dokumentasi kelas, kegiatan, fasilitas, dan aktivitas peserta LPK Furusato Temanggung dalam persiapan kerja ke Jepang.',
+    },
+    job: {
+      title: 'Lulus Job Furusato Temanggung | Persiapan Kerja Jepang',
+      description: 'Kisah dan dokumentasi peserta Furusato Temanggung yang mengikuti pembinaan untuk siap seleksi, lulus job, dan kerja ke Jepang.',
+    },
+    news: {
+      title: 'Berita LPK Furusato Temanggung | Info Kelas dan Seleksi Jepang',
+      description: 'Informasi terbaru Furusato Temanggung tentang kelas bahasa Jepang, seleksi kerja Jepang, kegiatan peserta, magang, Tokutei Ginou, dan kaigo.',
+    },
+    contact: {
+      title: 'Kontak LPK Furusato Temanggung | Konsultasi Kerja ke Jepang',
+      description: 'Hubungi LPK Furusato Temanggung untuk informasi pendaftaran, kelas bahasa Jepang, persiapan kerja ke Jepang, Tokutei Ginou, kaigo, dan magang.',
+    },
+    adminLogin: {
+      title: 'Furusato Admin | Login',
+      description: 'Halaman login admin Furusato.',
+    },
+    adminDashboard: {
+      title: 'Furusato Admin | Dashboard',
+      description: 'Dashboard admin Furusato.',
+    },
+    notFound: {
+      title: 'Furusato Temanggung | Halaman Tidak Ditemukan',
+      description: 'Halaman ini tidak tersedia untuk pengunjung Furusato Temanggung.',
+    },
+  },
+  ja: {
+    home: seoDefaults.ja,
+    map: {
+      title: 'Furusato Temanggung | アクセス',
+      description: 'Furusato Temanggungの所在地。日本語研修、日本就労、技能実習、特定技能、介護分野について相談できます。',
+    },
+    about: {
+      title: 'Furusato Temanggungについて | 日本語職業訓練',
+      description: 'Furusato Temanggungは、中部ジャワで日本就労を目指す参加者を支援する日本語と職業準備のLPKです。',
+    },
+    gallery: {
+      title: 'Furusato Temanggung | 活動ギャラリー',
+      description: 'Furusato Temanggungの授業、施設、参加者の活動、日本就労に向けた研修の記録をご覧ください。',
+    },
+    job: {
+      title: 'Furusato Temanggung | 就職準備の記録',
+      description: 'Furusato Temanggungで日本就労に向けて準備を進めた参加者の活動と歩みを紹介します。',
+    },
+    news: {
+      title: 'Furusato Temanggung | ニュースと選考情報',
+      description: 'Furusato Temanggungの日本語クラス、選考、参加者活動、技能実習、特定技能、介護分野に関する最新情報です。',
+    },
+    contact: {
+      title: 'Furusato Temanggung | お問い合わせ',
+      description: 'Furusato Temanggungへのお問い合わせ。日本語研修、日本就労、技能実習、特定技能、介護分野の情報をご相談ください。',
+    },
+    adminLogin: {
+      title: 'Furusato 管理 | ログイン',
+      description: 'Furusato管理者ログインページ。',
+    },
+    adminDashboard: {
+      title: 'Furusato 管理 | ダッシュボード',
+      description: 'Furusato管理ダッシュボード。',
+    },
+    notFound: {
+      title: 'Furusato Temanggung | ページが見つかりません',
+      description: 'このページはFurusato Temanggungの一般公開ページではありません。',
+    },
+  },
+};
+
+function getRouteKey(pathname, hash) {
+  if (pathname === '/' && hash === '#map') {
+    return 'map';
+  }
+
+  if (pathname === '/') {
+    return 'home';
+  }
+
+  if (pathname === '/tentang') {
+    return 'about';
+  }
+
+  if (pathname === '/galeri') {
+    return 'gallery';
+  }
+
+  if (pathname === '/lulus-job') {
+    return 'job';
+  }
+
+  if (pathname === '/berita') {
+    return 'news';
+  }
+
+  if (pathname === '/kontak') {
+    return 'contact';
+  }
+
+  if (pathname === '/admin/login') {
+    return 'adminLogin';
+  }
+
+  if (pathname === '/admin/dashboard') {
+    return 'adminDashboard';
+  }
+
+  return 'notFound';
+}
+
+function getCanonicalUrl(pathname) {
+  if (pathname === '/' || pathname === '') {
+    return `${SITE_URL}/`;
+  }
+
+  return `${SITE_URL}${pathname.replace(/\/$/, '')}`;
+}
+
+export function getSeoMeta(pathname, hash, language = 'id') {
+  const selectedLanguage = language === 'ja' ? 'ja' : 'id';
+  const routeKey = getRouteKey(pathname, hash);
+  const routeMeta = seoMetaByRoute[selectedLanguage][routeKey] || seoMetaByRoute[selectedLanguage].notFound;
+  const defaults = seoDefaults[selectedLanguage];
+  const isPrivateRoute = routeKey === 'adminLogin' || routeKey === 'adminDashboard' || routeKey === 'notFound';
+
+  return {
+    ...defaults,
+    ...routeMeta,
+    canonical: getCanonicalUrl(pathname),
+    image: SHARE_IMAGE_URL,
+    locale: selectedLanguage === 'ja' ? 'ja_JP' : 'id_ID',
+    robots: isPrivateRoute ? 'noindex, nofollow' : 'index, follow',
+    routeKey,
+  };
 }
 
 export function getPageTitle(pathname, hash, language = 'id') {
