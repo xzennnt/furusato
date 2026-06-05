@@ -4029,6 +4029,25 @@ body {
   color: var(--furusato-red);
 }
 
+.about-story-panel {
+  align-items: center;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.about-story-panel > div:first-child {
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  width: min(100%, 840px);
+}
+
+.about-story-panel > .about-rich-text {
+  max-width: 840px;
+  text-align: center;
+}
+
 .seo-local-section {
   background:
     radial-gradient(circle at 12% 18%, rgba(215, 168, 66, 0.2), transparent 32%),
