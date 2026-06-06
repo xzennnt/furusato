@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import gsap from 'gsap';
 import './App.css';
@@ -233,6 +234,7 @@ function App() {
       <LanguageProvider>
         <AppShell />
       </LanguageProvider>
+      <Analytics />
     </BrowserRouter>
   );
 }
